@@ -1,0 +1,41 @@
+{
+  "author": "Michael Lawson",
+  "name": "library",
+  "description": "",
+  "version": "0.0.1",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": "~0.6.10 || 0.8 || 0.9"
+  },
+  "scripts": {
+
+  },
+  "dependencies": {
+    "brunch": ">= 1.4 < 1.5",
+
+    "javascript-brunch": ">= 1.0 < 1.5",
+    "coffee-script-brunch": ">= 1.0 < 1.5",
+
+    "css-brunch": ">= 1.0 < 1.5",
+    "less-brunch": ">= 1.4 < 1.5",
+    "stylus-brunch": ">= 1.0 < 1.5",
+
+    "auto-reload-brunch": ">= 1.3 < 1.5",
+
+    "uglify-js-brunch": ">= 1.0 < 1.5",
+    "clean-css-brunch": ">= 1.0 < 1.5",
+    
+
+    "express": "3.x",
+    "express-resource-new": "git://github.com/mdlawson/express-resource-new.git",
+    "sequelize": "1.5.x",
+    "jade": "*"
+  },
+  "devDependencies": {
+    "testacular": ">= 0.0.16"
+  }
+}
