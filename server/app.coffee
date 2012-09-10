@@ -28,12 +28,33 @@ app.configure "development", ->
 db = Sequelize.db = new Sequelize 'db', 'root'
 db.models =
   User: Sequelize.db.define 'User', require "./models/user"
+  Book: Sequelize.db.define 'Book', require "./models/book"
+  Reservation: Sequelize.db.define 'Reservation', require "./models/reservation.coffee"
+
+# Associations
+User = db.models.User
+Book = db.models.Book
+Reservation = db.models.Reservation
+
+# Rentals
+User.hasMany Book, as: "Books"
+Book.belongsTo User
+
+# Reservations
+User.hasMany Reservation, as: "Reservations"
+Book.hasMany Reservation, as: "Reservations"
+Reservation.hasOne Book
+
+# Sync
 
 db.sync().success -> console.log "Database is ready!"
 
 # Resource mapping
 
-app.resource 'users'
+app.resource 'users', ->
+  @resource 'books'
+  @resource 'reservations'
+app.resource 'books'
 
 # Start server
 
