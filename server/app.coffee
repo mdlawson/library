@@ -36,14 +36,17 @@ User = db.models.User
 Book = db.models.Book
 Reservation = db.models.Reservation
 
+User.hasMany Book, as: "Reservations"
+Book.hasMany User, as: "Reservations"
+
 # Rentals
 User.hasMany Book, as: "Books"
 Book.belongsTo User
 
 # Reservations
-User.hasMany Reservation, as: "Reservations"
-Book.hasMany Reservation, as: "Reservations"
-Reservation.hasOne Book
+#User.hasMany Reservation, as: "Reservations"
+#Book.hasMany Reservation, as: "Reservations"
+#Reservation.hasOne Book
 
 # Sync
 
