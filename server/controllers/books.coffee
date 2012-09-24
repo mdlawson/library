@@ -1,40 +1,35 @@
-db = require('sequelize').db
-Book = db.models.Book
-User = db.models.User
+mysql = require 'mysql'
+con = mysql.createConnection mysql.con
+model = ["bookId","title","author","description","date"]
+modelStr = model.join(',')
 
 module.exports =
   index: (req, res) ->
     unless req.params.user
-      Book.all().success (books) ->
-        res.send books
+      con.query "SELECT #{modelStr} FROM books", (err, results) ->
+        res.send err or results
     else
-      User.find(Number req.params.user).success (user) ->
-        user.getBooks().success (books) -> res.send books
+      con.query "SELECT #{modelStr} FROM books WHERE loanedTo = ?", Number(req.params.user), (err, results) ->
+        res.send err or results
   show: (req, res) ->
-    Book.find(Number req.params.book).success (book) ->
-      res.send book
+    con.query "SELECT #{modelStr} FROM books WHERE bookId = ?", Number(req.params.book), (err, results) ->
+      res.send err or results[0]
   new: (req, res) ->
     res.send "new book"
   create: (req, res) ->
-    Book.create(
-      title: req.body.title
-      author: req.body.author
-      date: Date req.body.date
-      description: req.body.description 
-    ).success (book) ->
-      res.send book
+    unless req.params.user
+      req.body.date = new Date req.body.date
+      con.query "INSERT INTO books SET ?", req.body, (err, results) ->
+        res.send err or results
+    else
+      con.query "UPDATE books SET ? WHERE bookId = ?", [{loanedTo: Number(req.params.user)},Number(req.body.bookId)], (err, results) ->
+        res.send err or results
   edit: (req, res) ->
     res.send "edit book: " + req.params.book
   update: (req, res) ->
-    Book.find(Number req.params.book).success (book) ->
-      if book
-        book.title = req.body.title or book.title
-        book.author = req.body.author or book.author
-        book.date = Date req.body.date or book.date
-        book.description = req.body.description or book.description
-        book.save().success ->
-          res.send book
+    req.body.date = new Date req.body.date
+    q = con.query "UPDATE books SET ? WHERE bookId = ?", [req.body, Number req.params.book], (err, results) ->
+      res.send err or results
   destroy: (req, res) ->
-    Book.find(Number req.params.book).success (book) ->
-      if book then book.destroy().success ->
-        res.send('')
+    con.query "DELETE FROM books WHERE bookID = ?", Number(req.params.book), (err, results) ->
+      res.send err or results

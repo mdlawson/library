@@ -32,7 +32,7 @@
 
     "express": "3.x",
     "express-resource-new": "git://github.com/mdlawson/express-resource-new.git",
-    "sequelize": "1.5.x",
+    "mysql": "2.x",
     "jade": "*"
   },
   "devDependencies": {

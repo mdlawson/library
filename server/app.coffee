@@ -1,7 +1,7 @@
 # Imports
 express = require "express"
 path = require "path"
-Sequelize = require "sequelize"
+mysql = require "mysql"
 require "express-resource-new"
 
 # Express
@@ -25,38 +25,20 @@ app.configure "development", ->
 
 # Database
 
-db = Sequelize.db = new Sequelize 'db', 'root'
-db.models =
-  User: Sequelize.db.define 'User', require "./models/user"
-  Book: Sequelize.db.define 'Book', require "./models/book"
-  Reservation: Sequelize.db.define 'Reservation', require "./models/reservation.coffee"
-
-# Associations
-User = db.models.User
-Book = db.models.Book
-Reservation = db.models.Reservation
-
-User.hasMany Book, as: "Reservations"
-Book.hasMany User, as: "Reservations"
-
-# Rentals
-User.hasMany Book, as: "Books"
-Book.belongsTo User
-
-# Reservations
-#User.hasMany Reservation, as: "Reservations"
-#Book.hasMany Reservation, as: "Reservations"
-#Reservation.hasOne Book
+mysql.con =
+  host: 'localhost'
+  user: 'root'
+  database: 'library'
 
 # Sync
 
-db.sync().success -> console.log "Database is ready!"
+#db.sync().success -> console.log "Database is ready!"
 
 # Resource mapping
 
 app.resource 'users', ->
   @resource 'books'
-  @resource 'reservations'
+#  @resource 'reservations'
 app.resource 'books'
 
 # Start server
