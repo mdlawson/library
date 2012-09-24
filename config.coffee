@@ -18,8 +18,6 @@ exports.config =
         'js/vendor.js': /^vendor/
       order:
         before: [
-          'vendor/scripts/console-helper.js'
-          'vendor/scripts/jquery-1.7.2.js'
           'vendor/scripts/angular/angular.js'
           'vendor/scripts/angular/angular-resource.js'
           'vendor/scripts/angular/angular-cookies.js'
@@ -30,5 +28,7 @@ exports.config =
         'css/app.css': /^(app|vendor)/
   server:
     run: yes
+    path: "server/app.coffee"
+    port: 3000
   # Enable or disable minifying of result js / css files.
   # minify: true

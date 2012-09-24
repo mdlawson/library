@@ -14,8 +14,6 @@ module.exports =
   show: (req, res) ->
     con.query "SELECT #{modelStr} FROM books WHERE bookId = ?", Number(req.params.book), (err, results) ->
       res.send err or results[0]
-  new: (req, res) ->
-    res.send "new book"
   create: (req, res) ->
     unless req.params.user
       req.body.date = new Date req.body.date
@@ -24,12 +22,10 @@ module.exports =
     else
       con.query "UPDATE books SET ? WHERE bookId = ?", [{loanedTo: Number(req.params.user)},Number(req.body.bookId)], (err, results) ->
         res.send err or results
-  edit: (req, res) ->
-    res.send "edit book: " + req.params.book
   update: (req, res) ->
     req.body.date = new Date req.body.date
-    q = con.query "UPDATE books SET ? WHERE bookId = ?", [req.body, Number req.params.book], (err, results) ->
+    con.query "UPDATE books SET ? WHERE bookId = ?", [req.body, Number req.params.book], (err, results) ->
       res.send err or results
   destroy: (req, res) ->
-    con.query "DELETE FROM books WHERE bookID = ?", Number(req.params.book), (err, results) ->
+    con.query "DELETE FROM books WHERE bookId = ?", Number(req.params.book), (err, results) ->
       res.send err or results

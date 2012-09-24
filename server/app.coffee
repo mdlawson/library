@@ -1,47 +1,51 @@
-# Imports
-express = require "express"
-path = require "path"
-mysql = require "mysql"
-require "express-resource-new"
+module.exports.startServer = (port, path) ->
 
-# Express
-app = express()
-app.configure ->
-  app.set "port", process.env.PORT or 3000
-  app.set "views", __dirname + "/views"
-  app.set "controllers", __dirname + "/controllers"
-  app.set "view engine", "jade"
-  app.use express.favicon()
-  app.use express.logger("dev")
-  app.use express.bodyParser()
-  app.use express.methodOverride()
-  app.use express.cookieParser("your secret here")
-  app.use express.session()
-  app.use app.router
-  app.use express.static(path.join(__dirname, "public"))
+  # Imports
+  express = require "express"
+  path = require "path"
+  mysql = require "mysql"
+  require "express-resource-new"
 
-app.configure "development", ->
-  app.use express.errorHandler()
+  # Express
+  app = express()
+  app.configure ->
+    app.set "port", port
+    app.set "views", __dirname + "/public"
+    app.set "controllers", __dirname + "/controllers"
+    app.set "view engine", "jade"
+    app.use express.favicon()
+    app.use express.logger("dev")
+    app.use express.bodyParser()
+    app.use express.methodOverride()
+    app.use express.cookieParser("your secret here")
+    app.use express.session()
+    app.use app.router
+    app.use express.static(path.join(__dirname, "public"))
 
-# Database
+  app.configure "development", ->
+    app.use express.errorHandler()
 
-mysql.con =
-  host: 'localhost'
-  user: 'root'
-  database: 'library'
+  app.get "/", (req, res) ->
+    res.render "index"
 
-# Sync
+  app.get "/partials/*", (req, res) ->
+    res.render "partials/"+req.params[0].split(".")[0]
 
-#db.sync().success -> console.log "Database is ready!"
+  # Database
 
-# Resource mapping
+  mysql.con =
+    host: 'localhost'
+    user: 'root'
+    database: 'library'
 
-app.resource 'users', ->
-  @resource 'books'
-#  @resource 'reservations'
-app.resource 'books'
+  # Resource mapping
 
-# Start server
+  app.resource 'users', ->
+    @resource 'books'
+  app.resource 'reservations'
+  app.resource 'books'
 
-app.listen(app.get("port"))
-console.log "Express server listening on port " + app.get("port")
+  # Start server
+
+  app.listen(app.get("port"))
+  console.log "Express server listening on port " + app.get("port")
