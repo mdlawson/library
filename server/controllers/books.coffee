@@ -4,6 +4,9 @@ model = ["bookId","title","author","description","date"]
 modelStr = model.join(',')
 
 module.exports =
+  options:
+    name: 'resources/books'
+    id: 'book'
   index: (req, res) ->
     unless req.params.user
       con.query "SELECT #{modelStr} FROM books", (err, results) ->

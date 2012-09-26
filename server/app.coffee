@@ -41,9 +41,13 @@ module.exports.startServer = (port, path) ->
   # Resource mapping
 
   app.resource 'users', ->
-    @resource 'books'
+    @resource 'books', {name: "books"}
   app.resource 'reservations'
   app.resource 'books'
+
+  # Login routing
+
+  app.post "/login", require("./controllers/users").login
 
   # Start server
 

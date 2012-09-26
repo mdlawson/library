@@ -4,6 +4,9 @@ model = ["userId","bookId","reservationId","date"]
 modelStr = model.join(',')
 
 module.exports =
+  options:
+    name: 'resources/reservations'
+    id: 'reservation'
   index: (req, res) ->
     con.query "SELECT #{modelStr} FROM reservations", (err, results) ->
       res.send err or results

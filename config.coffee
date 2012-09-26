@@ -1,14 +1,5 @@
 exports.config =
   # See docs at http://brunch.readthedocs.org/en/latest/config.html.
-  modules:
-    definition: false
-    wrapper: (path, data) ->
-      """
-(function() {
-  'use strict';
-  #{data}
-}).call(this);\n\n
-      """
   paths:
     public: 'server/public'
   files:
@@ -18,9 +9,8 @@ exports.config =
         'js/vendor.js': /^vendor/
       order:
         before: [
-          'vendor/scripts/angular/angular.js'
-          'vendor/scripts/angular/angular-resource.js'
-          'vendor/scripts/angular/angular-cookies.js'
+          'vendor/scripts/batman.js'
+          'vendor/scripts/batman.jquery.js'
         ]
 
     stylesheets:
