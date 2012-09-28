@@ -38,3 +38,6 @@ module.exports =
           res.send req.session.user
         else
           res.send(401)
+  logout: (req, res) ->
+    req.session.user = null
+    res.send(200)

@@ -11,18 +11,15 @@
   "engines": {
     "node": "~0.6.10 || 0.8 || 0.9"
   },
-  "scripts": {
-
-  },
   "dependencies": {
-    "brunch": ">= 1.4 < 1.5",
-
+  
     "javascript-brunch": ">= 1.0 < 1.5",
     "coffee-script-brunch": ">= 1.0 < 1.5",
 
     "css-brunch": ">= 1.0 < 1.5",
-    "less-brunch": ">= 1.4 < 1.5",
     "stylus-brunch": ">= 1.0 < 1.5",
+	
+	"handlebars-brunch": ">= 1.0 < 1.5",
 
     "auto-reload-brunch": ">= 1.3 < 1.5",
 
@@ -36,6 +33,8 @@
     "jade": "*"
   },
   "devDependencies": {
-    "testacular": ">= 0.0.16"
+    "chai": "1.2.0",
+    "sinon": "1.4.2",
+    "sinon-chai": "2.1.2"
   }
 }

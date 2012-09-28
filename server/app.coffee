@@ -25,12 +25,6 @@ module.exports.startServer = (port, path) ->
   app.configure "development", ->
     app.use express.errorHandler()
 
-  app.get "/", (req, res) ->
-    res.render "index"
-
-  app.get "/partials/*", (req, res) ->
-    res.render "partials/"+req.params[0].split(".")[0]
-
   # Database
 
   mysql.con =
@@ -48,6 +42,10 @@ module.exports.startServer = (port, path) ->
   # Login routing
 
   app.post "/login", require("./controllers/users").login
+  app.post "/logout", require("./controllers/users").logout
+
+  app.use (req, res) ->
+    res.render "index"
 
   # Start server
 
