@@ -75,7 +75,7 @@
 })();
 
 window.require.define({"app": function(exports, require, module) {
-  var App, CatalogueManager, SessionManager, UserManager,
+  var App, Book, CatalogueManager, SessionManager, UserManager,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -84,6 +84,8 @@ window.require.define({"app": function(exports, require, module) {
   CatalogueManager = require('controllers/catalogue');
 
   UserManager = require('controllers/users');
+
+  Book = require('models/book');
 
   App = (function(_super) {
 
@@ -94,16 +96,37 @@ window.require.define({"app": function(exports, require, module) {
     function App() {
       var _this = this;
       App.__super__.constructor.apply(this, arguments);
-      this.routes = {
-        "/login": 'session',
-        "/catalogue": 'catalogue',
-        "/users": "user"
-      };
-      this.session.login();
-      this.session.bind("login", function() {
-        return _this.catalogue.active();
+      this.$("#menu-issue").click(function() {
+        return _this.navigate("/issue");
       });
+      this.$("#menu-return").click(function() {
+        return _this.navigate("/return");
+      });
+      this.$("#menu-catalogue").click(function() {
+        return _this.navigate("/catalogue");
+      });
+      this.$("#menu-users").click(function() {
+        return _this.navigate("/users");
+      });
+      this.session.bind("login", function() {
+        _this.navigate("/catalogue");
+        return _this.render();
+      });
+      this.session.bind("failure", function() {
+        return _this.navigate("/login");
+      });
+      this.session.login();
     }
+
+    App.prototype.render = function() {
+      return $("#menu").html(require("views/header")(this.session.user));
+    };
+
+    App.prototype.routes = {
+      "/login": 'session',
+      "/catalogue": 'catalogue',
+      "/users": "user"
+    };
 
     App.prototype.controllers = {
       session: SessionManager,
@@ -111,27 +134,25 @@ window.require.define({"app": function(exports, require, module) {
       user: UserManager
     };
 
-    App.prototype["default"] = 'session';
-
     return App;
 
   })(Spine.Stack);
 
   $(function() {
-    Spine.Route.setup({
+    window.app = new App;
+    return Spine.Route.setup({
       history: true
-    });
-    return window.app = new App({
-      el: $("#container")
     });
   });
   
 }});
 
 window.require.define({"controllers/catalogue": function(exports, require, module) {
-  var CatalogueManager,
+  var Book, CatalogueManager,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Book = require("models/book");
 
   CatalogueManager = (function(_super) {
 
@@ -144,7 +165,12 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     CatalogueManager.prototype.el = "#content";
 
     CatalogueManager.prototype.activate = function() {
+      this.el.addClass("catalogue");
       return this.render();
+    };
+
+    CatalogueManager.prototype.deactivate = function() {
+      return this.el.removeClass("catalogue");
     };
 
     CatalogueManager.prototype.render = function() {
@@ -179,7 +205,14 @@ window.require.define({"controllers/session": function(exports, require, module)
     };
 
     SessionManager.prototype.activate = function() {
-      return this.html(require("views/login")());
+      this.html(require("views/login")());
+      this.el.addClass("login");
+      return $("#menu")[0].style.display = "none";
+    };
+
+    SessionManager.prototype.deactivate = function() {
+      this.el.removeClass("login");
+      return $("#menu")[0].style.display = "block";
     };
 
     SessionManager.prototype.login = function(data) {
@@ -190,6 +223,8 @@ window.require.define({"controllers/session": function(exports, require, module)
       return $.post("/login", data, function(user) {
         _this.user = user;
         return _this.trigger("login", user);
+      }).error(function() {
+        return _this.trigger("failure");
       });
     };
 
@@ -229,6 +264,16 @@ window.require.define({"controllers/users": function(exports, require, module) {
       return UserManager.__super__.constructor.apply(this, arguments);
     }
 
+    UserManager.prototype.el = "#content";
+
+    UserManager.prototype.activate = function() {
+      return this.render();
+    };
+
+    UserManager.prototype.render = function() {
+      return this.html(require("views/users")());
+    };
+
     return UserManager;
 
   })(Spine.Controller);
@@ -237,12 +282,78 @@ window.require.define({"controllers/users": function(exports, require, module) {
   
 }});
 
+window.require.define({"models/book": function(exports, require, module) {
+  var Book,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Book = (function(_super) {
+
+    __extends(Book, _super);
+
+    function Book() {
+      return Book.__super__.constructor.apply(this, arguments);
+    }
+
+    Book.configure("Book", "title", "description", "author", "date", "ISBN");
+
+    Book.extend(Spine.Model.Ajax);
+
+    Book.url = "/resources/books";
+
+    return Book;
+
+  })(Spine.Model);
+
+  module.exports = Book;
+  
+}});
+
 window.require.define({"views/catalogue": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var buffer = "", foundHelper, self=this;
+    var foundHelper, self=this;
 
 
+    return "<div id=\"search\" class=\"row-fluid\">\r\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\r\n</div>\r\n<div id=\"list\" class=\"span3\"></div>\r\n<div id=\"panel\" class=\"span9\"></div>";});
+}});
+
+window.require.define({"views/header": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, stack2, foundHelper, tmp1, self=this;
+
+  function program1(depth0,data) {
+    
+    
+    return "\r\n  <a class=\"brand\">Library</a>\r\n  ";}
+
+  function program3(depth0,data) {
+    
+    
+    return "\r\n    <li id=\"menu-issue\"><a>Issue</a></li>\r\n    <li id=\"menu-return\"><a>Return</a></li>\r\n    <li id=\"menu-catalogue\"><a>Catalogue</a></li>\r\n    <li id=\"menu-users\"><a>Users</a></li>\r\n    ";}
+
+    buffer += "<div class=\"navbar-inner\">\r\n  ";
+    foundHelper = helpers.admin;
+    stack1 = foundHelper || depth0.admin;
+    stack2 = helpers.unless;
+    tmp1 = self.program(1, program1, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n  <ul class=\"nav\">\r\n    ";
+    foundHelper = helpers.admin;
+    stack1 = foundHelper || depth0.admin;
+    stack2 = helpers['if'];
+    tmp1 = self.program(3, program3, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n  </ul>\r\n  <ul class=\"nav pull-right\">\r\n    <li id=\"logout\"><a href=\"/logout\">Logout</a><li>\r\n  </ul>\r\n</div>\r\n";
     return buffer;});
 }});
 
@@ -252,6 +363,15 @@ window.require.define({"views/login": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<form>\r\n  <legend>Login</legend>\r\n  <label>Username</label>\r\n  <input id=\"username\" type=\"text\">\r\n  <label>Password</label>\r\n  <input id=\"password\" type=\"text\">\r\n  <button type=\"submit\" class=\"btn\" id=\"submit\">Login</button>\r\n</form>";});
+    return "<form class=\"span4 offset4 well\">\r\n  <legend>Login</legend>\r\n  <label>Username</label>\r\n  <input id=\"username\" class=\"span12\" type=\"text\">\r\n  <label>Password</label>\r\n  <input id=\"password\" class=\"span12\" type=\"text\">\r\n  <button type=\"submit\" class=\"btn btn-info btn-block\" id=\"submit\">Login</button>\r\n</form>";});
+}});
+
+window.require.define({"views/users": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", foundHelper, self=this;
+
+
+    return buffer;});
 }});
 

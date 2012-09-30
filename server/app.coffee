@@ -42,7 +42,7 @@ module.exports.startServer = (port, path) ->
   # Login routing
 
   app.post "/login", require("./controllers/users").login
-  app.post "/logout", require("./controllers/users").logout
+  app.get "/logout", require("./controllers/users").logout
 
   app.use (req, res) ->
     res.render "index"

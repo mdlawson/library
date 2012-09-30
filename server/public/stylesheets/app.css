@@ -5772,3 +5772,13 @@ a.badge:hover {
 .affix {
   position: fixed;
 }
+.navbar li {
+  cursor: pointer;
+}
+#content.login form {
+  margin-top: 10%;
+}
+#content.catalogue #search {
+  padding: 20px 0 20px;
+  background: rgba(0,0,0,0.1);
+}
