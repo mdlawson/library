@@ -7,10 +7,10 @@ module.exports =
   options:
     name: 'resources/books'
     id: 'book'
-    before:
-      create: auth
-      update: auth
-      destroy: auth
+#    before:
+#      create: auth
+#      update: auth
+#      destroy: auth
 
   index: (req, res) ->
     unless req.params.user

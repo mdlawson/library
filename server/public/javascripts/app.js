@@ -301,6 +301,10 @@ window.require.define({"models/book": function(exports, require, module) {
 
     Book.url = "/resources/books";
 
+    Book.fromJSON = function(data) {
+      return console.log(data);
+    };
+
     return Book;
 
   })(Spine.Model);

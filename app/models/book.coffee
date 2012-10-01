@@ -5,4 +5,7 @@ class Book extends Spine.Model
 
   @url: "/resources/books"
 
+  @fromJSON: (data) ->
+    console.log data
+
 module.exports = Book
