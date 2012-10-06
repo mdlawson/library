@@ -2,15 +2,11 @@ SessionManager = require 'controllers/session'
 CatalogueManager = require 'controllers/catalogue'
 UserManager = require 'controllers/users'
 
-Book = require 'models/book'
-
 class App extends Spine.Stack
   el: "#container"
 
   constructor: ->
     super
-
-    #Book.fetch()
 
     @$("#menu-issue").click => @navigate "/issue"
     @$("#menu-return").click => @navigate "/return"
@@ -38,4 +34,9 @@ class App extends Spine.Stack
 
 $ ->
   window.app = new App
+  $(window).resize fill
+  fill()
   Spine.Route.setup history:true
+
+fill = ->
+  $("#container").height($(window).height()-41)

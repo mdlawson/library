@@ -19,12 +19,14 @@ module.exports =
     req.body.admin = Number req.body.admin
     con.query "INSERT INTO users SET ?", req.body, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", results.insertId, (err, results) ->
-        res.send err or results
+        res.send err or results[0]
       else res.send err
   update: (req, res) ->
-    req.body.admin = Number req.body.admin
+    if req.body.admin then req.body.admin = Number req.body.admin
     con.query "UPDATE users SET ? WHERE id = ? ", [req.body, Number req.params.user], (err, results) ->
-      res.send err or results
+      unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", Number(req.params.user), (err, results) ->
+        res.send err or results[0]
+      else res.send err
   destroy: (req, res) ->
     con.query "DELETE FROM users WHERE id = ?", [Number req.params.user], (err, results) ->
       res.send err or res.send(200)

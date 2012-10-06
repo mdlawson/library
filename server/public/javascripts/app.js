@@ -75,7 +75,7 @@
 })();
 
 window.require.define({"app": function(exports, require, module) {
-  var App, Book, CatalogueManager, SessionManager, UserManager,
+  var App, CatalogueManager, SessionManager, UserManager, fill,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -84,8 +84,6 @@ window.require.define({"app": function(exports, require, module) {
   CatalogueManager = require('controllers/catalogue');
 
   UserManager = require('controllers/users');
-
-  Book = require('models/book');
 
   App = (function(_super) {
 
@@ -140,41 +138,207 @@ window.require.define({"app": function(exports, require, module) {
 
   $(function() {
     window.app = new App;
+    $(window).resize(fill);
+    fill();
     return Spine.Route.setup({
       history: true
     });
   });
+
+  fill = function() {
+    return $("#container").height($(window).height() - 41);
+  };
+  
+}});
+
+window.require.define({"controllers/book": function(exports, require, module) {
+  var BookView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  BookView = (function(_super) {
+
+    __extends(BookView, _super);
+
+    BookView.prototype.tag = "li";
+
+    function BookView() {
+      this.save = __bind(this.save, this);
+
+      this.render = __bind(this.render, this);
+      BookView.__super__.constructor.apply(this, arguments);
+      this.book.bind('update', this.render);
+      this.book.bind('destroy', this.release);
+    }
+
+    BookView.prototype.render = function() {
+      var _this = this;
+      this.html(require("views/book/list")(this.book));
+      if (this.el.hasClass("active")) {
+        this.panel.html(require("views/book/panel")(this.book));
+        this.panel.find(".save").click(this.save);
+        this.panel.find(".destroy").click(function() {
+          return _this.book.destroy();
+        });
+      }
+      return this;
+    };
+
+    BookView.prototype.save = function() {
+      var i, prop, _ref;
+      _ref = this.book.attributes();
+      for (prop in _ref) {
+        i = _ref[prop];
+        if (prop !== "id") {
+          this.book[prop] = this.panel.find("." + prop).val();
+        }
+      }
+      return this.book.save();
+    };
+
+    return BookView;
+
+  })(Spine.Controller);
+
+  module.exports = BookView;
   
 }});
 
 window.require.define({"controllers/catalogue": function(exports, require, module) {
-  var Book, CatalogueManager,
+  var Book, BookView, CatalogueManager,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Book = require("models/book");
 
+  BookView = require("controllers/book");
+
   CatalogueManager = (function(_super) {
 
     __extends(CatalogueManager, _super);
 
-    function CatalogueManager() {
-      return CatalogueManager.__super__.constructor.apply(this, arguments);
-    }
-
     CatalogueManager.prototype.el = "#content";
+
+    CatalogueManager.prototype.elements = {
+      '#list': 'list',
+      '#panel': 'panel',
+      '#searchbox': 'search'
+    };
+
+    CatalogueManager.prototype.events = {
+      'keyup #searchbox': 'input',
+      'click #new': 'new'
+    };
+
+    function CatalogueManager() {
+      this.render = __bind(this.render, this);
+
+      this.addBook = __bind(this.addBook, this);
+      CatalogueManager.__super__.constructor.apply(this, arguments);
+      Book.bind('create', this.addBook);
+      Book.bind('refresh change', this.render);
+    }
 
     CatalogueManager.prototype.activate = function() {
       this.el.addClass("catalogue");
-      return this.render();
+      this.html(require("views/catalogue")());
+      return Book.fetch();
     };
 
     CatalogueManager.prototype.deactivate = function() {
       return this.el.removeClass("catalogue");
     };
 
+    CatalogueManager.prototype.addBook = function(book) {
+      var el, view,
+        _this = this;
+      view = new BookView({
+        book: book,
+        panel: this.panel
+      });
+      el = view.render().el;
+      el.click(function() {
+        _this.list.children().each(function() {
+          return $(this).removeClass("active");
+        });
+        el.addClass("active");
+        return view.render();
+      });
+      this.list.append(el);
+      return el;
+    };
+
+    CatalogueManager.prototype["new"] = function() {
+      var book;
+      book = new Book({
+        title: "[Untitled]",
+        author: "",
+        date: "",
+        ISBN: "",
+        description: ""
+      });
+      return this.addBook(book).click();
+    };
+
+    CatalogueManager.prototype.input = function(e) {
+      if (e.which === 13) {
+        return this.render();
+      }
+    };
+
+    CatalogueManager.prototype.filter = function() {
+      var data, item, rankings, results, score, score2, threshold, val, _i, _j, _k, _len, _len1, _len2;
+      val = this.search.val();
+      data = Book.all();
+      rankings = [];
+      results = [];
+      threshold = 0.5;
+      if (!val) {
+        return data;
+      }
+      if (val.length === 13 && !isNaN(parseInt(val)) && isFinite(val)) {
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          item = data[_i];
+          if (item.ISBN === val) {
+            results.push(item);
+          }
+        }
+      } else {
+        for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
+          item = data[_j];
+          score = item.title.score(val);
+          score2 = item.author.score(val);
+          if (score2 > score) {
+            score = score2;
+          }
+          if (score > threshold) {
+            rankings.push([score, item]);
+          }
+        }
+        rankings.sort(function(a, b) {
+          return b[0] - a[0];
+        });
+        for (_k = 0, _len2 = rankings.length; _k < _len2; _k++) {
+          item = rankings[_k];
+          results.push(item[1]);
+        }
+      }
+      return results;
+    };
+
     CatalogueManager.prototype.render = function() {
-      return this.html(require("views/catalogue")());
+      var book, _i, _len, _ref;
+      if (this.list) {
+        this.list.empty();
+        _ref = this.filter();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          book = _ref[_i];
+          this.addBook(book);
+        }
+        return this.list.children(":first").click();
+      }
     };
 
     return CatalogueManager;
@@ -301,10 +465,6 @@ window.require.define({"models/book": function(exports, require, module) {
 
     Book.url = "/resources/books";
 
-    Book.fromJSON = function(data) {
-      return console.log(data);
-    };
-
     return Book;
 
   })(Spine.Model);
@@ -313,13 +473,68 @@ window.require.define({"models/book": function(exports, require, module) {
   
 }});
 
+window.require.define({"views/book/list": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+
+
+    buffer += "<span class=\"id\">";
+    foundHelper = helpers.id;
+    stack1 = foundHelper || depth0.id;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "id", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</span>";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1);
+    return buffer;});
+}});
+
+window.require.define({"views/book/panel": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+
+
+    buffer += "<img class=\"img-polaroid\">\r\n\r\n<form>\r\n  <div>\r\n    <label>Title:</label>\r\n    <input type=\"text\" class=\"title\" value=\"";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n    <label>Author:</label>\r\n    <input type=\"text\" class=\"author\" value=\"";
+    foundHelper = helpers.author;
+    stack1 = foundHelper || depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <div>\r\n    <label>Date:</label>\r\n    <input type=\"text\" class=\"date\" value=\"";
+    foundHelper = helpers.date;
+    stack1 = foundHelper || depth0.date;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "date", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n    <label>ISBN:</label>\r\n    <input type=\"text\" class=\"ISBN\" value=\"";
+    foundHelper = helpers.ISBN;
+    stack1 = foundHelper || depth0.ISBN;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <label class=\"desc\">Description:</label>\r\n  <textarea class=\"description\">";
+    foundHelper = helpers.description;
+    stack1 = foundHelper || depth0.description;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "description", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</textarea>\r\n\r\n</form>\r\n\r\n<div class=\"buttons\">\r\n<button class=\"save btn\">Save</button>\r\n<button class=\"destroy btn btn-danger\">Delete</button>\r\n</div>\r\n<legend>Reservations</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>User</th><th>Date</th> \r\n  </thead>\r\n  <tbody></tbody>\r\n</table>\r\n\r\n";
+    return buffer;});
+}});
+
 window.require.define({"views/catalogue": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
     var foundHelper, self=this;
 
 
-    return "<div id=\"search\" class=\"row-fluid\">\r\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\r\n</div>\r\n<div id=\"list\" class=\"span3\"></div>\r\n<div id=\"panel\" class=\"span9\"></div>";});
+    return "<div id=\"search\" class=\"row-fluid\">\r\n  <input id=\"searchbox\" type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\r\n</div>\r\n<ul id=\"list\" class=\"span3\"></ul>\r\n<button id=\"new\" class=\"span3 btn\">Add New</button>\r\n<div id=\"panel\" class=\"span9\"></div>";});
 }});
 
 window.require.define({"views/header": function(exports, require, module) {

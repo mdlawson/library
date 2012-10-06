@@ -1,0 +1,32 @@
+<img class="img-polaroid">
+
+<form>
+  <div>
+    <label>Title:</label>
+    <input type="text" class="title" value="{{ title }}">
+    <label>Author:</label>
+    <input type="text" class="author" value="{{ author }}">
+  </div>
+  <div>
+    <label>Date:</label>
+    <input type="text" class="date" value="{{ date }}">
+    <label>ISBN:</label>
+    <input type="text" class="ISBN" value="{{ ISBN }}">
+  </div>
+  <label class="desc">Description:</label>
+  <textarea class="description">{{ description }}</textarea>
+
+</form>
+
+<div class="buttons">
+<button class="save btn">Save</button>
+<button class="destroy btn btn-danger">Delete</button>
+</div>
+<legend>Reservations</legend>
+<table class="table table-bordered table-striped">
+  <thead>
+    <th>ID</th><th>User</th><th>Date</th> 
+  </thead>
+  <tbody></tbody>
+</table>
+

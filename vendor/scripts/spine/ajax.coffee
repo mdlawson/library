@@ -48,6 +48,8 @@ class Base
 
     settings = @ajaxSettings(params, defaults)
 
+    if settings.type is "GET" or settings.type is "DELETE" then settings.contentType = ''
+
     request = (next) ->
       jqXHR = $.ajax(settings)
                 .done(deferred.resolve)

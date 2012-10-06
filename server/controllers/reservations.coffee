@@ -23,11 +23,11 @@ module.exports =
         res.send err or results
       else res.send err
   update: (req, res) ->
-    req.body.userId = Number req.body.userId
-    req.body.bookId = Number req.body.bookId
+    if req.body.userId then req.body.userId = Number req.body.userId
+    if req.body.bookId then req.body.bookId = Number req.body.bookId
     con.query "UPDATE reservations SET ? WHERE id = ? ", [req.body, Number req.params.reservation], (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM reservations WHERE id = ?", Number(req.params.reservation), (err, results) ->
-        res.send err or results
+        res.send err or results[0]
       else res.send err
   destroy: (req, res) ->
     con.query "DELETE FROM reservations WHERE id = ?", [Number req.params.reservation], (err, results) ->

@@ -10767,6 +10767,9 @@ Base = (function() {
       return promise;
     }
     settings = this.ajaxSettings(params, defaults);
+    if (settings.type === "GET" || settings.type === "DELETE") {
+      settings.contentType = '';
+    }
     request = function(next) {
       return jqXHR = $.ajax(settings).done(deferred.resolve).fail(deferred.reject).then(next, next);
     };
@@ -11273,259 +11276,6 @@ if (typeof module !== "undefined" && module !== null) {
 }
 ;
 
-var Collection, Instance, Singleton, Spine, isArray, require, singularize, underscore,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-Spine = this.Spine || require('spine');
-
-isArray = Spine.isArray;
-
-require = this.require || (function(value) {
-  return eval(value);
-});
-
-Collection = (function(_super) {
-
-  __extends(Collection, _super);
-
-  function Collection(options) {
-    var key, value;
-    if (options == null) {
-      options = {};
-    }
-    for (key in options) {
-      value = options[key];
-      this[key] = value;
-    }
-  }
-
-  Collection.prototype.all = function() {
-    var _this = this;
-    return this.model.select(function(rec) {
-      return _this.associated(rec);
-    });
-  };
-
-  Collection.prototype.first = function() {
-    return this.all()[0];
-  };
-
-  Collection.prototype.last = function() {
-    var values;
-    values = this.all();
-    return values[values.length - 1];
-  };
-
-  Collection.prototype.find = function(id) {
-    var records,
-      _this = this;
-    records = this.select(function(rec) {
-      return rec.id + '' === id + '';
-    });
-    if (!records[0]) {
-      throw 'Unknown record';
-    }
-    return records[0];
-  };
-
-  Collection.prototype.findAllByAttribute = function(name, value) {
-    var _this = this;
-    return this.model.select(function(rec) {
-      return _this.associated(rec) && rec[name] === value;
-    });
-  };
-
-  Collection.prototype.findByAttribute = function(name, value) {
-    return this.findAllByAttribute(name, value)[0];
-  };
-
-  Collection.prototype.select = function(cb) {
-    var _this = this;
-    return this.model.select(function(rec) {
-      return _this.associated(rec) && cb(rec);
-    });
-  };
-
-  Collection.prototype.refresh = function(values) {
-    var record, records, _i, _j, _len, _len1, _ref;
-    _ref = this.all();
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      record = _ref[_i];
-      delete this.model.records[record.id];
-    }
-    records = this.model.fromJSON(values);
-    if (!isArray(records)) {
-      records = [records];
-    }
-    for (_j = 0, _len1 = records.length; _j < _len1; _j++) {
-      record = records[_j];
-      record.newRecord = false;
-      record[this.fkey] = this.record.id;
-      this.model.records[record.id] = record;
-    }
-    return this.model.trigger('refresh', this.model.cloneArray(records));
-  };
-
-  Collection.prototype.create = function(record) {
-    record[this.fkey] = this.record.id;
-    return this.model.create(record);
-  };
-
-  Collection.prototype.associated = function(record) {
-    return record[this.fkey] === this.record.id;
-  };
-
-  return Collection;
-
-})(Spine.Module);
-
-Instance = (function(_super) {
-
-  __extends(Instance, _super);
-
-  function Instance(options) {
-    var key, value;
-    if (options == null) {
-      options = {};
-    }
-    for (key in options) {
-      value = options[key];
-      this[key] = value;
-    }
-  }
-
-  Instance.prototype.exists = function() {
-    return this.record[this.fkey] && this.model.exists(this.record[this.fkey]);
-  };
-
-  Instance.prototype.update = function(value) {
-    if (!(value instanceof this.model)) {
-      value = new this.model(value);
-    }
-    if (value.isNew()) {
-      value.save();
-    }
-    return this.record[this.fkey] = value && value.id;
-  };
-
-  return Instance;
-
-})(Spine.Module);
-
-Singleton = (function(_super) {
-
-  __extends(Singleton, _super);
-
-  function Singleton(options) {
-    var key, value;
-    if (options == null) {
-      options = {};
-    }
-    for (key in options) {
-      value = options[key];
-      this[key] = value;
-    }
-  }
-
-  Singleton.prototype.find = function() {
-    return this.record.id && this.model.findByAttribute(this.fkey, this.record.id);
-  };
-
-  Singleton.prototype.update = function(value) {
-    if (!(value instanceof this.model)) {
-      value = this.model.fromJSON(value);
-    }
-    value[this.fkey] = this.record.id;
-    return value.save();
-  };
-
-  return Singleton;
-
-})(Spine.Module);
-
-singularize = function(str) {
-  return str.replace(/s$/, '');
-};
-
-underscore = function(str) {
-  return str.replace(/::/g, '/').replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2').replace(/([a-z\d])([A-Z])/g, '$1_$2').replace(/-/g, '_').toLowerCase();
-};
-
-Spine.Model.extend({
-  hasMany: function(name, model, fkey) {
-    var association;
-    if (fkey == null) {
-      fkey = "" + (underscore(this.className)) + "_id";
-    }
-    association = function(record) {
-      if (typeof model === 'string') {
-        model = require(model);
-      }
-      return new Collection({
-        name: name,
-        model: model,
-        record: record,
-        fkey: fkey
-      });
-    };
-    return this.prototype[name] = function(value) {
-      if (value != null) {
-        association(this).refresh(value);
-      }
-      return association(this);
-    };
-  },
-  belongsTo: function(name, model, fkey) {
-    var association;
-    if (fkey == null) {
-      fkey = "" + (singularize(name)) + "_id";
-    }
-    association = function(record) {
-      if (typeof model === 'string') {
-        model = require(model);
-      }
-      return new Instance({
-        name: name,
-        model: model,
-        record: record,
-        fkey: fkey
-      });
-    };
-    this.prototype[name] = function(value) {
-      if (value != null) {
-        association(this).update(value);
-      }
-      return association(this).exists();
-    };
-    return this.attributes.push(fkey);
-  },
-  hasOne: function(name, model, fkey) {
-    var association;
-    if (fkey == null) {
-      fkey = "" + (underscore(this.className)) + "_id";
-    }
-    association = function(record) {
-      if (typeof model === 'string') {
-        model = require(model);
-      }
-      return new Singleton({
-        name: name,
-        model: model,
-        record: record,
-        fkey: fkey
-      });
-    };
-    return this.prototype[name] = function(value) {
-      if (value != null) {
-        association(this).update(value);
-      }
-      return association(this).find();
-    };
-  }
-});
-;
-
 var $, Spine, escapeRegExp, hashStrip, namedParam, splatParam,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -11745,5 +11495,123 @@ Spine.Controller.include({
 if (typeof module !== "undefined" && module !== null) {
   module.exports = Spine.Route;
 }
+;
+
+/*!
+ * string_score.js: String Scoring Algorithm 0.1.10 
+ *
+ * http://joshaven.com/string_score
+ * https://github.com/joshaven/string_score
+ *
+ * Copyright (C) 2009-2011 Joshaven Potter <yourtech@gmail.com>
+ * Special thanks to all of the contributors listed here https://github.com/joshaven/string_score
+ * MIT license: http://www.opensource.org/licenses/mit-license.php
+ *
+ * Date: Tue Mar 1 2011
+*/
+
+/**
+ * Scores a string against another string.
+ *  'Hello World'.score('he');     //=> 0.5931818181818181
+ *  'Hello World'.score('Hello');  //=> 0.7318181818181818
+ */
+String.prototype.score = function(abbreviation, fuzziness) {
+  // If the string is equal to the abbreviation, perfect match.
+  if (this == abbreviation) {return 1;}
+  //if it's not a perfect match and is empty return 0
+  if(abbreviation == "") {return 0;}
+
+  var total_character_score = 0,
+      abbreviation_length = abbreviation.length,
+      string = this,
+      string_length = string.length,
+      start_of_string_bonus,
+      abbreviation_score,
+      fuzzies=1,
+      final_score;
+  
+  // Walk through abbreviation and add up scores.
+  for (var i = 0,
+         character_score/* = 0*/,
+         index_in_string/* = 0*/,
+         c/* = ''*/,
+         index_c_lowercase/* = 0*/,
+         index_c_uppercase/* = 0*/,
+         min_index/* = 0*/;
+     i < abbreviation_length;
+     ++i) {
+    
+    // Find the first case-insensitive match of a character.
+    c = abbreviation.charAt(i);
+    
+    index_c_lowercase = string.indexOf(c.toLowerCase());
+    index_c_uppercase = string.indexOf(c.toUpperCase());
+    min_index = Math.min(index_c_lowercase, index_c_uppercase);
+    index_in_string = (min_index > -1) ? min_index : Math.max(index_c_lowercase, index_c_uppercase);
+    
+    if (index_in_string === -1) { 
+      if (fuzziness) {
+        fuzzies += 1-fuzziness;
+        continue;
+      } else {
+        return 0;
+      }
+    } else {
+      character_score = 0.1;
+    }
+    
+    // Set base score for matching 'c'.
+    
+    // Same case bonus.
+    if (string[index_in_string] === c) { 
+      character_score += 0.1; 
+    }
+    
+    // Consecutive letter & start-of-string Bonus
+    if (index_in_string === 0) {
+      // Increase the score when matching first character of the remainder of the string
+      character_score += 0.6;
+      if (i === 0) {
+        // If match is the first character of the string
+        // & the first character of abbreviation, add a
+        // start-of-string match bonus.
+        start_of_string_bonus = 1 //true;
+      }
+    }
+    else {
+  // Acronym Bonus
+  // Weighing Logic: Typing the first character of an acronym is as if you
+  // preceded it with two perfect character matches.
+  if (string.charAt(index_in_string - 1) === ' ') {
+    character_score += 0.8; // * Math.min(index_in_string, 5); // Cap bonus at 0.4 * 5
+  }
+    }
+    
+    // Left trim the already matched part of the string
+    // (forces sequential matching).
+    string = string.substring(index_in_string + 1, string_length);
+    
+    total_character_score += character_score;
+  } // end of for loop
+  
+  // Uncomment to weigh smaller words higher.
+  // return total_character_score / string_length;
+  
+  abbreviation_score = total_character_score / abbreviation_length;
+  //percentage_of_matched_string = abbreviation_length / string_length;
+  //word_score = abbreviation_score * percentage_of_matched_string;
+  
+  // Reduce penalty for longer strings.
+  //final_score = (word_score + abbreviation_score) / 2;
+  final_score = ((abbreviation_score * (abbreviation_length / string_length)) + abbreviation_score) / 2;
+  
+  final_score = final_score / fuzzies;
+  
+  if (start_of_string_bonus && (final_score + 0.15 < 1)) {
+    final_score += 0.15;
+  }
+  
+  return final_score;
+};
 ;
 
