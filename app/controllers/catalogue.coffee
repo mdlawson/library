@@ -4,6 +4,10 @@ BookView = require "controllers/book"
 class CatalogueManager extends Spine.Controller
   el: "#content"
 
+  routes:
+    '/catalogue/:id': (params) ->
+      Book.find(params.id).el.click()
+
   elements:
     '#list': 'list'
     '#panel': 'panel'

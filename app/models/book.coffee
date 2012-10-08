@@ -5,4 +5,9 @@ class Book extends Spine.Model
 
   @url: "/resources/books"
 
+  getReservations: (cb) ->
+    $.get "/resources/books/#{@id}/reservations", cb
+  getLoans: (cb) ->
+    $.get "/resources/books/#{@id}/loans", cb
+
 module.exports = Book

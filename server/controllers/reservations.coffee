@@ -4,33 +4,30 @@ model = ["userId","bookId","id","date"]
 modelStr = model.join(',')
 
 module.exports =
-  options:
-    name: 'resources/reservations'
-    id: 'reservation'
-    before:
-      create: auth
-      update: auth
-      destroy: auth
+  options: {}
+    # before:
+    #   create: auth
+    #   update: auth
+    #   destroy: auth
+  all: (req, res, next) ->
+    req.context = if req.params.user then "user" else "book"
+    next()
   index: (req, res) ->
-    con.query "SELECT #{modelStr} FROM reservations", (err, results) ->
+    con.query "SELECT #{modelStr} FROM reservations WHERE #{req.context}Id = ?", [Number req.params[req.context]], (err, results) ->
       res.send err or results
   show: (req, res) ->
-    con.query "SELECT #{modelStr} FROM books WHERE id = ?", [Number req.params.reservation], (err, results) ->
+    con.query "SELECT #{modelStr} FROM reservations WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.reservation),Number(req.params[req.context])], (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
-    con.query "INSERT INTO reservations SET ?", {userId: Number(req.body.userId), bookId: Number(req.body.bookId)}, (err, results) ->
+    payload = if req.params.user then {userId: Number(req.params.user), bookId: Number(req.body.bookId)} else {userId: Number(req.body.userId), bookId: Number(req.params.book)}
+    con.query "INSERT INTO reservations SET ?", payload, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM reservations WHERE id = ?", results.insertId, (err, results) ->
-        res.send err or results
-      else res.send err
-  update: (req, res) ->
-    if req.body.userId then req.body.userId = Number req.body.userId
-    if req.body.bookId then req.body.bookId = Number req.body.bookId
-    con.query "UPDATE reservations SET ? WHERE id = ? ", [req.body, Number req.params.reservation], (err, results) ->
-      unless err then con.query "SELECT #{modelStr} FROM reservations WHERE id = ?", Number(req.params.reservation), (err, results) ->
         res.send err or results[0]
       else res.send err
+  update: (req, res) ->
+    res.send 200
   destroy: (req, res) ->
-    con.query "DELETE FROM reservations WHERE id = ?", [Number req.params.reservation], (err, results) ->
+    con.query "DELETE FROM reservations WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.reservation),Number(req.params[req.context])], (err, results) ->
       res.send err or res.send(200)
       
 auth = (req, res, next) ->

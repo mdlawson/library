@@ -35,9 +35,11 @@ module.exports.startServer = (port, path) ->
   # Resource mapping
 
   app.resource 'users', ->
-    @resource 'books', {name: "books"}
-  app.resource 'reservations'
-  app.resource 'books'
+    @resource 'loans'
+    @resource 'reservations'
+  app.resource 'books', ->
+    @resource 'loans'
+    @resource 'reservations'
 
   # Login routing
 

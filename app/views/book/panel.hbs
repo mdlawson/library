@@ -9,7 +9,7 @@
   </div>
   <div>
     <label>Date:</label>
-    <input type="text" class="date" value="{{ date }}">
+    <input id="datepicker" type="text" class="date datepicker" value="{{ date }}">
     <label>ISBN:</label>
     <input type="text" class="ISBN" value="{{ ISBN }}">
   </div>
@@ -22,11 +22,26 @@
 <button class="save btn">Save</button>
 <button class="destroy btn btn-danger">Delete</button>
 </div>
+<legend>Loans</legend>
+<table class="table table-bordered table-striped">
+  <thead>
+    <th>ID</th><th>User</th><th>Date</th><th>Due</th><th>Returned</th>
+  </thead>
+  <tbody>
+    {{#each loans}}
+      <tr><td>{{ this.id }}</td><td>{{ this.userId }}</td><td>{{ this.date }}</td><td>{{ this.due }}</td><td>{{ this.returned }}</td></tr>
+    {{/each}}
+  </tbody>
+</table>
 <legend>Reservations</legend>
 <table class="table table-bordered table-striped">
   <thead>
     <th>ID</th><th>User</th><th>Date</th> 
   </thead>
-  <tbody></tbody>
+  <tbody>
+    {{#each reservations}}
+      <tr><td>{{ this.id }}</td><td>{{ this.userId }}</td><td>{{ this.date }}</td></tr>
+    {{/each}}
+  </tbody>
 </table>
 

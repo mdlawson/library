@@ -8,11 +8,13 @@ class App extends Spine.Stack
   constructor: ->
     super
 
-    @$("#menu-issue").click => @navigate "/issue"
-    @$("#menu-return").click => @navigate "/return"
-    @$("#menu-catalogue").click => @navigate "/catalogue"
-    @$("#menu-users").click => @navigate "/users"
+    @menu = $("#menu")
 
+    Spine.Route.bind "navigate", (path) =>
+      for i in ["issue","return","catalogue","users"]
+        @menu.find("#menu-#{i}").removeClass("active")
+      $("#menu-"+path.split("/")[1],@menu).addClass("active")
+    
     @session.bind "login", => 
       @navigate "/catalogue"
       @render()
@@ -20,11 +22,18 @@ class App extends Spine.Stack
     @session.login()
 
   render: ->
-    $("#menu").html require("views/header")(@session.user)
+    that = @
+    items = 
+    @menu.html require("views/header")(@session.user)
+
+    $("#menu-issue",@menu).click => @navigate "/issue"
+    $("#menu-return",@menu).click => @navigate "/return"
+    $("#menu-catalogue",@menu).click => @navigate "/catalogue"
+    $("#menu-users",@menu).click => @navigate "/users"
 
   routes:
     "/login": 'session'
-    "/catalogue": 'catalogue'
+    "/catalogue*blob": 'catalogue'
     "/users": "user"    
 
   controllers:
