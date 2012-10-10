@@ -13,7 +13,7 @@ module.exports =
     req.context = if req.params.user then "user" else "book"
     next()
   index: (req, res) ->
-    con.query "SELECT #{modelStr} FROM loans WHERE #{req.context}Id = ?", [Number req.params[req.context]], (err, results) ->
+    con.query "SELECT #{modelStr} FROM loans WHERE #{req.context}Id = ? AND returned = 0", [Number req.params[req.context]], (err, results) ->
       res.send err or results
   show: (req, res) ->
     con.query "SELECT #{modelStr} FROM loans WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.loan),Number(req.params[req.context])], (err, results) ->
@@ -25,7 +25,10 @@ module.exports =
         res.send err or results[0]
       else res.send err
   update: (req, res) ->
-    res.send 200
+    con.query "UPDATE loans SET ? WHERE id = ?", [req.body, Number req.params.loan], (err, results) ->
+      unless err then con.query "SELECT #{modelStr} FROM loans WHERE id = ?", Number(req.params.loan), (err, results) ->
+        res.send err or results[0]
+      else res.send err
   destroy: (req, res) ->
     con.query "DELETE FROM loans WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.loan),Number(req.params[req.context])], (err, results) ->
       res.send err or res.send(200)

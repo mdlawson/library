@@ -19,16 +19,18 @@ class BookView extends Spine.Controller
       @book.getLoans (data) => 
         @book.loans = data
         @renderPanel()
-
-      $("#datepicker").datepicker format: "dd-mm-yyyy"
-
-      @panel.find(".save").click @save
-      @panel.find(".destroy").click => @book.destroy()
     @
 
-  renderPanel: -> @panel.html @panelTmpl @book
+  renderPanel: -> 
+    @panel.html @panelTmpl @book
+
+    $("#datepicker",@panel).datepicker format: "dd-mm-yyyy"
+
+    $(".save",@panel).click @save
+    $(".destroy",@panel).click => @book.destroy()
 
   save: =>
+    console.log "FUCK YES SAVING THAT SHIT"
     for prop,i of @book.attributes() when prop isnt "id"
       @book[prop] = @panel.find(".#{prop}").val()
     @book.save()

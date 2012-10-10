@@ -24,7 +24,7 @@ class CatalogueManager extends Spine.Controller
 
   activate: ->
     @el.addClass("catalogue")
-    @html require("views/catalogue")()
+    @html require("views/panelView")()
     Book.fetch()
     #@render()
 
@@ -77,7 +77,9 @@ class CatalogueManager extends Spine.Controller
   render: =>
     if @list
       @list.empty()
-      @addBook book for book in @filter()
+      books = @filter()
+      @addBook book for book in books
+      unless books.length then @panel.html("")
       @list.children(":first").click()
     
 

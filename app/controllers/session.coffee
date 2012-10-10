@@ -14,9 +14,9 @@ class SessionManager extends Spine.Controller
     $("#menu")[0].style.display = "block"
 
   login: (data={}) ->
-    $.post("/login",data,(user) => 
+    $.post("/login",data,(user) =>
       @user = user
-      @trigger "login", user
+      if @user.reauth then @trigger "reauth", user else @trigger "login", user
     ).error =>
       @trigger "failure"
   logout: ->

@@ -1,9 +1,9 @@
-class Book extends Spine.Model
-  @configure "Book","title","description","author","date","ISBN"
+class User extends Spine.Model
+  @configure "username","firstName","lastName","email","admin"
 
   @extend Spine.Model.Ajax
 
-  @url: "/resources/books"
+  @url: "/resources/users"
 
   getReservations: (cb) ->
     $.get "#{@url()}/reservations", cb
@@ -14,5 +14,4 @@ class Book extends Spine.Model
   makeLoan: (book,cb) ->
     $.post "#{@url()}/loans", {bookId: book}, cb
 
-
-module.exports = Book
+module.exports = User

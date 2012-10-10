@@ -75,7 +75,7 @@
 })();
 
 window.require.define({"app": function(exports, require, module) {
-  var App, CatalogueManager, SessionManager, UserManager, fill,
+  var App, CatalogueManager, Issuer, SessionManager, UserManager, fill,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -84,6 +84,8 @@ window.require.define({"app": function(exports, require, module) {
   CatalogueManager = require('controllers/catalogue');
 
   UserManager = require('controllers/users');
+
+  Issuer = require('controllers/issue');
 
   App = (function(_super) {
 
@@ -105,7 +107,10 @@ window.require.define({"app": function(exports, require, module) {
         return $("#menu-" + path.split("/")[1], _this.menu).addClass("active");
       });
       this.session.bind("login", function() {
-        _this.navigate("/catalogue");
+        _this.render();
+        return _this.navigate("/catalogue");
+      });
+      this.session.bind("reauth", function() {
         return _this.render();
       });
       this.session.bind("failure", function() {
@@ -135,14 +140,16 @@ window.require.define({"app": function(exports, require, module) {
 
     App.prototype.routes = {
       "/login": 'session',
-      "/catalogue*blob": 'catalogue',
-      "/users": "user"
+      "/catalogue": 'catalogue',
+      "/users": "user",
+      "/issue": "issue"
     };
 
     App.prototype.controllers = {
       session: SessionManager,
       catalogue: CatalogueManager,
-      user: UserManager
+      user: UserManager,
+      issue: Issuer
     };
 
     return App;
@@ -200,23 +207,25 @@ window.require.define({"controllers/book": function(exports, require, module) {
           _this.book.loans = data;
           return _this.renderPanel();
         });
-        $("#datepicker").datepicker({
-          format: "dd-mm-yyyy"
-        });
-        this.panel.find(".save").click(this.save);
-        this.panel.find(".destroy").click(function() {
-          return _this.book.destroy();
-        });
       }
       return this;
     };
 
     BookView.prototype.renderPanel = function() {
-      return this.panel.html(this.panelTmpl(this.book));
+      var _this = this;
+      this.panel.html(this.panelTmpl(this.book));
+      $("#datepicker", this.panel).datepicker({
+        format: "dd-mm-yyyy"
+      });
+      $(".save", this.panel).click(this.save);
+      return $(".destroy", this.panel).click(function() {
+        return _this.book.destroy();
+      });
     };
 
     BookView.prototype.save = function() {
       var i, prop, _ref;
+      console.log("FUCK YES SAVING THAT SHIT");
       _ref = this.book.attributes();
       for (prop in _ref) {
         i = _ref[prop];
@@ -279,7 +288,7 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
 
     CatalogueManager.prototype.activate = function() {
       this.el.addClass("catalogue");
-      this.html(require("views/catalogue")());
+      this.html(require("views/panelView")());
       return Book.fetch();
     };
 
@@ -365,13 +374,16 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     };
 
     CatalogueManager.prototype.render = function() {
-      var book, _i, _len, _ref;
+      var book, books, _i, _len;
       if (this.list) {
         this.list.empty();
-        _ref = this.filter();
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          book = _ref[_i];
+        books = this.filter();
+        for (_i = 0, _len = books.length; _i < _len; _i++) {
+          book = books[_i];
           this.addBook(book);
+        }
+        if (!books.length) {
+          this.panel.html("");
         }
         return this.list.children(":first").click();
       }
@@ -382,6 +394,126 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
   })(Spine.Controller);
 
   module.exports = CatalogueManager;
+  
+}});
+
+window.require.define({"controllers/issue": function(exports, require, module) {
+  var Book, Issuer, User,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  User = require("models/user");
+
+  Book = require("models/book");
+
+  Issuer = (function(_super) {
+
+    __extends(Issuer, _super);
+
+    function Issuer() {
+      this.commit = __bind(this.commit, this);
+
+      this.cancel = __bind(this.cancel, this);
+
+      this.removeBook = __bind(this.removeBook, this);
+
+      this.inputBook = __bind(this.inputBook, this);
+
+      this.inputUser = __bind(this.inputUser, this);
+      return Issuer.__super__.constructor.apply(this, arguments);
+    }
+
+    Issuer.prototype.el = "#content";
+
+    Issuer.prototype.elements = {
+      '#column': 'column',
+      '#userInput': 'userInput',
+      "#bookInput": 'bookInput',
+      '#books': 'books'
+    };
+
+    Issuer.prototype.activate = function() {
+      this.el.addClass("issue");
+      this.render();
+      this.userInput.focus();
+      User.fetch();
+      return Book.fetch();
+    };
+
+    Issuer.prototype.deactivate = function() {
+      return this.el.removeClass("issue");
+    };
+
+    Issuer.prototype.inputUser = function(e) {
+      var _base, _ref;
+      if (e.which !== 13) {
+        return;
+      }
+      this.user = User.find(Number(this.userInput.val()));
+      if ((_ref = (_base = this.user).uncommitted) == null) {
+        _base.uncommitted = [];
+      }
+      this.render();
+      return this.bookInput.focus();
+    };
+
+    Issuer.prototype.inputBook = function(e) {
+      var book;
+      if (e.which !== 13) {
+        return;
+      }
+      book = Book.find(Number(this.bookInput.val()));
+      if (book) {
+        this.user.uncommitted.push(book);
+      }
+      this.render();
+      return this.bookInput.focus();
+    };
+
+    Issuer.prototype.removeBook = function(e) {
+      this.user.uncommitted.pop($("#books").index($(e.target).parent()));
+      return this.render();
+    };
+
+    Issuer.prototype.cancel = function() {
+      this.user = void 0;
+      return this.render();
+    };
+
+    Issuer.prototype.commit = function() {
+      var book, _i, _len, _ref;
+      _ref = this.user.uncommitted;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        book = _ref[_i];
+        this.user.makeLoan(book.id);
+      }
+      return this.cancel();
+    };
+
+    Issuer.prototype.render = function() {
+      var _ref;
+      this.html(require("views/issue")(this.user || {}));
+      this.userInput.keyup(this.inputUser);
+      if ((_ref = this.bookInput) != null) {
+        _ref.keyup(this.inputBook);
+      }
+      $(".removeBook", "#books").click(this.removeBook);
+      $("#commit", this.column).click(this.commit);
+      return $("#cancel", this.column).click(this.cancel);
+    };
+
+    return Issuer;
+
+  })(Spine.Controller);
+
+  module.exports = Issuer;
+  
+}});
+
+window.require.define({"controllers/return": function(exports, require, module) {
+  
+
   
 }});
 
@@ -422,7 +554,11 @@ window.require.define({"controllers/session": function(exports, require, module)
       }
       return $.post("/login", data, function(user) {
         _this.user = user;
-        return _this.trigger("login", user);
+        if (_this.user.reauth) {
+          return _this.trigger("reauth", user);
+        } else {
+          return _this.trigger("login", user);
+        }
       }).error(function() {
         return _this.trigger("failure");
       });
@@ -451,27 +587,199 @@ window.require.define({"controllers/session": function(exports, require, module)
   
 }});
 
-window.require.define({"controllers/users": function(exports, require, module) {
-  var UserManager,
+window.require.define({"controllers/user": function(exports, require, module) {
+  var UserView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  UserView = (function(_super) {
+
+    __extends(UserView, _super);
+
+    UserView.prototype.tag = "li";
+
+    UserView.prototype.panelTmpl = require("views/user/panel");
+
+    function UserView() {
+      this.save = __bind(this.save, this);
+
+      this.render = __bind(this.render, this);
+      UserView.__super__.constructor.apply(this, arguments);
+      this.user.bind('update', this.render);
+      this.user.bind('destroy', this.release);
+    }
+
+    UserView.prototype.render = function() {
+      var _this = this;
+      this.html(require("views/user/list")(this.user));
+      if (this.el.hasClass("active")) {
+        this.renderPanel();
+        this.user.getReservations(function(data) {
+          _this.user.reservations = data;
+          return _this.renderPanel();
+        });
+        this.user.getLoans(function(data) {
+          _this.user.loans = data;
+          return _this.renderPanel();
+        });
+        this.panel.find(".save").click(this.save);
+        this.panel.find(".destroy").click(function() {
+          return _this.user.destroy();
+        });
+      }
+      return this;
+    };
+
+    UserView.prototype.renderPanel = function() {
+      return this.panel.html(this.panelTmpl(this.user));
+    };
+
+    UserView.prototype.save = function() {
+      var i, prop, _ref;
+      _ref = this.user.attributes();
+      for (prop in _ref) {
+        i = _ref[prop];
+        if (prop !== "id") {
+          this.user[prop] = this.panel.find("." + prop).val();
+        }
+      }
+      return this.user.save();
+    };
+
+    return UserView;
+
+  })(Spine.Controller);
+
+  module.exports = UserView;
+  
+}});
+
+window.require.define({"controllers/users": function(exports, require, module) {
+  var User, UserManager, UserView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  User = require("models/user");
+
+  UserView = require("controllers/user");
 
   UserManager = (function(_super) {
 
     __extends(UserManager, _super);
 
-    function UserManager() {
-      return UserManager.__super__.constructor.apply(this, arguments);
-    }
-
     UserManager.prototype.el = "#content";
 
+    UserManager.prototype.elements = {
+      '#list': 'list',
+      '#panel': 'panel',
+      '#searchbox': 'search'
+    };
+
+    UserManager.prototype.events = {
+      'keyup #searchbox': 'input',
+      'click #new': 'new'
+    };
+
+    function UserManager() {
+      this.render = __bind(this.render, this);
+
+      this.addUser = __bind(this.addUser, this);
+      UserManager.__super__.constructor.apply(this, arguments);
+      User.bind('create', this.addUser);
+      User.bind('refresh change', this.render);
+    }
+
     UserManager.prototype.activate = function() {
-      return this.render();
+      this.el.addClass("users");
+      this.html(require("views/panelView")());
+      return User.fetch();
+    };
+
+    UserManager.prototype.deactivate = function() {
+      return this.el.removeClass("users");
+    };
+
+    UserManager.prototype.addUser = function(user) {
+      var el, view,
+        _this = this;
+      view = new UserView({
+        user: user,
+        panel: this.panel
+      });
+      el = view.render().el;
+      el.click(function() {
+        _this.list.children().each(function() {
+          return $(this).removeClass("active");
+        });
+        el.addClass("active");
+        return view.render();
+      });
+      this.list.append(el);
+      return el;
+    };
+
+    UserManager.prototype["new"] = function() {
+      var user;
+      user = new User({
+        username: "[New User]",
+        firstName: "",
+        lastName: "",
+        email: "",
+        admin: false
+      });
+      return this.addUser(user).click();
+    };
+
+    UserManager.prototype.input = function(e) {
+      if (e.which === 13) {
+        return this.render();
+      }
+    };
+
+    UserManager.prototype.filter = function() {
+      var data, item, rankings, results, score, score2, threshold, val, _i, _j, _len, _len1;
+      val = this.search.val();
+      data = User.all();
+      rankings = [];
+      results = [];
+      threshold = 0.5;
+      if (!val) {
+        return data;
+      }
+      for (_i = 0, _len = data.length; _i < _len; _i++) {
+        item = data[_i];
+        score = item.title.score(val);
+        score2 = item.author.score(val);
+        if (score2 > score) {
+          score = score2;
+        }
+        if (score > threshold) {
+          rankings.push([score, item]);
+        }
+      }
+      rankings.sort(function(a, b) {
+        return b[0] - a[0];
+      });
+      for (_j = 0, _len1 = rankings.length; _j < _len1; _j++) {
+        item = rankings[_j];
+        results.push(item[1]);
+      }
+      return results;
     };
 
     UserManager.prototype.render = function() {
-      return this.html(require("views/users")());
+      var user, _i, _len, _ref;
+      if (this.list) {
+        this.list.empty();
+        _ref = this.filter();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          user = _ref[_i];
+          this.addUser(user);
+        }
+        return this.list.children(":first").click();
+      }
     };
 
     return UserManager;
@@ -502,11 +810,23 @@ window.require.define({"models/book": function(exports, require, module) {
     Book.url = "/resources/books";
 
     Book.prototype.getReservations = function(cb) {
-      return $.get("/resources/books/" + this.id + "/reservations", cb);
+      return $.get("" + (this.url()) + "/reservations", cb);
+    };
+
+    Book.prototype.makeReservation = function(book, cb) {
+      return $.post("" + (this.url()) + "/reservations", {
+        bookId: book
+      }, cb);
     };
 
     Book.prototype.getLoans = function(cb) {
-      return $.get("/resources/books/" + this.id + "/loans", cb);
+      return $.get("" + (this.url()) + "/loans", cb);
+    };
+
+    Book.prototype.makeLoan = function(book, cb) {
+      return $.post("" + (this.url()) + "/loans", {
+        bookId: book
+      }, cb);
     };
 
     return Book;
@@ -514,6 +834,53 @@ window.require.define({"models/book": function(exports, require, module) {
   })(Spine.Model);
 
   module.exports = Book;
+  
+}});
+
+window.require.define({"models/user": function(exports, require, module) {
+  var User,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  User = (function(_super) {
+
+    __extends(User, _super);
+
+    function User() {
+      return User.__super__.constructor.apply(this, arguments);
+    }
+
+    User.configure("username", "firstName", "lastName", "email", "admin");
+
+    User.extend(Spine.Model.Ajax);
+
+    User.url = "/resources/users";
+
+    User.prototype.getReservations = function(cb) {
+      return $.get("" + (this.url()) + "/reservations", cb);
+    };
+
+    User.prototype.makeReservation = function(book, cb) {
+      return $.post("" + (this.url()) + "/reservations", {
+        bookId: book
+      }, cb);
+    };
+
+    User.prototype.getLoans = function(cb) {
+      return $.get("" + (this.url()) + "/loans", cb);
+    };
+
+    User.prototype.makeLoan = function(book, cb) {
+      return $.post("" + (this.url()) + "/loans", {
+        bookId: book
+      }, cb);
+    };
+
+    return User;
+
+  })(Spine.Model);
+
+  module.exports = User;
   
 }});
 
@@ -635,13 +1002,13 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     return buffer;});
 }});
 
-window.require.define({"views/catalogue": function(exports, require, module) {
+window.require.define({"views/book/preview": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var foundHelper, self=this;
+    var buffer = "", foundHelper, self=this;
 
 
-    return "<div id=\"search\" class=\"row-fluid\">\r\n  <input id=\"searchbox\" type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\r\n</div>\r\n<ul id=\"list\" class=\"span3\"></ul>\r\n<button id=\"new\" class=\"span3 btn\">Add New</button>\r\n<div id=\"panel\" class=\"span9\"></div>";});
+    return buffer;});
 }});
 
 window.require.define({"views/header": function(exports, require, module) {
@@ -683,6 +1050,93 @@ window.require.define({"views/header": function(exports, require, module) {
     return buffer;});
 }});
 
+window.require.define({"views/issue": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, stack2, foundHelper, tmp1, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+
+  function program1(depth0,data) {
+    
+    var buffer = "", stack1, stack2;
+    buffer += "\r\n  <div id=\"result\">\r\n    Selected user:\r\n    <h3>";
+    foundHelper = helpers.firstName;
+    stack1 = foundHelper || depth0.firstName;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
+    buffer += escapeExpression(stack1) + " ";
+    foundHelper = helpers.lastName;
+    stack1 = foundHelper || depth0.lastName;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "lastName", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</h3>\r\n    <h4>";
+    foundHelper = helpers.username;
+    stack1 = foundHelper || depth0.username;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</h4>\r\n    <h4>";
+    foundHelper = helpers.email;
+    stack1 = foundHelper || depth0.email;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "email", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</h4>\r\n    <hr/>\r\n  </div>\r\n  <ul id=\"books\">\r\n  ";
+    foundHelper = helpers.uncommitted;
+    stack1 = foundHelper || depth0.uncommitted;
+    stack2 = helpers['if'];
+    tmp1 = self.program(2, program2, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n  </ul>\r\n  <label>Scan/Enter Book ID</label>\r\n  <input type=\"text\" id=\"bookInput\" class=\"span12\">\r\n  <button class=\"btn btn-success\" id=\"commit\">Commit</button>\r\n  <button class=\"btn btn-danger\" id=\"cancel\">Cancel</button>\r\n  ";
+    return buffer;}
+  function program2(depth0,data) {
+    
+    var buffer = "", stack1, stack2;
+    buffer += "\r\n  ";
+    foundHelper = helpers.uncommitted;
+    stack1 = foundHelper || depth0.uncommitted;
+    stack2 = helpers.each;
+    tmp1 = self.program(3, program3, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n  ";
+    return buffer;}
+  function program3(depth0,data) {
+    
+    var buffer = "", stack1;
+    buffer += "\r\n    <li><span class=\"id\">";
+    stack1 = depth0.id;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</span>";
+    stack1 = depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "  <small>";
+    stack1 = depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</small><button class=\"btn btn-danger btn-mini removeBook\">Remove</button></li>\r\n  ";
+    return buffer;}
+
+    buffer += "<div id=\"column\" class=\"offset4 span4\">\r\n  <label>Scan/Enter User ID</label>\r\n  <input type=\"text\" id=\"userInput\" class=\"span12\">\r\n  ";
+    foundHelper = helpers.id;
+    stack1 = foundHelper || depth0.id;
+    stack2 = helpers['if'];
+    tmp1 = self.program(1, program1, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n</div>";
+    return buffer;});
+}});
+
 window.require.define({"views/login": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
@@ -692,12 +1146,125 @@ window.require.define({"views/login": function(exports, require, module) {
     return "<form class=\"span4 offset4 well\">\r\n  <legend>Login</legend>\r\n  <label>Username</label>\r\n  <input id=\"username\" class=\"span12\" type=\"text\">\r\n  <label>Password</label>\r\n  <input id=\"password\" class=\"span12\" type=\"text\">\r\n  <button type=\"submit\" class=\"btn btn-info btn-block\" id=\"submit\">Login</button>\r\n</form>";});
 }});
 
-window.require.define({"views/users": function(exports, require, module) {
+window.require.define({"views/panelView": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var buffer = "", foundHelper, self=this;
+    var foundHelper, self=this;
 
 
+    return "<div id=\"search\" class=\"row-fluid\">\r\n  <input id=\"searchbox\" type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\r\n</div>\r\n<ul id=\"list\" class=\"span3\"></ul>\r\n<button id=\"new\" class=\"span3 btn\">Add New</button>\r\n<div id=\"panel\" class=\"span9\"></div>";});
+}});
+
+window.require.define({"views/user/list": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+
+
+    buffer += "<span class=\"id\">";
+    foundHelper = helpers.id;
+    stack1 = foundHelper || depth0.id;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "id", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</span>";
+    foundHelper = helpers.username;
+    stack1 = foundHelper || depth0.username;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
+    buffer += escapeExpression(stack1);
+    return buffer;});
+}});
+
+window.require.define({"views/user/panel": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, stack2, foundHelper, tmp1, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+
+  function program1(depth0,data) {
+    
+    var buffer = "", stack1;
+    buffer += "\r\n      <tr><td>";
+    stack1 = depth0.id;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td><td>";
+    stack1 = depth0.bookId;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.bookId", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td><td>";
+    stack1 = depth0.date;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.date", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td><td>";
+    stack1 = depth0.due;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.due", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td><td>";
+    stack1 = depth0.returned;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.returned", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
+    return buffer;}
+
+  function program3(depth0,data) {
+    
+    var buffer = "", stack1;
+    buffer += "\r\n      <tr><td>";
+    stack1 = depth0.id;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td><td>";
+    stack1 = depth0.bookId;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.bookId", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td><td>";
+    stack1 = depth0.date;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.date", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
+    return buffer;}
+
+    buffer += "<!-- <img class=\"img-polaroid\"> -->\r\n\r\n<form>\r\n  <div>\r\n    <label>First name:</label>\r\n    <input type=\"text\" class=\"firstName\" value=\"";
+    foundHelper = helpers.firstName;
+    stack1 = foundHelper || depth0.firstName;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n    <label>Last name:</label>\r\n    <input type=\"text\" class=\"lastName\" value=\"";
+    foundHelper = helpers.firstName;
+    stack1 = foundHelper || depth0.firstName;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <div>\r\n    <label>Username:</label>\r\n    <input type=\"text\" class=\"username\" value=\"";
+    foundHelper = helpers.username;
+    stack1 = foundHelper || depth0.username;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n    <label>email:</label>\r\n    <input type=\"text\" class=\"email\" value=\"";
+    foundHelper = helpers.email;
+    stack1 = foundHelper || depth0.email;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "email", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n</form>\r\n\r\n<div class=\"buttons\">\r\n<button class=\"save btn\">Save</button>\r\n<button class=\"destroy btn btn-danger\">Delete</button>\r\n</div>\r\n<legend>Loans</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>\r\n  </thead>\r\n  <tbody>\r\n    ";
+    foundHelper = helpers.loans;
+    stack1 = foundHelper || depth0.loans;
+    stack2 = helpers.each;
+    tmp1 = self.program(1, program1, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n  </tbody>\r\n</table>\r\n<legend>Reservations</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>Book</th><th>Date</th> \r\n  </thead>\r\n  <tbody>\r\n    ";
+    foundHelper = helpers.reservations;
+    stack1 = foundHelper || depth0.reservations;
+    stack2 = helpers.each;
+    tmp1 = self.program(3, program3, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\r\n  </tbody>\r\n</table>\r\n\r\n";
     return buffer;});
 }});
 

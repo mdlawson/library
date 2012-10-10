@@ -1,6 +1,7 @@
 SessionManager = require 'controllers/session'
 CatalogueManager = require 'controllers/catalogue'
 UserManager = require 'controllers/users'
+Issuer = require 'controllers/issue'
 
 class App extends Spine.Stack
   el: "#container"
@@ -15,9 +16,10 @@ class App extends Spine.Stack
         @menu.find("#menu-#{i}").removeClass("active")
       $("#menu-"+path.split("/")[1],@menu).addClass("active")
     
-    @session.bind "login", => 
-      @navigate "/catalogue"
+    @session.bind "login", =>
       @render()
+      @navigate "/catalogue"
+    @session.bind "reauth", => @render()
     @session.bind "failure", => @navigate "/login"
     @session.login()
 
@@ -33,13 +35,15 @@ class App extends Spine.Stack
 
   routes:
     "/login": 'session'
-    "/catalogue*blob": 'catalogue'
-    "/users": "user"    
+    "/catalogue": 'catalogue'
+    "/users": "user"
+    "/issue": "issue"
 
   controllers:
     session: SessionManager
     catalogue: CatalogueManager
     user: UserManager
+    issue: Issuer
 
 $ ->
   window.app = new App

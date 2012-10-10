@@ -21,9 +21,9 @@
   form
     margin-top: 10%
 
-// CATALOGUE
+// CATALOGUE/USERS
 
-#content.catalogue
+#content.catalogue, #content.users
   #search
     padding: 20px 0 20px
     background: rgba(0,0,0,0.1)
@@ -91,3 +91,36 @@
       clear: both
       button
         width: 100px
+
+// ISSUE/RETURN
+
+#content.issue,#content.return
+  #column
+    padding-top: 20px
+    #result
+      // background: linear-gradient(top, #F2F2F2, #D2D2D2)
+      // border-radius: 0px 0px 10px 10px
+      // width: 90%
+      // padding: 0 10%
+      // &:before
+      //   content: "Selected User:"
+      //   display: block
+      //   width: 97%
+      //   padding: 2px 0 2px 3%
+      //   background: linear-gradient(top, #5C5C5C, #373737)
+      //   color: white
+    #books
+      margin: 0
+      list-style-type: none;
+      padding 0 0 20px 0
+      li
+        padding: 10px 0
+        .id
+          color: rgba(0,0,0,0.2)
+          font-size: 3em
+          display: inline-block
+          vertical-align: middle
+          text-align: right
+          width: 1.5em
+        button
+          float: right

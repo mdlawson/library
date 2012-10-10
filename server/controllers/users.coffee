@@ -31,7 +31,10 @@ module.exports =
     con.query "DELETE FROM users WHERE id = ?", [Number req.params.user], (err, results) ->
       res.send err or res.send(200)
   login: (req, res) ->
-    if req.session.user then res.send req.session.user else # quick exit for already authed users
+    if req.session.user
+      req.session.user.reauth = true
+      res.send req.session.user 
+    else # quick exit for already authed users
       con.query "SELECT #{modelStr} FROM users WHERE username = ? AND password = ?", [req.body.username, req.body.password], (err, results) ->
         if results.length
           user = results[0]
