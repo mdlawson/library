@@ -2,6 +2,7 @@ SessionManager = require 'controllers/session'
 CatalogueManager = require 'controllers/catalogue'
 UserManager = require 'controllers/users'
 Issuer = require 'controllers/issue'
+Returner = require 'controllers/return'
 
 class App extends Spine.Stack
   el: "#container"
@@ -38,12 +39,14 @@ class App extends Spine.Stack
     "/catalogue": 'catalogue'
     "/users": "user"
     "/issue": "issue"
+    "/return": "return"
 
   controllers:
     session: SessionManager
     catalogue: CatalogueManager
     user: UserManager
     issue: Issuer
+    return: Returner
 
 $ ->
   window.app = new App

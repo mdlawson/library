@@ -13,6 +13,8 @@ class Book extends Spine.Model
     $.get "#{@url()}/loans", cb
   makeLoan: (book,cb) ->
     $.post "#{@url()}/loans", {bookId: book}, cb
+  return: (cb) ->
+    $.post "#{@url()}/return", cb
 
 
 module.exports = Book

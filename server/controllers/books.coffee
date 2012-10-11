@@ -34,6 +34,9 @@ module.exports =
   destroy: (req, res) ->
     con.query "DELETE FROM books WHERE id = ?", Number(req.params.book), (err, results) ->
       res.send err or 200
+  return: (req, res) ->
+    con.query "UPDATE loans SET returned = 1 WHERE bookId = ? AND returned = 0", [Number req.params.book], (err, results) ->
+      res.send err or 200
 
 auth = (req, res, next) ->
   if req.session.user and req.session.user.admin is 1 then next() else res.send(401)
