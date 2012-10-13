@@ -9,7 +9,7 @@
   </div>
   <div>
     <label>Date:</label>
-    <input id="datepicker" type="text" class="date datepicker" value="{{ date }}">
+    <input id="datepicker" type="text" class="date datepicker" value="{{Date date }}">
     <label>ISBN:</label>
     <input type="text" class="ISBN" value="{{ ISBN }}">
   </div>
@@ -29,7 +29,7 @@
   </thead>
   <tbody>
     {{#each loans}}
-      <tr><td>{{ this.id }}</td><td>{{ this.userId }}</td><td>{{ this.date }}</td><td>{{ this.due }}</td><td>{{ this.returned }}</td></tr>
+      <tr><td>{{ this.id }}</td><td>{{ this.userId }}</td><td>{{Date this.date }}</td><td>{{Date this.due }}</td><td>{{ this.returned }}</td></tr>
     {{/each}}
   </tbody>
 </table>
@@ -40,7 +40,7 @@
   </thead>
   <tbody>
     {{#each reservations}}
-      <tr><td>{{ this.id }}</td><td>{{ this.userId }}</td><td>{{ this.date }}</td></tr>
+      <tr><td>{{ this.id }}</td><td>{{ this.userId }}</td><td>{{Date this.date }}</td></tr>
     {{/each}}
   </tbody>
 </table>

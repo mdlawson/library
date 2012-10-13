@@ -14,6 +14,7 @@ exports.config =
         # even if they aren't specified in order.before.
         before: [
           'vendor/scripts/jquery-1.8.2.js',
+          'vendor/scripts/sugar.js'
           'vendor/scripts/spine/spine.coffee',
         ]
 

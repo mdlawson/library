@@ -30,7 +30,6 @@ class BookView extends Spine.Controller
     $(".destroy",@panel).click => @book.destroy()
 
   save: =>
-    console.log "FUCK YES SAVING THAT SHIT"
     for prop,i of @book.attributes() when prop isnt "id"
       @book[prop] = @panel.find(".#{prop}").val()
     @book.save()

@@ -16,7 +16,7 @@ class SessionManager extends Spine.Controller
   login: (data={}) ->
     $.post("/login",data,(user) =>
       @user = user
-      if @user.reauth then @trigger "reauth", user else @trigger "login", user
+      @trigger "login", user
     ).error =>
       @trigger "failure"
   logout: ->

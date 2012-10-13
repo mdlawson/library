@@ -1,3 +1,4 @@
+require 'views/helpers'
 SessionManager = require 'controllers/session'
 CatalogueManager = require 'controllers/catalogue'
 UserManager = require 'controllers/users'
@@ -13,14 +14,13 @@ class App extends Spine.Stack
     @menu = $("#menu")
 
     Spine.Route.bind "navigate", (path) =>
-      for i in ["issue","return","catalogue","users"]
-        @menu.find("#menu-#{i}").removeClass("active")
+      $("[id^=menu-]",@menu).removeClass("active")
       $("#menu-"+path.split("/")[1],@menu).addClass("active")
     
-    @session.bind "login", =>
+    @session.bind "login", (user) =>
       @render()
-      @navigate "/catalogue"
-    @session.bind "reauth", => @render()
+      @catalogue.basic = if user.admin is 0 then true else false
+      unless user.reauth then @navigate "/catalogue"
     @session.bind "failure", => @navigate "/login"
     @session.login()
 

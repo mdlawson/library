@@ -26,7 +26,7 @@
   </thead>
   <tbody>
     {{#each loans}}
-      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{ this.date }}</td><td>{{ this.due }}</td><td>{{ this.returned }}</td></tr>
+      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{Date this.date }}</td><td>{{ this.due }}</td><td>{{ this.returned }}</td></tr>
     {{/each}}
   </tbody>
 </table>
@@ -37,7 +37,7 @@
   </thead>
   <tbody>
     {{#each reservations}}
-      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{ this.date }}</td></tr>
+      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{Date this.date }}</td></tr>
     {{/each}}
   </tbody>
 </table>

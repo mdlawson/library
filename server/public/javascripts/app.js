@@ -79,6 +79,8 @@ window.require.define({"app": function(exports, require, module) {
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  require('views/helpers');
+
   SessionManager = require('controllers/session');
 
   CatalogueManager = require('controllers/catalogue');
@@ -100,20 +102,15 @@ window.require.define({"app": function(exports, require, module) {
       App.__super__.constructor.apply(this, arguments);
       this.menu = $("#menu");
       Spine.Route.bind("navigate", function(path) {
-        var i, _i, _len, _ref;
-        _ref = ["issue", "return", "catalogue", "users"];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          i = _ref[_i];
-          _this.menu.find("#menu-" + i).removeClass("active");
-        }
+        $("[id^=menu-]", _this.menu).removeClass("active");
         return $("#menu-" + path.split("/")[1], _this.menu).addClass("active");
       });
-      this.session.bind("login", function() {
+      this.session.bind("login", function(user) {
         _this.render();
-        return _this.navigate("/catalogue");
-      });
-      this.session.bind("reauth", function() {
-        return _this.render();
+        _this.catalogue.basic = user.admin === 0 ? true : false;
+        if (!user.reauth) {
+          return _this.navigate("/catalogue");
+        }
       });
       this.session.bind("failure", function() {
         return _this.navigate("/login");
@@ -229,7 +226,6 @@ window.require.define({"controllers/book": function(exports, require, module) {
 
     BookView.prototype.save = function() {
       var i, prop, _ref;
-      console.log("FUCK YES SAVING THAT SHIT");
       _ref = this.book.attributes();
       for (prop in _ref) {
         i = _ref[prop];
@@ -249,7 +245,7 @@ window.require.define({"controllers/book": function(exports, require, module) {
 }});
 
 window.require.define({"controllers/catalogue": function(exports, require, module) {
-  var Book, BookView, CatalogueManager,
+  var Book, BookView, CatalogueManager, levenshtein, strScore,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -257,6 +253,10 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
   Book = require("models/book");
 
   BookView = require("controllers/book");
+
+  levenshtein = require("util").levenshtein;
+
+  strScore = require("util").strScore;
 
   CatalogueManager = (function(_super) {
 
@@ -338,12 +338,11 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     };
 
     CatalogueManager.prototype.filter = function() {
-      var data, item, rankings, results, score, score2, threshold, val, _i, _j, _k, _len, _len1, _len2;
+      var author, data, item, matcher, rankings, results, score, string, val, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
       val = this.search.val();
       data = Book.all();
       rankings = [];
       results = [];
-      threshold = 0.5;
       if (!val) {
         return data;
       }
@@ -354,27 +353,66 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
             results.push(item);
           }
         }
+      } else if (val.length > 10) {
+        matcher = this.matchers.levenshtein;
       } else {
-        for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
-          item = data[_j];
-          score = item.title.score(val);
-          score2 = item.author.score(val);
-          if (score2 > score) {
-            score = score2;
-          }
-          if (score > threshold) {
-            rankings.push([score, item]);
-          }
+        matcher = this.matchers.strScore;
+      }
+      for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
+        item = data[_j];
+        score = [];
+        author = item.author.split(" ");
+        _ref = author.concat(item.title);
+        for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
+          string = _ref[_k];
+          score.push(matcher.score(string, val));
         }
-        rankings.sort(function(a, b) {
-          return b[0] - a[0];
-        });
-        for (_k = 0, _len2 = rankings.length; _k < _len2; _k++) {
-          item = rankings[_k];
-          results.push(item[1]);
+        score.sort(matcher.sort);
+        if (matcher.valid(score[0])) {
+          rankings.push([score[0], item]);
         }
       }
+      rankings.sort(function(a, b) {
+        return matcher.sort(a[0], b[0]);
+      });
+      for (_l = 0, _len3 = rankings.length; _l < _len3; _l++) {
+        item = rankings[_l];
+        results.push(item[1]);
+      }
       return results;
+    };
+
+    CatalogueManager.prototype.matchers = {
+      levenshtein: {
+        score: function(a, b) {
+          return levenshtein(a, b);
+        },
+        sort: function(a, b) {
+          return a - b;
+        },
+        valid: function(a) {
+          if (a < 6) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      },
+      strScore: {
+        score: function(a, b) {
+          return a.score(b, 0.5);
+        },
+        sort: function(a, b) {
+          return b - a;
+        },
+        valid: function(a) {
+          if (a > 0.2) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
     };
 
     CatalogueManager.prototype.render = function() {
@@ -612,11 +650,7 @@ window.require.define({"controllers/session": function(exports, require, module)
       }
       return $.post("/login", data, function(user) {
         _this.user = user;
-        if (_this.user.reauth) {
-          return _this.trigger("reauth", user);
-        } else {
-          return _this.trigger("login", user);
-        }
+        return _this.trigger("login", user);
       }).error(function() {
         return _this.trigger("failure");
       });
@@ -946,6 +980,115 @@ window.require.define({"models/user": function(exports, require, module) {
   
 }});
 
+window.require.define({"util": function(exports, require, module) {
+  
+  module.exports = {
+    levenshtein: function(s1, s2) {
+      var L1, L2, a, b, c, cost, i, j, v0, v1, v_tmp;
+      L1 = s1.length;
+      L2 = s2.length;
+      if (L1 === 0) {
+        return L2;
+      } else if (L2 === 0) {
+        return L1;
+      } else {
+        if (s1 === s2) {
+          return 0;
+        }
+      }
+      v0 = new Array(L1 + 1);
+      v1 = new Array(L1 + 1);
+      i = 0;
+      while (i < L1 + 1) {
+        v0[i] = i;
+        i++;
+      }
+      j = 1;
+      while (j <= L2) {
+        v1[0] = j;
+        i = 0;
+        while (i < L1) {
+          cost = (s1[i] === s2[j - 1] ? 0 : 1);
+          a = v0[i + 1] + 1;
+          b = v1[i] + 1;
+          c = v0[i] + cost;
+          v1[i + 1] = (a < b ? (a < c ? a : c) : (b < c ? b : c));
+          i++;
+        }
+        v_tmp = v0;
+        v0 = v1;
+        v1 = v_tmp;
+        j++;
+      }
+      return v0[L1];
+    },
+    strScore: function(string, abbreviation, fuzziness) {
+      var abbreviation_length, abbreviation_score, c, character_score, final_score, fuzzies, i, index_c_lowercase, index_c_uppercase, index_in_string, min_index, start_of_string_bonus, string_length, total_character_score;
+      if (this === abbreviation) {
+        return 1;
+      }
+      if (abbreviation === "") {
+        return 0;
+      }
+      total_character_score = 0;
+      abbreviation_length = abbreviation.length;
+      string_length = string.length;
+      fuzzies = 1;
+      i = 0;
+      while (i < abbreviation_length) {
+        c = abbreviation.charAt(i);
+        index_c_lowercase = string.indexOf(c.toLowerCase());
+        index_c_uppercase = string.indexOf(c.toUpperCase());
+        min_index = Math.min(index_c_lowercase, index_c_uppercase);
+        index_in_string = (min_index > -1 ? min_index : Math.max(index_c_lowercase, index_c_uppercase));
+        if (index_in_string === -1) {
+          if (fuzziness) {
+            fuzzies += 1 - fuzziness;
+            continue;
+          } else {
+            return 0;
+          }
+        } else {
+          character_score = 0.1;
+        }
+        if (string[index_in_string] === c) {
+          character_score += 0.1;
+        }
+        if (index_in_string === 0) {
+          character_score += 0.6;
+          if (i === 0) {
+            start_of_string_bonus = 1;
+          }
+        } else {
+          if (string.charAt(index_in_string - 1) === " ") {
+            character_score += 0.8;
+          }
+        }
+        string = string.substring(index_in_string + 1, string_length);
+        total_character_score += character_score;
+        ++i;
+      }
+      abbreviation_score = total_character_score / abbreviation_length;
+      final_score = ((abbreviation_score * (abbreviation_length / string_length)) + abbreviation_score) / 2;
+      final_score = final_score / fuzzies;
+      if (start_of_string_bonus && (final_score + 0.15 < 1)) {
+        final_score += 0.15;
+      }
+      return final_score;
+    }
+  };
+  
+}});
+
+window.require.define({"views/basic": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", foundHelper, self=this;
+
+
+    return buffer;});
+}});
+
 window.require.define({"views/book/list": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
@@ -973,7 +1116,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
 
   function program1(depth0,data) {
     
-    var buffer = "", stack1;
+    var buffer = "", stack1, stack2;
     buffer += "\r\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -984,12 +1127,18 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.userId", { hash: {} }); }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.date;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.date", { hash: {} }); }
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.due;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.due", { hash: {} }); }
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.returned;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -999,7 +1148,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
 
   function program3(depth0,data) {
     
-    var buffer = "", stack1;
+    var buffer = "", stack1, stack2;
     buffer += "\r\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1010,8 +1159,11 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.userId", { hash: {} }); }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.date;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.date", { hash: {} }); }
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
     buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
     return buffer;}
 
@@ -1028,8 +1180,11 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <div>\r\n    <label>Date:</label>\r\n    <input id=\"datepicker\" type=\"text\" class=\"date datepicker\" value=\"";
     foundHelper = helpers.date;
     stack1 = foundHelper || depth0.date;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "date", { hash: {} }); }
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
     buffer += escapeExpression(stack1) + "\">\r\n    <label>ISBN:</label>\r\n    <input type=\"text\" class=\"ISBN\" value=\"";
     foundHelper = helpers.ISBN;
     stack1 = foundHelper || depth0.ISBN;
@@ -1103,6 +1258,15 @@ window.require.define({"views/header": function(exports, require, module) {
     return buffer;});
 }});
 
+window.require.define({"views/helpers": function(exports, require, module) {
+  
+  Handlebars.registerHelper("Date", function(date) {
+    date = Date.create(date);
+    return date.format("{dd}-{MM}-{yyyy}");
+  });
+  
+}});
+
 window.require.define({"views/issue": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
@@ -1141,7 +1305,7 @@ window.require.define({"views/issue": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </ul>\r\n  <label>Scan/Enter Book ID</label>\r\n  <input type=\"text\" id=\"bookInput\" class=\"span12\">\r\n  <button class=\"btn btn-success\" id=\"commit\">Commit</button>\r\n  <button class=\"btn btn-danger\" id=\"cancel\">Cancel</button>\r\n  ";
+    buffer += "\r\n  </ul>\r\n  <label>Scan/Enter Book ID</label>\r\n  <input type=\"text\" id=\"bookInput\" class=\"span12\">\r\n  <button class=\"btn btn-success\" id=\"commit\">Issue</button>\r\n  <button class=\"btn btn-danger\" id=\"cancel\">Cancel</button>\r\n  ";
     return buffer;}
   function program2(depth0,data) {
     
@@ -1270,7 +1434,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
 
   function program1(depth0,data) {
     
-    var buffer = "", stack1;
+    var buffer = "", stack1, stack2;
     buffer += "\r\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1281,8 +1445,11 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.bookId", { hash: {} }); }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.date;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.date", { hash: {} }); }
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.due;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1296,7 +1463,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
 
   function program3(depth0,data) {
     
-    var buffer = "", stack1;
+    var buffer = "", stack1, stack2;
     buffer += "\r\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1307,8 +1474,11 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.bookId", { hash: {} }); }
     buffer += escapeExpression(stack1) + "</td><td>";
     stack1 = depth0.date;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.date", { hash: {} }); }
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
     buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
     return buffer;}
 

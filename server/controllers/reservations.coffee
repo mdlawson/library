@@ -4,11 +4,6 @@ model = ["userId","bookId","id","date"]
 modelStr = model.join(',')
 
 module.exports =
-  options: {}
-    # before:
-    #   create: auth
-    #   update: auth
-    #   destroy: auth
   all: (req, res, next) ->
     req.context = if req.params.user then "user" else "book"
     next()
