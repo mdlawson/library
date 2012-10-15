@@ -196,18 +196,28 @@ window.require.define({"controllers/book": function(exports, require, module) {
     }
 
     BookView.prototype.render = function() {
-      var _this = this;
+      var book, _i, _len, _ref,
+        _this = this;
       this.html(require("views/book/list")(this.book));
       if (this.el.hasClass("active")) {
+        this.book.copies = this.book.constructor.all().findAll(function(i) {
+          return i.ISBN === _this.book.ISBN;
+        });
+        this.book.reservations = [];
+        this.book.loans = [];
         this.renderPanel();
-        this.book.getReservations(function(data) {
-          _this.book.reservations = data;
-          return _this.renderPanel();
-        });
-        this.book.getLoans(function(data) {
-          _this.book.loans = data;
-          return _this.renderPanel();
-        });
+        _ref = this.book.copies;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          book = _ref[_i];
+          book.getReservations(function(data) {
+            _this.book.reservations.concat(data);
+            return _this.renderPanel();
+          });
+          book.getLoans(function(data) {
+            _this.book.loans.concat(data);
+            return _this.renderPanel();
+          });
+        }
       }
       return this;
     };
@@ -337,14 +347,14 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
       }
     };
 
-    CatalogueManager.prototype.filter = function() {
+    CatalogueManager.prototype.filter = function(done) {
       var author, data, item, matcher, rankings, results, score, string, val, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
       val = this.search.val();
       data = Book.all();
       rankings = [];
       results = [];
       if (!val) {
-        return data;
+        return data.unique("ISBN");
       }
       if (val.length === 13 && !isNaN(parseInt(val)) && isFinite(val)) {
         for (_i = 0, _len = data.length; _i < _len; _i++) {
@@ -379,7 +389,7 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
         item = rankings[_l];
         results.push(item[1]);
       }
-      return results;
+      return results.unique("ISBN");
     };
 
     CatalogueManager.prototype.matchers = {
@@ -418,8 +428,8 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     CatalogueManager.prototype.render = function() {
       var book, books, _i, _len;
       if (this.list) {
-        this.list.empty();
         books = this.filter();
+        this.list.empty();
         for (_i = 0, _len = books.length; _i < _len; _i++) {
           book = books[_i];
           this.addBook(book);
@@ -1095,17 +1105,22 @@ window.require.define({"views/book/list": function(exports, require, module) {
     var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
 
-    buffer += "<span class=\"id\">";
+    buffer += "<!-- <span class=\"id\">";
     foundHelper = helpers.id;
     stack1 = foundHelper || depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "id", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</span>";
+    buffer += escapeExpression(stack1) + "</span> -->\r\n";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
-    buffer += escapeExpression(stack1);
+    buffer += escapeExpression(stack1) + " <small>";
+    foundHelper = helpers.author;
+    stack1 = foundHelper || depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</span>";
     return buffer;});
 }});
 
@@ -1115,6 +1130,15 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     var buffer = "", stack1, stack2, foundHelper, tmp1, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
   function program1(depth0,data) {
+    
+    var buffer = "", stack1;
+    stack1 = depth0.id;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "<br />";
+    return buffer;}
+
+  function program3(depth0,data) {
     
     var buffer = "", stack1, stack2;
     buffer += "\r\n      <tr><td>";
@@ -1146,7 +1170,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
     return buffer;}
 
-  function program3(depth0,data) {
+  function program5(depth0,data) {
     
     var buffer = "", stack1, stack2;
     buffer += "\r\n      <tr><td>";
@@ -1195,11 +1219,21 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     stack1 = foundHelper || depth0.description;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "description", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</textarea>\r\n\r\n</form>\r\n\r\n<div class=\"buttons\">\r\n<button class=\"save btn\">Save</button>\r\n<button class=\"destroy btn btn-danger\">Delete</button>\r\n</div>\r\n<legend>Loans</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>User</th><th>Date</th><th>Due</th><th>Returned</th>\r\n  </thead>\r\n  <tbody>\r\n    ";
+    buffer += escapeExpression(stack1) + "</textarea>\r\n\r\n</form>\r\n\r\n<div class=\"buttons\">\r\n<button class=\"save btn\">Save</button>\r\n<button class=\"destroy btn btn-danger\">Delete</button>\r\n</div>\r\n<legend>Copies: copies.length</legend>\r\n<!-- ";
+    foundHelper = helpers.copies;
+    stack1 = foundHelper || depth0.copies;
+    stack2 = helpers.each;
+    tmp1 = self.program(1, program1, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += " -->\r\n<legend>Loans</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>User</th><th>Date</th><th>Due</th><th>Returned</th>\r\n  </thead>\r\n  <tbody>\r\n    ";
     foundHelper = helpers.loans;
     stack1 = foundHelper || depth0.loans;
     stack2 = helpers.each;
-    tmp1 = self.program(1, program1, data);
+    tmp1 = self.program(3, program3, data);
     tmp1.hash = {};
     tmp1.fn = tmp1;
     tmp1.inverse = self.noop;
@@ -1209,7 +1243,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     foundHelper = helpers.reservations;
     stack1 = foundHelper || depth0.reservations;
     stack2 = helpers.each;
-    tmp1 = self.program(3, program3, data);
+    tmp1 = self.program(5, program5, data);
     tmp1.hash = {};
     tmp1.fn = tmp1;
     tmp1.inverse = self.noop;

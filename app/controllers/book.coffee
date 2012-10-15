@@ -11,14 +11,20 @@ class BookView extends Spine.Controller
     @html require("views/book/list")(@book)
     if @el.hasClass("active")
 
+      @book.copies = @book.constructor.all().findAll (i) => i.ISBN is @book.ISBN 
+      @book.reservations = []
+      @book.loans = []
+
       @renderPanel()
 
-      @book.getReservations (data) =>
-        @book.reservations = data 
-        @renderPanel()
-      @book.getLoans (data) => 
-        @book.loans = data
-        @renderPanel()
+      for book in @book.copies
+        book.getReservations (data) =>
+          @book.reservations.concat data 
+          @renderPanel()
+        book.getLoans (data) => 
+          @book.loans.concat data
+          @renderPanel()
+
     @
 
   renderPanel: -> 

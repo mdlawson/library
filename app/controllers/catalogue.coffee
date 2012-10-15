@@ -20,9 +20,13 @@ class CatalogueManager extends Spine.Controller
     'click #new': 'new'
 
   constructor: ->
+    # @input = @render.throttle 2000
+    # @input = @render.lazy 2000, 3
     super
+
     Book.bind 'create', @addBook
     Book.bind 'refresh change', @render
+
 
   activate: ->
     @el.addClass("catalogue")
@@ -52,12 +56,13 @@ class CatalogueManager extends Spine.Controller
   input: (e) ->
     if e.which is 13 then @render()
 
-  filter: ->
+
+  filter: (done) ->
     val = @search.val()
     data = Book.all()
     rankings = []
     results = []
-    unless val then return data
+    unless val then return data.unique("ISBN")
     if val.length is 13 and not isNaN(parseInt val) and isFinite val
       for item in data when item.ISBN is val
         results.push item
@@ -72,8 +77,7 @@ class CatalogueManager extends Spine.Controller
     rankings.sort (a,b) -> matcher.sort a[0],b[0]
     for item in rankings
       results.push item[1]
-
-    return results
+    return results.unique("ISBN")
 
   matchers:
     levenshtein:
@@ -87,11 +91,11 @@ class CatalogueManager extends Spine.Controller
 
   render: =>
     if @list
-      @list.empty()
       books = @filter()
+      @list.empty()
       @addBook book for book in books
       unless books.length then @panel.html("")
       @list.children(":first").click()
-    
+  
 
 module.exports = CatalogueManager
