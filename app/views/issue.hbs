@@ -1,15 +1,15 @@
-<div id="column" class="offset4 span4">
+<div class="offset4 span4 column">
   <label>Scan/Enter User ID</label>
-  <input type="text" id="userInput" class="span12">
+  <input type="text" class="userInput" class="span12">
   {{#if id}}
-  <div id="result">
+  <div class="result">
     Selected user:
     <h3>{{ firstName }} {{ lastName }}</h3>
     <h4>{{ username }}</h4>
     <h4>{{ email }}</h4>
     <hr/>
   </div>
-  <ul id="books">
+  <ul class="books">
   {{#if uncommitted}}
   {{#each uncommitted}}
     <li><span class="id">{{ this.id }}</span>{{ this.title }}  <small>{{ this.author }}</small><button class="btn btn-danger btn-mini removeBook">Remove</button></li>
@@ -17,8 +17,8 @@
   {{/if}}
   </ul>
   <label>Scan/Enter Book ID</label>
-  <input type="text" id="bookInput" class="span12">
-  <button class="btn btn-success" id="commit">Issue</button>
-  <button class="btn btn-danger" id="cancel">Cancel</button>
+  <input type="text" class="bookInput" class="span12">
+  <button class="btn btn-success commit">Issue</button>
+  <button class="btn btn-danger cancel">Cancel</button>
   {{/if}}
 </div>

@@ -2,30 +2,30 @@ User = require "models/user"
 UserView = require "controllers/user"
 
 class UserManager extends Spine.Controller
-  el: "#content"
+  el: "#users"
 
   elements:
-    '#list': 'list'
-    '#panel': 'panel'
-    '#searchbox': 'search'
+    '.list': 'list'
+    '.panel': 'panel'
+    '.search-query': 'search'
 
   events:
-    'keyup #searchbox': 'input'
-    'click #new': 'new'
+    'keyup .search-query': 'input'
+    'click .new': 'new'
 
   constructor: ->
     super
+    @html require("views/panelView")()
     User.bind 'create', @addUser
     User.bind 'refresh change', @render
 
   activate: ->
-    @el.addClass("users")
-    @html require("views/panelView")()
+    @el.addClass("visible")
     User.fetch()
     #@render()
 
   deactivate: ->
-    @el.removeClass("users")
+    @el.removeClass("visible")
 
   addUser: (user) =>
     view = new UserView user: user, panel: @panel
@@ -67,6 +67,7 @@ class UserManager extends Spine.Controller
 
 
   render: =>
+    User.unbind "refresh", @render
     if @list
       @list.empty()
       @addUser user for user in @filter()

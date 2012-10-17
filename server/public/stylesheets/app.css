@@ -5663,22 +5663,27 @@ button.close {
 }
 #container {
   padding: 0;
+  position: relative;
 }
-#content {
+.content {
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: none;
 }
-#content.login form {
+.content.visible {
+  display: block;
+}
+#login form {
   margin-top: 10%;
 }
-#content.catalogue #search,
-#content.users #search {
+#catalogue .search,
+#users .search {
   padding: 20px 0 20px;
   background: rgba(0,0,0,0.1);
 }
-#content.catalogue #list,
-#content.users #list {
+#catalogue .list,
+#users .list {
   margin: 0;
   list-style-type: none;
   background: #f2f2f2;
@@ -5686,8 +5691,8 @@ button.close {
   position: relative;
   overflow: auto;
 }
-#content.catalogue #list li,
-#content.users #list li {
+#catalogue .list li,
+#users .list li {
   cursor: pointer;
   width: 85%;
   padding: 20px 10% 20px 5%;
@@ -5702,8 +5707,8 @@ button.close {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-#content.catalogue #list li .id,
-#content.users #list li .id {
+#catalogue .list li .id,
+#users .list li .id {
   color: rgba(0,0,0,0.2);
   font-size: 3em;
   display: inline-block;
@@ -5712,8 +5717,8 @@ button.close {
   text-align: right;
   width: 1.5em;
 }
-#content.catalogue #list li.active,
-#content.users #list li.active {
+#catalogue .list li.active,
+#users .list li.active {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5a8ea8), color-stop(1, #345363));
   background: -webkit-linear-gradient(top, #5a8ea8 0%, #345363 100%);
   background: -moz-linear-gradient(top, #5a8ea8 0%, #345363 100%);
@@ -5721,8 +5726,8 @@ button.close {
   background: -ms-linear-gradient(top, #5a8ea8 0%, #345363 100%);
   background: linear-gradient(top, #5a8ea8 0%, #345363 100%);
 }
-#content.catalogue #new,
-#content.users #new {
+#catalogue .new,
+#users .new {
   position: absolute;
   bottom: 0px;
   margin: 0px;
@@ -5736,64 +5741,64 @@ button.close {
   background: -ms-linear-gradient(top, #5c5c5c 0%, #373737 100%);
   background: linear-gradient(top, #5c5c5c 0%, #373737 100%);
 }
-#content.catalogue #panel,
-#content.users #panel {
+#catalogue .panel,
+#users .panel {
   padding: 20px 20px 20px 0px;
   height: 100%;
   overflow: auto;
 }
-#content.catalogue #panel img,
-#content.users #panel img {
+#catalogue .panel img,
+#users .panel img {
   float: left;
   width: 200px;
   height: 300px;
 }
-#content.catalogue #panel form,
-#content.users #panel form {
+#catalogue .panel form,
+#users .panel form {
   float: left;
   margin-bottom: 5px;
 }
-#content.catalogue #panel form div,
-#content.users #panel form div {
+#catalogue .panel form div,
+#users .panel form div {
   margin-left: 20px;
   float: left;
 }
-#content.catalogue #panel form textarea,
-#content.users #panel form textarea,
-#content.catalogue #panel form .desc,
-#content.users #panel form .desc {
+#catalogue .panel form textarea,
+#users .panel form textarea,
+#catalogue .panel form .desc,
+#users .panel form .desc {
   margin-left: 20px;
 }
-#content.catalogue #panel form textarea,
-#content.users #panel form textarea {
+#catalogue .panel form textarea,
+#users .panel form textarea {
   width: 445px;
   height: 150px;
 }
-#content.catalogue #panel .buttons,
-#content.users #panel .buttons {
+#catalogue .panel .buttons,
+#users .panel .buttons {
   position: relative;
   clear: both;
 }
-#content.catalogue #panel .buttons button,
-#content.users #panel .buttons button {
+#catalogue .panel .buttons button,
+#users .panel .buttons button {
   width: 100px;
 }
-#content.issue #column,
-#content.return #column {
+#issue .column,
+#return .column {
   padding-top: 20px;
 }
-#content.issue #column #books,
-#content.return #column #books {
+#issue .column .books,
+#return .column .books {
   margin: 0;
   list-style-type: none;
   padding: 0 0 20px 0;
 }
-#content.issue #column #books li,
-#content.return #column #books li {
+#issue .column .books li,
+#return .column .books li {
   padding: 10px 0;
 }
-#content.issue #column #books li .id,
-#content.return #column #books li .id {
+#issue .column .books li .id,
+#return .column .books li .id {
   color: rgba(0,0,0,0.2);
   font-size: 3em;
   display: inline-block;
@@ -5801,7 +5806,7 @@ button.close {
   text-align: right;
   width: 1.5em;
 }
-#content.issue #column #books li button,
-#content.return #column #books li button {
+#issue .column .books li button,
+#return .column .books li button {
   float: right;
 }

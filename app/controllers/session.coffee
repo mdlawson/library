@@ -1,16 +1,16 @@
 class SessionManager extends Spine.Controller
-  el: "#content"
+  el: "#login"
   #className: "row-fluid"
 
   events:
-    'click #submit': 'submit'
+    'click .submit': 'submit'
 
   activate: ->
     @html require("views/login")()
-    @el.addClass("login")
+    @el.addClass("visible")
     $("#menu")[0].style.display = "none"
   deactivate: ->
-    @el.removeClass("login")
+    @el.removeClass("visible")
     $("#menu")[0].style.display = "block"
 
   login: (data={}) ->
@@ -27,8 +27,8 @@ class SessionManager extends Spine.Controller
   submit: (e) ->
     e.preventDefault()
     @login 
-      username: @$("input#username").val()
-      password: @$("input#password").val()
+      username: @$("input.username").val()
+      password: @$("input.password").val()
 
 
 

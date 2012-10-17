@@ -24,11 +24,28 @@ class UserView extends Spine.Controller
       @panel.find(".destroy").click => @user.destroy()
     @
 
-  renderPanel: -> @panel.html @panelTmpl @user
+  renderPanel: -> 
+    @panel.html @panelTmpl @user
+    val = if @user.admin then "1" else "0"
+    $("form button[value=#{val}]").addClass "active"
+
+    $(".save",@panel).click @save
+    $(".destroy",@panel).click => @user.destroy()
 
   save: =>
+    $(".save",@panel).button "loading"
     for prop,i of @user.attributes() when prop isnt "id"
-      @user[prop] = @panel.find(".#{prop}").val()
+      @user[prop] = $("form input.#{prop}",@panel).val()
+    @user.admin = $('form button[name="type"].active',@panel).val()
+    saved = =>
+      setTimeout =>
+        @user.unbind "create update", saved
+        $(".save",@panel).button "complete"
+        setTimeout -> 
+          $(".save",@panel).button "reset"
+        ,2000
+      ,100 # FUGLY FUCKED UP SHIT
+    @user.bind "create update", saved
     @user.save()
 
 module.exports = UserView

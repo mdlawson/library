@@ -30,14 +30,29 @@ class BookView extends Spine.Controller
   renderPanel: -> 
     @panel.html @panelTmpl @book
 
-    $("#datepicker",@panel).datepicker format: "dd-mm-yyyy"
-
+    #$(".datepicker",@panel).datepicker format: "dd-mm-yyyy"
     $(".save",@panel).click @save
-    $(".destroy",@panel).click => @book.destroy()
+    $(".destroy",@panel).popover
+      title: "Really?"
+      content: require("views/book/tooltip")
+
+    $(".destroy",@panel).click => 
+      $(".popover .really-destroy").click => @book.destroy()
+      $(".popover .cancel").click => $(".destroy",@panel).popover("hide")
 
   save: =>
+    $(".save",@panel).button "loading"
     for prop,i of @book.attributes() when prop isnt "id"
-      @book[prop] = @panel.find(".#{prop}").val()
+      @book[prop] = $("form .#{prop}",@panel).val()
+    saved = =>
+      setTimeout =>
+        @book.unbind "create update", saved
+        $(".save",@panel).button "complete"
+        setTimeout -> 
+          $(".save",@panel).button "reset"
+        ,2000
+      ,100 # FUGLY FUCKED UP SHIT
+    @book.bind "create update", saved
     @book.save()
 
 module.exports = BookView

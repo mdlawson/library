@@ -2,23 +2,26 @@ User = require "models/user"
 Book = require "models/book"
 
 class Issuer extends Spine.Controller
-  el: "#content"
+  el: "#issue"
 
   elements:
-    '#column': 'column'
-    '#userInput': 'userInput'
-    "#bookInput": 'bookInput'
-    '#books':'books'
+    '.column': 'column'
+    '.userInput': 'userInput'
+    ".bookInput": 'bookInput'
+    '.books':'books'
+
+  constructor: ->
+    super
+    @render()
 
   activate: ->
-    @el.addClass("issue")
-    @render()
+    @el.addClass("visible")
     @userInput.focus()
     User.fetch()
     Book.fetch()
 
   deactivate: ->
-    @el.removeClass("issue")
+    @el.removeClass("visible")
 
   inputUser: (e) =>
     unless e.which is 13 then return
@@ -35,7 +38,7 @@ class Issuer extends Spine.Controller
     @bookInput.focus()
 
   removeBook: (e) =>
-    @user.uncommitted.pop($("#books").index $(e.target).parent())
+    @user.uncommitted.pop(@books.index $(e.target).parent())
     @render()
 
   cancel: =>
@@ -51,9 +54,9 @@ class Issuer extends Spine.Controller
     @html require("views/issue")(@user or {})
     @userInput.keyup @inputUser
     @bookInput?.keyup @inputBook
-    $(".removeBook","#books").click @removeBook
-    $("#commit",@column).click @commit
-    $("#cancel",@column).click @cancel
+    $(".removeBook",@book).click @removeBook
+    $(".commit",@column).click @commit
+    $(".cancel",@column).click @cancel
 
 
 module.exports = Issuer

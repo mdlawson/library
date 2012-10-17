@@ -6,17 +6,24 @@
     <input type="text" class="firstName" value="{{ firstName }}">
     <label>Last name:</label>
     <input type="text" class="lastName" value="{{ firstName }}">
+    <label>Email:</label>
+    <input type="text" class="email" value="{{ email }}">
   </div>
   <div>
     <label>Username:</label>
     <input type="text" class="username" value="{{ username }}">
-    <label>email:</label>
-    <input type="text" class="email" value="{{ email }}">
+    <label>Password:</label>
+    <input type="text" class="password" value="{{ password }}">
+    <label>Type:</label>
+    <div class="btn-group" data-toggle="buttons-radio">
+      <button class="btn" type="button" name="type" value="1">admin</button>
+      <button class="btn" type="button" name="type" value="0">user</button>
+    </div>
   </div>
 </form>
 
 <div class="buttons">
-<button class="save btn">Save</button>
+<button class="save btn" data-loading-text="Saving..." data-complete-text="Saved!">Save</button>
 <button class="destroy btn btn-danger">Delete</button>
 </div>
 <legend>Loans</legend>

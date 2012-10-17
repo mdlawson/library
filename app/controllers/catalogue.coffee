@@ -4,38 +4,38 @@ levenshtein = require("util").levenshtein
 strScore = require("util").strScore
 
 class CatalogueManager extends Spine.Controller
-  el: "#content"
+  el: "#catalogue"
 
   routes:
     '/catalogue/:id': (params) ->
       Book.find(params.id).el.click()
 
   elements:
-    '#list': 'list'
-    '#panel': 'panel'
-    '#searchbox': 'search'
+    '.list': 'list'
+    '.panel': 'panel'
+    '.search-query': 'search'
 
   events:
-    'keyup #searchbox': 'input'
-    'click #new': 'new'
+    'keyup .search-query': 'input'
+    'click .new': 'new'
 
   constructor: ->
     # @input = @render.throttle 2000
     # @input = @render.lazy 2000, 3
     super
 
+    @html require("views/panelView")()
     Book.bind 'create', @addBook
     Book.bind 'refresh change', @render
 
 
   activate: ->
-    @el.addClass("catalogue")
-    @html require("views/panelView")()
+    @el.addClass("visible")
     Book.fetch()
     #@render()
 
   deactivate: ->
-    @el.removeClass("catalogue")
+    @el.removeClass("visible")
 
   addBook: (book) =>
     view = new BookView book: book, panel: @panel
@@ -90,6 +90,7 @@ class CatalogueManager extends Spine.Controller
       valid: (a) -> if a > 0.2 then return true else return false
 
   render: =>
+    Book.unbind "refresh", @render
     if @list
       books = @filter()
       @list.empty()

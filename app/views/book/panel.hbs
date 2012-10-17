@@ -9,7 +9,7 @@
   </div>
   <div>
     <label>Date:</label>
-    <input id="datepicker" type="text" class="date datepicker" value="{{Date date }}">
+    <input type="text" class="date datepicker" value="{{Date date }}">
     <label>ISBN:</label>
     <input type="text" class="ISBN" value="{{ ISBN }}">
   </div>
@@ -19,10 +19,10 @@
 </form>
 
 <div class="buttons">
-<button class="save btn">Save</button>
+<button class="save btn" data-loading-text="Saving..." data-complete-text="Saved!">Save</button>
 <button class="destroy btn btn-danger">Delete</button>
 </div>
-<legend>Copies: copies.length</legend>
+<legend>Copies: {{copies.length}}</legend>
 <!-- {{#each copies}}{{ this.id }}<br />{{/each}} -->
 <legend>Loans</legend>
 <table class="table table-bordered table-striped">

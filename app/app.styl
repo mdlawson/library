@@ -9,25 +9,30 @@
 
 #container
   padding: 0
+  position: relative
 
-#content
+.content
   height: 100%
   position: relative
   overflow: hidden
+  display: none
+
+.content.visible
+  display: block
 
 // LOGIN
 
-#content.login 
+#login 
   form
     margin-top: 10%
 
 // CATALOGUE/USERS
 
-#content.catalogue, #content.users
-  #search
+#catalogue, #users
+  .search
     padding: 20px 0 20px
     background: rgba(0,0,0,0.1)
-  #list
+  .list
     margin: 0
     list-style-type: none;
     background: #F2F2F2
@@ -60,7 +65,7 @@
     //   padding: 2px 0 2px 3%
     //   background: linear-gradient(top, #5C5C5C, #373737)
     //   color: white
-  #new
+  .new
     position: absolute
     bottom: 0px
     margin: 0px
@@ -68,7 +73,7 @@
     text-align: center
     color: white
     background: linear-gradient(top, #5C5C5C, #373737)
-  #panel
+  .panel
     padding: 20px 20px 20px 0px
     height: 100%
     overflow: auto
@@ -95,10 +100,10 @@
 
 // ISSUE/RETURN
 
-#content.issue,#content.return
-  #column
+#issue,#return
+  .column
     padding-top: 20px
-    #result
+    .result
       // background: linear-gradient(top, #F2F2F2, #D2D2D2)
       // border-radius: 0px 0px 10px 10px
       // width: 90%
@@ -110,7 +115,7 @@
       //   padding: 2px 0 2px 3%
       //   background: linear-gradient(top, #5C5C5C, #373737)
       //   color: white
-    #books
+    .books
       margin: 0
       list-style-type: none;
       padding 0 0 20px 0
