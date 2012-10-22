@@ -1163,7 +1163,7 @@ window.require.define({"views/book/list": function(exports, require, module) {
     stack1 = foundHelper || depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "id", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</span> -->\r\n";
+    buffer += escapeExpression(stack1) + "</span> -->\n";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1194,7 +1194,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
   function program3(depth0,data) {
     
     var buffer = "", stack1, stack2;
-    buffer += "\r\n      <tr><td>";
+    buffer += "\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
@@ -1220,13 +1220,13 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     stack1 = depth0.returned;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.returned", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
+    buffer += escapeExpression(stack1) + "</td></tr>\n    ";
     return buffer;}
 
   function program5(depth0,data) {
     
     var buffer = "", stack1, stack2;
-    buffer += "\r\n      <tr><td>";
+    buffer += "\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
@@ -1241,20 +1241,20 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
     else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
     else { stack1 = stack2; }
-    buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
+    buffer += escapeExpression(stack1) + "</td></tr>\n    ";
     return buffer;}
 
-    buffer += "<img class=\"img-polaroid\">\r\n\r\n<form>\r\n  <div>\r\n    <label>Title:</label>\r\n    <input type=\"text\" class=\"title\" value=\"";
+    buffer += "<img class=\"img-polaroid\">\n\n<form>\n  <div>\n    <label>Title:</label>\n    <input type=\"text\" class=\"title\" value=\"";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n    <label>Author:</label>\r\n    <input type=\"text\" class=\"author\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Author:</label>\n    <input type=\"text\" class=\"author\" value=\"";
     foundHelper = helpers.author;
     stack1 = foundHelper || depth0.author;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <div>\r\n    <label>Date:</label>\r\n    <input type=\"text\" class=\"date datepicker\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n  </div>\n  <div>\n    <label>Date:</label>\n    <input type=\"text\" class=\"date datepicker\" value=\"";
     foundHelper = helpers.date;
     stack1 = foundHelper || depth0.date;
     foundHelper = helpers.Date;
@@ -1262,23 +1262,23 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
     else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
     else { stack1 = stack2; }
-    buffer += escapeExpression(stack1) + "\">\r\n    <label>ISBN:</label>\r\n    <input type=\"text\" class=\"ISBN\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n    <label>ISBN:</label>\n    <input type=\"text\" class=\"ISBN\" value=\"";
     foundHelper = helpers.ISBN;
     stack1 = foundHelper || depth0.ISBN;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <label class=\"desc\">Description:</label>\r\n  <textarea class=\"description\">";
+    buffer += escapeExpression(stack1) + "\">\n  </div>\n  <label class=\"desc\">Description:</label>\n  <textarea class=\"description\">";
     foundHelper = helpers.description;
     stack1 = foundHelper || depth0.description;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "description", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</textarea>\r\n\r\n</form>\r\n\r\n<div class=\"buttons\">\r\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\r\n<button class=\"destroy btn btn-danger\">Delete</button>\r\n</div>\r\n<legend>Copies: ";
+    buffer += escapeExpression(stack1) + "</textarea>\n\n</form>\n\n<div class=\"buttons\">\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\n<button class=\"destroy btn btn-danger\">Delete</button>\n</div>\n<legend>Copies: ";
     foundHelper = helpers.copies;
     stack1 = foundHelper || depth0.copies;
     stack1 = (stack1 === null || stack1 === undefined || stack1 === false ? stack1 : stack1.length);
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "copies.length", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</legend>\r\n<!-- ";
+    buffer += escapeExpression(stack1) + "</legend>\n<!-- ";
     foundHelper = helpers.copies;
     stack1 = foundHelper || depth0.copies;
     stack2 = helpers.each;
@@ -1288,7 +1288,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += " -->\r\n<legend>Loans</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>User</th><th>Date</th><th>Due</th><th>Returned</th>\r\n  </thead>\r\n  <tbody>\r\n    ";
+    buffer += " -->\n<legend>Loans</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>User</th><th>Date</th><th>Due</th><th>Returned</th>\n  </thead>\n  <tbody>\n    ";
     foundHelper = helpers.loans;
     stack1 = foundHelper || depth0.loans;
     stack2 = helpers.each;
@@ -1298,7 +1298,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </tbody>\r\n</table>\r\n<legend>Reservations</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>User</th><th>Date</th> \r\n  </thead>\r\n  <tbody>\r\n    ";
+    buffer += "\n  </tbody>\n</table>\n<legend>Reservations</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>User</th><th>Date</th> \n  </thead>\n  <tbody>\n    ";
     foundHelper = helpers.reservations;
     stack1 = foundHelper || depth0.reservations;
     stack2 = helpers.each;
@@ -1308,7 +1308,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </tbody>\r\n</table>\r\n\r\n";
+    buffer += "\n  </tbody>\n</table>\n\n";
     return buffer;});
 }});
 
@@ -1318,7 +1318,7 @@ window.require.define({"views/book/tooltip": function(exports, require, module) 
     var foundHelper, self=this;
 
 
-    return "<button class=\"cancel btn\">Cancel</button>\r\n<button class=\"really-destroy btn btn-danger\">Delete</button>";});
+    return "<button class=\"cancel btn\">Cancel</button>\n<button class=\"really-destroy btn btn-danger\">Delete</button>";});
 }});
 
 window.require.define({"views/header": function(exports, require, module) {
@@ -1329,14 +1329,14 @@ window.require.define({"views/header": function(exports, require, module) {
   function program1(depth0,data) {
     
     
-    return "\r\n  <a class=\"brand\">Library</a>\r\n  ";}
+    return "\n  <a class=\"brand\">Library</a>\n  ";}
 
   function program3(depth0,data) {
     
     
-    return "\r\n    <li id=\"menu-issue\"><a>Issue</a></li>\r\n    <li id=\"menu-return\"><a>Return</a></li>\r\n    <li id=\"menu-catalogue\"><a>Catalogue</a></li>\r\n    <li id=\"menu-users\"><a>Users</a></li>\r\n    ";}
+    return "\n    <li id=\"menu-issue\"><a>Issue</a></li>\n    <li id=\"menu-return\"><a>Return</a></li>\n    <li id=\"menu-catalogue\"><a>Catalogue</a></li>\n    <li id=\"menu-users\"><a>Users</a></li>\n    ";}
 
-    buffer += "<div class=\"navbar-inner\">\r\n  ";
+    buffer += "<div class=\"navbar-inner\">\n  ";
     foundHelper = helpers.admin;
     stack1 = foundHelper || depth0.admin;
     stack2 = helpers.unless;
@@ -1346,7 +1346,7 @@ window.require.define({"views/header": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  <ul class=\"nav\">\r\n    ";
+    buffer += "\n  <ul class=\"nav\">\n    ";
     foundHelper = helpers.admin;
     stack1 = foundHelper || depth0.admin;
     stack2 = helpers['if'];
@@ -1356,7 +1356,7 @@ window.require.define({"views/header": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </ul>\r\n  <ul class=\"nav pull-right\">\r\n    <li id=\"logout\"><a href=\"/logout\">Logout</a><li>\r\n  </ul>\r\n</div>\r\n";
+    buffer += "\n  </ul>\n  <ul class=\"nav pull-right\">\n    <li id=\"logout\"><a href=\"/logout\">Logout</a><li>\n  </ul>\n</div>\n";
     return buffer;});
 }});
 
@@ -1377,7 +1377,7 @@ window.require.define({"views/issue": function(exports, require, module) {
   function program1(depth0,data) {
     
     var buffer = "", stack1, stack2;
-    buffer += "\r\n  <div class=\"result\">\r\n    Selected user:\r\n    <h3>";
+    buffer += "\n  <div class=\"result\">\n    Selected user:\n    <h3>";
     foundHelper = helpers.firstName;
     stack1 = foundHelper || depth0.firstName;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1387,17 +1387,17 @@ window.require.define({"views/issue": function(exports, require, module) {
     stack1 = foundHelper || depth0.lastName;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "lastName", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</h3>\r\n    <h4>";
+    buffer += escapeExpression(stack1) + "</h3>\n    <h4>";
     foundHelper = helpers.username;
     stack1 = foundHelper || depth0.username;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</h4>\r\n    <h4>";
+    buffer += escapeExpression(stack1) + "</h4>\n    <h4>";
     foundHelper = helpers.email;
     stack1 = foundHelper || depth0.email;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "email", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</h4>\r\n    <hr/>\r\n  </div>\r\n  <ul class=\"books\">\r\n  ";
+    buffer += escapeExpression(stack1) + "</h4>\n    <hr/>\n  </div>\n  <ul class=\"books\">\n  ";
     foundHelper = helpers.uncommitted;
     stack1 = foundHelper || depth0.uncommitted;
     stack2 = helpers['if'];
@@ -1407,12 +1407,12 @@ window.require.define({"views/issue": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </ul>\r\n  <label>Scan/Enter Book ID</label>\r\n  <input type=\"text\" class=\"bookInput\" class=\"span12\">\r\n  <button class=\"btn btn-success commit\">Issue</button>\r\n  <button class=\"btn btn-danger cancel\">Cancel</button>\r\n  ";
+    buffer += "\n  </ul>\n  <label>Scan/Enter Book ID</label>\n  <input type=\"text\" class=\"bookInput\" class=\"span12\">\n  <button class=\"btn btn-success commit\">Issue</button>\n  <button class=\"btn btn-danger cancel\">Cancel</button>\n  ";
     return buffer;}
   function program2(depth0,data) {
     
     var buffer = "", stack1, stack2;
-    buffer += "\r\n  ";
+    buffer += "\n  ";
     foundHelper = helpers.uncommitted;
     stack1 = foundHelper || depth0.uncommitted;
     stack2 = helpers.each;
@@ -1422,12 +1422,12 @@ window.require.define({"views/issue": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  ";
+    buffer += "\n  ";
     return buffer;}
   function program3(depth0,data) {
     
     var buffer = "", stack1;
-    buffer += "\r\n    <li><span class=\"id\">";
+    buffer += "\n    <li><span class=\"id\">";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
@@ -1439,10 +1439,10 @@ window.require.define({"views/issue": function(exports, require, module) {
     stack1 = depth0.author;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.author", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</small><button class=\"btn btn-danger btn-mini removeBook\">Remove</button></li>\r\n  ";
+    buffer += escapeExpression(stack1) + "</small><button class=\"btn btn-danger btn-mini removeBook\">Remove</button></li>\n  ";
     return buffer;}
 
-    buffer += "<div class=\"offset4 span4 column\">\r\n  <label>Scan/Enter User ID</label>\r\n  <input type=\"text\" class=\"userInput\" class=\"span12\">\r\n  ";
+    buffer += "<div class=\"offset4 span4 column\">\n  <label>Scan/Enter User ID</label>\n  <input type=\"text\" class=\"userInput span12\">\n  ";
     foundHelper = helpers.id;
     stack1 = foundHelper || depth0.id;
     stack2 = helpers['if'];
@@ -1452,7 +1452,7 @@ window.require.define({"views/issue": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n</div>";
+    buffer += "\n</div>";
     return buffer;});
 }});
 
@@ -1462,7 +1462,7 @@ window.require.define({"views/login": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<form class=\"span4 offset4 well\">\r\n  <legend>Login</legend>\r\n  <label>Username</label>\r\n  <input class=\"span12 username\" type=\"text\">\r\n  <label>Password</label>\r\n  <input class=\"span12 password\" type=\"text\">\r\n  <button type=\"submit\" class=\"btn btn-info btn-block submit\">Login</button>\r\n</form>";});
+    return "<form class=\"span4 offset4 well\">\n  <legend>Login</legend>\n  <label>Username</label>\n  <input class=\"span12 username\" type=\"text\">\n  <label>Password</label>\n  <input class=\"span12 password\" type=\"text\">\n  <button type=\"submit\" class=\"btn btn-info btn-block submit\">Login</button>\n</form>";});
 }});
 
 window.require.define({"views/panelView": function(exports, require, module) {
@@ -1471,7 +1471,7 @@ window.require.define({"views/panelView": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<div class=\"row-fluid search\">\r\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\r\n</div>\r\n<ul class=\"span3 list\"></ul>\r\n<button class=\"span3 btn new\">Add New</button>\r\n<div class=\"span9 panel\"></div>";});
+    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>\n<ul class=\"span3 list\"></ul>\n<button class=\"span3 btn new\">Add New</button>\n<div class=\"span9 panel\"></div>";});
 }});
 
 window.require.define({"views/return": function(exports, require, module) {
@@ -1482,7 +1482,7 @@ window.require.define({"views/return": function(exports, require, module) {
   function program1(depth0,data) {
     
     var buffer = "", stack1;
-    buffer += "\r\n  <div class=\"result\">\r\n    Returned Book :\r\n    <h3>";
+    buffer += "\n  <div class=\"result\">\n    Returned Book :\n    <h3>";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1492,10 +1492,10 @@ window.require.define({"views/return": function(exports, require, module) {
     stack1 = foundHelper || depth0.author;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</h3>\r\n    <hr/>\r\n  </div>\r\n  ";
+    buffer += escapeExpression(stack1) + "</h3>\n    <hr/>\n  </div>\n  ";
     return buffer;}
 
-    buffer += "<div class=\"column offset4 span4\">\r\n  <label>Scan/Enter Book ID</label>\r\n  <input type=\"text\" class=\"bookInput span12\">\r\n  ";
+    buffer += "<div class=\"column offset4 span4\">\n  <label>Scan/Enter Book ID</label>\n  <input type=\"text\" class=\"bookInput span12\">\n  ";
     foundHelper = helpers.id;
     stack1 = foundHelper || depth0.id;
     stack2 = helpers['if'];
@@ -1505,7 +1505,7 @@ window.require.define({"views/return": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n</div>";
+    buffer += "\n</div>";
     return buffer;});
 }});
 
@@ -1537,7 +1537,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
   function program1(depth0,data) {
     
     var buffer = "", stack1, stack2;
-    buffer += "\r\n      <tr><td>";
+    buffer += "\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
@@ -1560,13 +1560,13 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     stack1 = depth0.returned;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.returned", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
+    buffer += escapeExpression(stack1) + "</td></tr>\n    ";
     return buffer;}
 
   function program3(depth0,data) {
     
     var buffer = "", stack1, stack2;
-    buffer += "\r\n      <tr><td>";
+    buffer += "\n      <tr><td>";
     stack1 = depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.id", { hash: {} }); }
@@ -1581,35 +1581,35 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
     else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
     else { stack1 = stack2; }
-    buffer += escapeExpression(stack1) + "</td></tr>\r\n    ";
+    buffer += escapeExpression(stack1) + "</td></tr>\n    ";
     return buffer;}
 
-    buffer += "<!-- <img class=\"img-polaroid\"> -->\r\n\r\n<form>\r\n  <div>\r\n    <label>First name:</label>\r\n    <input type=\"text\" class=\"firstName\" value=\"";
+    buffer += "<!-- <img class=\"img-polaroid\"> -->\n\n<form>\n  <div>\n    <label>First name:</label>\n    <input type=\"text\" class=\"firstName\" value=\"";
     foundHelper = helpers.firstName;
     stack1 = foundHelper || depth0.firstName;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n    <label>Last name:</label>\r\n    <input type=\"text\" class=\"lastName\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Last name:</label>\n    <input type=\"text\" class=\"lastName\" value=\"";
     foundHelper = helpers.firstName;
     stack1 = foundHelper || depth0.firstName;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n    <label>Email:</label>\r\n    <input type=\"text\" class=\"email\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Email:</label>\n    <input type=\"text\" class=\"email\" value=\"";
     foundHelper = helpers.email;
     stack1 = foundHelper || depth0.email;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "email", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n  </div>\r\n  <div>\r\n    <label>Username:</label>\r\n    <input type=\"text\" class=\"username\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n  </div>\n  <div>\n    <label>Username:</label>\n    <input type=\"text\" class=\"username\" value=\"";
     foundHelper = helpers.username;
     stack1 = foundHelper || depth0.username;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n    <label>Password:</label>\r\n    <input type=\"text\" class=\"password\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Password:</label>\n    <input type=\"text\" class=\"password\" value=\"";
     foundHelper = helpers.password;
     stack1 = foundHelper || depth0.password;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "password", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\r\n    <label>Type:</label>\r\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\r\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"1\">admin</button>\r\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"0\">user</button>\r\n    </div>\r\n  </div>\r\n</form>\r\n\r\n<div class=\"buttons\">\r\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\r\n<button class=\"destroy btn btn-danger\">Delete</button>\r\n</div>\r\n<legend>Loans</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>\r\n  </thead>\r\n  <tbody>\r\n    ";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Type:</label>\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"1\">admin</button>\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"0\">user</button>\n    </div>\n  </div>\n</form>\n\n<div class=\"buttons\">\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\n<button class=\"destroy btn btn-danger\">Delete</button>\n</div>\n<legend>Loans</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>\n  </thead>\n  <tbody>\n    ";
     foundHelper = helpers.loans;
     stack1 = foundHelper || depth0.loans;
     stack2 = helpers.each;
@@ -1619,7 +1619,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </tbody>\r\n</table>\r\n<legend>Reservations</legend>\r\n<table class=\"table table-bordered table-striped\">\r\n  <thead>\r\n    <th>ID</th><th>Book</th><th>Date</th> \r\n  </thead>\r\n  <tbody>\r\n    ";
+    buffer += "\n  </tbody>\n</table>\n<legend>Reservations</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>Book</th><th>Date</th> \n  </thead>\n  <tbody>\n    ";
     foundHelper = helpers.reservations;
     stack1 = foundHelper || depth0.reservations;
     stack2 = helpers.each;
@@ -1629,7 +1629,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\r\n  </tbody>\r\n</table>\r\n\r\n";
+    buffer += "\n  </tbody>\n</table>\n\n";
     return buffer;});
 }});
 

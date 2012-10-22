@@ -5668,7 +5668,6 @@ button.close {
 .content {
   height: 100%;
   position: relative;
-  overflow: hidden;
   display: none;
 }
 .content.visible {
@@ -5687,7 +5686,7 @@ button.close {
   margin: 0;
   list-style-type: none;
   background: #f2f2f2;
-  height: 100%;
+  height: 95%;
   position: relative;
   overflow: auto;
 }
@@ -5729,6 +5728,7 @@ button.close {
 #catalogue .new,
 #users .new {
   position: absolute;
+  height: 5%;
   bottom: 0px;
   margin: 0px;
   display: block;
