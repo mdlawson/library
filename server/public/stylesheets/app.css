@@ -5658,6 +5658,10 @@ button.close {
   width: 16px;
   height: 16px;
 }
+html,
+body {
+  height: 100%;
+}
 .navbar li {
   cursor: pointer;
 }
@@ -5686,7 +5690,7 @@ button.close {
   margin: 0;
   list-style-type: none;
   background: #f2f2f2;
-  height: 95%;
+  height: 100%;
   position: relative;
   overflow: auto;
 }
@@ -5743,7 +5747,7 @@ button.close {
 }
 #catalogue .panel,
 #users .panel {
-  padding: 20px 20px 20px 0px;
+  margin: 20px 20px 20px 0px;
   height: 100%;
   overflow: auto;
 }

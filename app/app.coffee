@@ -56,3 +56,6 @@ $ ->
 
 fill = ->
   $("#container").height($(window).height()-41)
+  inner = $("#container").height()-70
+  $(".list").height(inner)
+  $(".panel").height(inner)
