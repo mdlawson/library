@@ -171,7 +171,7 @@ window.require.define({"app": function(exports, require, module) {
     $("#container").height($(window).height() - 41);
     inner = $("#container").height() - 70;
     $(".list").height(inner);
-    return $(".panel").height(inner);
+    return $(".panel").height(inner - 40);
   };
   
 }});
