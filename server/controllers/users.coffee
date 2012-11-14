@@ -1,4 +1,5 @@
 mysql = require 'mysql'
+bcrypt = require 'bcrypt'
 con = mysql.createConnection mysql.con
 model = ["id","username","password","firstName","lastName","email","admin"]
 modelStr = model.join(',')
@@ -16,15 +17,17 @@ module.exports =
     con.query "SELECT #{modelStr} FROM users WHERE id = ?", [Number req.params.user], (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
-    console.log req.body
     req.body.admin = Number req.body.admin
+    req.body.password = bcrypt.hashSync req.body.password, 10
+    console.log req.body
     con.query "INSERT INTO users SET ?", req.body, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", results.insertId, (err, results) ->
         res.send err or results[0]
       else res.send err
   update: (req, res) ->
-    console.log req.body
     if req.body.admin then req.body.admin = Number req.body.admin
+    if req.body.password then req.body.password = bcrypt.hashSync req.body.password, 10
+    console.log req.body
     con.query "UPDATE users SET ? WHERE id = ? ", [req.body, Number req.params.user], (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", Number(req.params.user), (err, results) ->
         res.send err or results[0]
@@ -37,8 +40,11 @@ module.exports =
       req.session.user.reauth = true
       res.send req.session.user 
     else # quick exit for already authed users
-      con.query "SELECT #{modelStr} FROM users WHERE username = ? AND password = ?", [req.body.username, req.body.password], (err, results) ->
-        if results.length
+      con.query "SELECT #{modelStr} FROM users WHERE username = ?", [req.body.username], (err, results) ->
+        console.log results
+        console.log req.body.password
+        console.log bcrypt.compareSync req.body.password, results[0].password
+        if results.length and bcrypt.compareSync req.body.password, results[0].password
           user = results[0]
           req.session.user =
             id: user.id

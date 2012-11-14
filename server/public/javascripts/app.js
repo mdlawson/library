@@ -1013,7 +1013,7 @@ window.require.define({"models/user": function(exports, require, module) {
       return User.__super__.constructor.apply(this, arguments);
     }
 
-    User.configure("User", "username", "firstName", "lastName", "email", "admin");
+    User.configure("User", "username", "firstName", "lastName", "email", "admin", "password");
 
     User.extend(Spine.Model.Ajax);
 

@@ -1,5 +1,5 @@
 class User extends Spine.Model
-  @configure "User","username","firstName","lastName","email","admin"
+  @configure "User","username","firstName","lastName","email","admin","password"
 
   @extend Spine.Model.Ajax
 
