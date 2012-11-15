@@ -1,0 +1,51 @@
+<!-- <img class="img-polaroid"> -->
+
+<form>
+  <div>
+    <label>First name:</label>
+    <input type="text" class="firstName" value="{{ firstName }}">
+    <label>Last name:</label>
+    <input type="text" class="lastName" value="{{ firstName }}">
+    <label>Email:</label>
+    <input type="text" class="email" value="{{ email }}">
+  </div>
+  <div>
+    <label>Username:</label>
+    <input type="text" class="username" value="{{ username }}">
+    <label>Password:</label>
+    <input type="text" class="password" value="{{ password }}">
+    <label>Type:</label>
+    <div class="btn-group" data-toggle="buttons-radio">
+      <button class="btn" type="button" name="type" value="1">admin</button>
+      <button class="btn" type="button" name="type" value="0">user</button>
+    </div>
+  </div>
+</form>
+
+<div class="buttons">
+<button class="save btn" data-loading-text="Saving..." data-complete-text="Saved!">Save</button>
+<button class="destroy btn btn-danger">Delete</button>
+</div>
+<legend>Loans</legend>
+<table class="table table-bordered table-striped">
+  <thead>
+    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>
+  </thead>
+  <tbody>
+    {{#each loans}}
+      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{Date this.date }}</td><td>{{ this.due }}</td><td>{{ this.returned }}</td></tr>
+    {{/each}}
+  </tbody>
+</table>
+<legend>Reservations</legend>
+<table class="table table-bordered table-striped">
+  <thead>
+    <th>ID</th><th>Book</th><th>Date</th> 
+  </thead>
+  <tbody>
+    {{#each reservations}}
+      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{Date this.date }}</td></tr>
+    {{/each}}
+  </tbody>
+</table>
+
