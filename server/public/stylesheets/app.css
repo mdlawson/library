@@ -5709,6 +5709,7 @@ body {
   color: rgba(0,0,0,0.8);
   white-space: nowrap;
   text-overflow: ellipsis;
+  overflow: hidden;
 }
 #catalogue .list li .id,
 #users .list li .id {
@@ -5732,7 +5733,7 @@ body {
 #catalogue .new,
 #users .new {
   position: absolute;
-  height: 5%;
+  height: 20px;
   bottom: 0px;
   margin: 0px;
   display: block;

@@ -170,7 +170,7 @@ window.require.define({"app": function(exports, require, module) {
     var inner;
     $("#container").height($(window).height() - 41);
     inner = $("#container").height() - 70;
-    $(".list").height(inner);
+    $(".list").height(inner - 30);
     return $(".panel").height(inner - 40);
   };
   
@@ -1608,12 +1608,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     stack1 = foundHelper || depth0.username;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\n    <label>Password:</label>\n    <input type=\"text\" class=\"password\" value=\"";
-    foundHelper = helpers.password;
-    stack1 = foundHelper || depth0.password;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "password", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\n    <label>Type:</label>\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"1\">admin</button>\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"0\">user</button>\n    </div>\n  </div>\n</form>\n\n<div class=\"buttons\">\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\n<button class=\"destroy btn btn-danger\">Delete</button>\n</div>\n<legend>Loans</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>\n  </thead>\n  <tbody>\n    ";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Password:</label>\n    <input type=\"password\" class=\"password\" placeholder=\"•••••••\">\n    <label>Type:</label>\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"1\">admin</button>\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"0\">user</button>\n    </div>\n  </div>\n</form>\n\n<div class=\"buttons\">\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\n<button class=\"destroy btn btn-danger\">Delete</button>\n</div>\n<legend>Loans</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>\n  </thead>\n  <tbody>\n    ";
     foundHelper = helpers.loans;
     stack1 = foundHelper || depth0.loans;
     stack2 = helpers.each;

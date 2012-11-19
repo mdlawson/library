@@ -41,9 +41,6 @@ module.exports =
       res.send req.session.user 
     else # quick exit for already authed users
       con.query "SELECT #{modelStr} FROM users WHERE username = ?", [req.body.username], (err, results) ->
-        console.log results
-        console.log req.body.password
-        console.log bcrypt.compareSync req.body.password, results[0].password
         if results.length and bcrypt.compareSync req.body.password, results[0].password
           user = results[0]
           req.session.user =
