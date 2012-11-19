@@ -805,7 +805,7 @@ window.require.define({"controllers/user": function(exports, require, module) {
       for (prop in _ref) {
         i = _ref[prop];
         if (prop !== "id") {
-          this.user[prop] = $("form input." + prop, this.panel).val();
+          this.user[prop] = $("form input." + prop, this.panel).val() || i;
         }
       }
       this.user.admin = $('form button[name="type"].active', this.panel).val();
