@@ -1,5 +1,11 @@
 <div class="offset4 span4 column">
   <label>Scan/Enter User ID</label>
+  {{#if userAlert}}
+  <div class="alert alert-error">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    {{ userAlert }}
+  </div>
+  {{/if}}
   <input type="text" class="userInput span12">
   {{#if id}}
   <div class="result">
@@ -17,6 +23,12 @@
   {{/if}}
   </ul>
   <label>Scan/Enter Book ID</label>
+  {{#if bookAlert}}
+  <div class="alert alert-error">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    {{ bookAlert}}
+  </div>
+  {{/if}}
   <input type="text" class="bookInput" class="span12">
   <button class="btn btn-success commit">Issue</button>
   <button class="btn btn-danger cancel">Cancel</button>

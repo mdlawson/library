@@ -121,7 +121,7 @@ html, body
       list-style-type: none;
       padding 0 0 20px 0
       li
-        padding: 10px 0
+        padding: 15px 0
         .id
           color: rgba(0,0,0,0.2)
           font-size: 3em
@@ -130,4 +130,14 @@ html, body
           text-align: right
           width: 1.5em
         button
+          margin-right: 10px
           float: right
+      li:nth-child(odd)
+        background: rgba(0,0,0,0.05)
+      li:nth-child(even)
+        background: rgba(0,0,0,0,0.1)
+    input.bookInput
+      width: 60%
+    button
+      //width: 18%
+      margin-bottom: 9px

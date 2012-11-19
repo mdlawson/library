@@ -476,7 +476,8 @@ window.require.define({"controllers/issue": function(exports, require, module) {
   var Book, Issuer, User,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   User = require("models/user");
 
@@ -525,12 +526,21 @@ window.require.define({"controllers/issue": function(exports, require, module) {
       if (e.which !== 13) {
         return;
       }
-      this.user = User.find(Number(this.userInput.val()));
-      if ((_ref = (_base = this.user).uncommitted) == null) {
-        _base.uncommitted = [];
+      try {
+        this.user = User.find(Number(this.userInput.val()));
+        if ((_ref = (_base = this.user).uncommitted) == null) {
+          _base.uncommitted = [];
+        }
+        this.user.userAlert = null;
+      } catch (error) {
+        this.user = {
+          userAlert: "User not found!"
+        };
       }
       this.render();
-      return this.bookInput.focus();
+      if (this.user.id) {
+        return this.bookInput.focus();
+      }
     };
 
     Issuer.prototype.inputBook = function(e) {
@@ -538,9 +548,16 @@ window.require.define({"controllers/issue": function(exports, require, module) {
       if (e.which !== 13) {
         return;
       }
-      book = Book.find(Number(this.bookInput.val()));
-      if (book) {
-        this.user.uncommitted.push(book);
+      try {
+        book = Book.find(Number(this.bookInput.val()));
+        this.user.bookAlert = null;
+        if (__indexOf.call(this.user.uncommitted, book) < 0) {
+          this.user.uncommitted.push(book);
+        } else {
+          this.user.bookAlert = "You have already added this book!";
+        }
+      } catch (error) {
+        this.user.bookAlert = "Book not found!";
       }
       this.render();
       return this.bookInput.focus();
@@ -1380,6 +1397,17 @@ window.require.define({"views/issue": function(exports, require, module) {
 
   function program1(depth0,data) {
     
+    var buffer = "", stack1;
+    buffer += "\n  <div class=\"alert alert-error\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"alert\">×</button>\n    ";
+    foundHelper = helpers.userAlert;
+    stack1 = foundHelper || depth0.userAlert;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "userAlert", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\n  </div>\n  ";
+    return buffer;}
+
+  function program3(depth0,data) {
+    
     var buffer = "", stack1, stack2;
     buffer += "\n  <div class=\"result\">\n    Selected user:\n    <h3>";
     foundHelper = helpers.firstName;
@@ -1405,22 +1433,32 @@ window.require.define({"views/issue": function(exports, require, module) {
     foundHelper = helpers.uncommitted;
     stack1 = foundHelper || depth0.uncommitted;
     stack2 = helpers['if'];
-    tmp1 = self.program(2, program2, data);
+    tmp1 = self.program(4, program4, data);
     tmp1.hash = {};
     tmp1.fn = tmp1;
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\n  </ul>\n  <label>Scan/Enter Book ID</label>\n  <input type=\"text\" class=\"bookInput\" class=\"span12\">\n  <button class=\"btn btn-success commit\">Issue</button>\n  <button class=\"btn btn-danger cancel\">Cancel</button>\n  ";
+    buffer += "\n  </ul>\n  <label>Scan/Enter Book ID</label>\n  ";
+    foundHelper = helpers.bookAlert;
+    stack1 = foundHelper || depth0.bookAlert;
+    stack2 = helpers['if'];
+    tmp1 = self.program(7, program7, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\n  <input type=\"text\" class=\"bookInput\" class=\"span12\">\n  <button class=\"btn btn-success commit\">Issue</button>\n  <button class=\"btn btn-danger cancel\">Cancel</button>\n  ";
     return buffer;}
-  function program2(depth0,data) {
+  function program4(depth0,data) {
     
     var buffer = "", stack1, stack2;
     buffer += "\n  ";
     foundHelper = helpers.uncommitted;
     stack1 = foundHelper || depth0.uncommitted;
     stack2 = helpers.each;
-    tmp1 = self.program(3, program3, data);
+    tmp1 = self.program(5, program5, data);
     tmp1.hash = {};
     tmp1.fn = tmp1;
     tmp1.inverse = self.noop;
@@ -1428,7 +1466,7 @@ window.require.define({"views/issue": function(exports, require, module) {
     if(stack1 || stack1 === 0) { buffer += stack1; }
     buffer += "\n  ";
     return buffer;}
-  function program3(depth0,data) {
+  function program5(depth0,data) {
     
     var buffer = "", stack1;
     buffer += "\n    <li><span class=\"id\">";
@@ -1446,11 +1484,32 @@ window.require.define({"views/issue": function(exports, require, module) {
     buffer += escapeExpression(stack1) + "</small><button class=\"btn btn-danger btn-mini removeBook\">Remove</button></li>\n  ";
     return buffer;}
 
-    buffer += "<div class=\"offset4 span4 column\">\n  <label>Scan/Enter User ID</label>\n  <input type=\"text\" class=\"userInput span12\">\n  ";
+  function program7(depth0,data) {
+    
+    var buffer = "", stack1;
+    buffer += "\n  <div class=\"alert alert-error\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"alert\">×</button>\n    ";
+    foundHelper = helpers.bookAlert;
+    stack1 = foundHelper || depth0.bookAlert;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "bookAlert", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\n  </div>\n  ";
+    return buffer;}
+
+    buffer += "<div class=\"offset4 span4 column\">\n  <label>Scan/Enter User ID</label>\n  ";
+    foundHelper = helpers.userAlert;
+    stack1 = foundHelper || depth0.userAlert;
+    stack2 = helpers['if'];
+    tmp1 = self.program(1, program1, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.noop;
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\n  <input type=\"text\" class=\"userInput span12\">\n  ";
     foundHelper = helpers.id;
     stack1 = foundHelper || depth0.id;
     stack2 = helpers['if'];
-    tmp1 = self.program(1, program1, data);
+    tmp1 = self.program(3, program3, data);
     tmp1.hash = {};
     tmp1.fn = tmp1;
     tmp1.inverse = self.noop;
@@ -1466,7 +1525,7 @@ window.require.define({"views/login": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<form class=\"span4 offset4 well\">\n  <legend>Login</legend>\n  <label>Username</label>\n  <input class=\"span12 username\" type=\"text\">\n  <label>Password</label>\n  <input class=\"span12 password\" type=\"text\">\n  <button type=\"submit\" class=\"btn btn-info btn-block submit\">Login</button>\n</form>";});
+    return "<form class=\"span4 offset4 well\">\n  <legend>Login</legend>\n  <label>Username</label>\n  <input class=\"span12 username\" type=\"text\">\n  <label>Password</label>\n  <input class=\"span12 password\" type=\"password\">\n  <button type=\"submit\" class=\"btn btn-info btn-block submit\">Login</button>\n</form>";});
 }});
 
 window.require.define({"views/panelView": function(exports, require, module) {
@@ -1594,10 +1653,10 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
     buffer += escapeExpression(stack1) + "\">\n    <label>Last name:</label>\n    <input type=\"text\" class=\"lastName\" value=\"";
-    foundHelper = helpers.firstName;
-    stack1 = foundHelper || depth0.firstName;
+    foundHelper = helpers.lastName;
+    stack1 = foundHelper || depth0.lastName;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "firstName", { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "lastName", { hash: {} }); }
     buffer += escapeExpression(stack1) + "\">\n    <label>Email:</label>\n    <input type=\"text\" class=\"email\" value=\"";
     foundHelper = helpers.email;
     stack1 = foundHelper || depth0.email;

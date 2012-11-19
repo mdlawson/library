@@ -25,15 +25,25 @@ class Issuer extends Spine.Controller
 
   inputUser: (e) =>
     unless e.which is 13 then return
-    @user = User.find Number @userInput.val()
-    @user.uncommitted ?= [] 
+    try
+      @user = User.find Number @userInput.val()
+      @user.uncommitted ?= [] 
+      @user.userAlert = null
+    catch error
+      @user = {userAlert:"User not found!"}
     @render()
-    @bookInput.focus()
+    if @user.id then @bookInput.focus()
 
   inputBook: (e) =>
     unless e.which is 13 then return
-    book = Book.find Number @bookInput.val()
-    if book then @user.uncommitted.push book
+    try
+      book = Book.find Number @bookInput.val()
+      @user.bookAlert = null
+      if book not in @user.uncommitted then @user.uncommitted.push book
+      else
+        @user.bookAlert = "You have already added this book!"
+    catch error
+      @user.bookAlert = "Book not found!"
     @render()
     @bookInput.focus()
 

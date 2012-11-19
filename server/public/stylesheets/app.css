@@ -5800,7 +5800,7 @@ body {
 }
 #issue .column .books li,
 #return .column .books li {
-  padding: 10px 0;
+  padding: 15px 0;
 }
 #issue .column .books li .id,
 #return .column .books li .id {
@@ -5813,5 +5813,22 @@ body {
 }
 #issue .column .books li button,
 #return .column .books li button {
+  margin-right: 10px;
   float: right;
+}
+#issue .column .books li:nth-child(odd),
+#return .column .books li:nth-child(odd) {
+  background: rgba(0,0,0,0.05);
+}
+#issue .column .books li:nth-child(even),
+#return .column .books li:nth-child(even) {
+  background: rgba(0,0,0,0);
+}
+#issue .column input.bookInput,
+#return .column input.bookInput {
+  width: 60%;
+}
+#issue .column button,
+#return .column button {
+  margin-bottom: 9px;
 }
