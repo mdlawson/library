@@ -5824,9 +5824,9 @@ body {
 #return .column .books li:nth-child(even) {
   background: rgba(0,0,0,0);
 }
-#issue .column input.bookInput,
-#return .column input.bookInput {
-  width: 60%;
+#issue .column input,
+#return .column input {
+  float: left;
 }
 #issue .column button,
 #return .column button {

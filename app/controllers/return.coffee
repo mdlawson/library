@@ -21,8 +21,11 @@ class Returner extends Spine.Controller
 
   inputBook: (e) =>
     unless e.which is 13 then return
-    @book = Book.find Number @bookInput.val()
-    if @book then @book.return()
+    try
+      @book = Book.find Number @bookInput.val()
+      if @book then @book.return()
+    catch error
+      @book = {alert: "Book not found!"}
     @render()
     @bookInput.focus()
 

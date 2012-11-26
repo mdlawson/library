@@ -450,6 +450,9 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     CatalogueManager.prototype.render = function() {
       var book, books, _i, _len;
       Book.unbind("refresh", this.render);
+      if (this.basic) {
+        this.html(require("views/basic")());
+      }
       if (this.list) {
         books = this.filter();
         this.list.empty();
@@ -654,9 +657,15 @@ window.require.define({"controllers/return": function(exports, require, module) 
       if (e.which !== 13) {
         return;
       }
-      this.book = Book.find(Number(this.bookInput.val()));
-      if (this.book) {
-        this.book["return"]();
+      try {
+        this.book = Book.find(Number(this.bookInput.val()));
+        if (this.book) {
+          this.book["return"]();
+        }
+      } catch (error) {
+        this.book = {
+          alert: "Book not found!"
+        };
       }
       this.render();
       return this.bookInput.focus();
@@ -809,6 +818,7 @@ window.require.define({"controllers/user": function(exports, require, module) {
         }
       }
       this.user.admin = $('form button[name="type"].active', this.panel).val();
+      console.log(this.user);
       saved = function() {
         return setTimeout(function() {
           _this.user.unbind("create update", saved);
@@ -902,7 +912,8 @@ window.require.define({"controllers/users": function(exports, require, module) {
         firstName: "",
         lastName: "",
         email: "",
-        admin: false
+        admin: false,
+        password: ""
       });
       return this.addUser(user).click();
     };
@@ -1449,7 +1460,7 @@ window.require.define({"views/issue": function(exports, require, module) {
     tmp1.inverse = self.noop;
     stack1 = stack2.call(depth0, stack1, tmp1);
     if(stack1 || stack1 === 0) { buffer += stack1; }
-    buffer += "\n  <input type=\"text\" class=\"bookInput\" class=\"span12\">\n  <button class=\"btn btn-success commit\">Issue</button>\n  <button class=\"btn btn-danger cancel\">Cancel</button>\n  ";
+    buffer += "\n  <input type=\"text\" class=\"bookInput span6\">\n  <button class=\"btn btn-success commit span3\">Issue</button>\n  <button class=\"btn btn-danger cancel span3\">Cancel</button>\n  ";
     return buffer;}
   function program4(depth0,data) {
     
@@ -1619,10 +1630,6 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     stack1 = depth0.due;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.due", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</td><td>";
-    stack1 = depth0.returned;
-    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "this.returned", { hash: {} }); }
     buffer += escapeExpression(stack1) + "</td></tr>\n    ";
     return buffer;}
 
@@ -1667,7 +1674,7 @@ window.require.define({"views/user/panel": function(exports, require, module) {
     stack1 = foundHelper || depth0.username;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "username", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\n    <label>Password:</label>\n    <input type=\"password\" class=\"password\" placeholder=\"•••••••\">\n    <label>Type:</label>\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"1\">admin</button>\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"0\">user</button>\n    </div>\n  </div>\n</form>\n\n<div class=\"buttons\">\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\n<button class=\"destroy btn btn-danger\">Delete</button>\n</div>\n<legend>Loans</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>\n  </thead>\n  <tbody>\n    ";
+    buffer += escapeExpression(stack1) + "\">\n    <label>Password:</label>\n    <input type=\"password\" class=\"password\" placeholder=\"•••••••\">\n    <label>Type:</label>\n    <div class=\"btn-group\" data-toggle=\"buttons-radio\">\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"1\">admin</button>\n      <button class=\"btn\" type=\"button\" name=\"type\" value=\"0\">user</button>\n    </div>\n  </div>\n</form>\n\n<div class=\"buttons\">\n<button class=\"save btn\" data-loading-text=\"Saving...\" data-complete-text=\"Saved!\">Save</button>\n<button class=\"destroy btn btn-danger\">Delete</button>\n</div>\n<legend>Loans</legend>\n<table class=\"table table-bordered table-striped\">\n  <thead>\n    <th>ID</th><th>Book</th><th>Date</th><th>Due</th>\n  </thead>\n  <tbody>\n    ";
     foundHelper = helpers.loans;
     stack1 = foundHelper || depth0.loans;
     stack2 = helpers.each;

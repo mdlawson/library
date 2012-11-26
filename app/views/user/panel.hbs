@@ -29,11 +29,11 @@
 <legend>Loans</legend>
 <table class="table table-bordered table-striped">
   <thead>
-    <th>ID</th><th>Book</th><th>Date</th><th>Due</th><th>Returned</th>
+    <th>ID</th><th>Book</th><th>Date</th><th>Due</th>
   </thead>
   <tbody>
     {{#each loans}}
-      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{Date this.date }}</td><td>{{ this.due }}</td><td>{{ this.returned }}</td></tr>
+      <tr><td>{{ this.id }}</td><td>{{ this.bookId }}</td><td>{{Date this.date }}</td><td>{{ this.due }}</td></tr>
     {{/each}}
   </tbody>
 </table>

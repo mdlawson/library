@@ -24,7 +24,7 @@ class UserView extends Spine.Controller
       @panel.find(".destroy").click => @user.destroy()
     @
 
-  renderPanel: -> 
+  renderPanel: ->
     @panel.html @panelTmpl @user
     val = if @user.admin then "1" else "0"
     $("form button[value=#{val}]").addClass "active"
@@ -37,6 +37,7 @@ class UserView extends Spine.Controller
     for prop,i of @user.attributes() when prop isnt "id"
       @user[prop] = $("form input.#{prop}",@panel).val() or i
     @user.admin = $('form button[name="type"].active',@panel).val()
+    console.log @user
     saved = =>
       setTimeout =>
         @user.unbind "create update", saved

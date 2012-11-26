@@ -39,7 +39,7 @@ class UserManager extends Spine.Controller
     el
 
   new: ->
-    user = new User({username: "[New User]",firstName:"",lastName:"",email:"",admin:false})
+    user = new User({username: "[New User]",firstName:"",lastName:"",email:"",admin:false,password:""})
     @addUser(user).click()
 
 

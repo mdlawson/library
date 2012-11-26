@@ -17,9 +17,9 @@ module.exports =
     con.query "SELECT #{modelStr} FROM users WHERE id = ?", [Number req.params.user], (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
+    console.log req.body
     req.body.admin = Number req.body.admin
     req.body.password = bcrypt.hashSync req.body.password, 10
-    console.log req.body
     con.query "INSERT INTO users SET ?", req.body, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", results.insertId, (err, results) ->
         res.send err or results[0]
