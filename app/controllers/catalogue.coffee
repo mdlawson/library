@@ -28,7 +28,6 @@ class CatalogueManager extends Spine.Controller
     Book.bind 'create', @addBook
     Book.bind 'refresh change', @render
 
-
   activate: ->
     @el.addClass("visible")
     Book.fetch()
@@ -91,7 +90,6 @@ class CatalogueManager extends Spine.Controller
 
   render: =>
     Book.unbind "refresh", @render
-    if @basic then @html require("views/basic")()
     if @list
       books = @filter()
       @list.empty()

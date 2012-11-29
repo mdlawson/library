@@ -1,6 +1,7 @@
 require 'views/helpers'
 SessionManager = require 'controllers/session'
 CatalogueManager = require 'controllers/catalogue'
+BasicCatalogue = require 'controllers/basic'
 UserManager = require 'controllers/users'
 Issuer = require 'controllers/issue'
 Returner = require 'controllers/return'
@@ -19,14 +20,15 @@ class App extends Spine.Stack
     
     @session.bind "login", (user) =>
       @render()
-      @catalogue.basic = if user.admin is 0 then true else false
+      unless user.admin
+        @catalogue = new BasicCatalogue(stack: @)
+        @manager.add @catalogue
       unless user.reauth then @navigate "/catalogue"
     @session.bind "failure", => @navigate "/login"
     @session.login()
 
   render: ->
     that = @
-    items = 
     @menu.html require("views/header")(@session.user)
 
     $("#menu-issue",@menu).click => @navigate "/issue"
@@ -37,6 +39,7 @@ class App extends Spine.Stack
   routes:
     "/login": 'session'
     "/catalogue": 'catalogue'
+#    "/browse": 'basic'
     "/users": "user"
     "/issue": "issue"
     "/return": "return"
@@ -44,6 +47,7 @@ class App extends Spine.Stack
   controllers:
     session: SessionManager
     catalogue: CatalogueManager
+#    basic: BasicCatalogue
     user: UserManager
     issue: Issuer
     return: Returner

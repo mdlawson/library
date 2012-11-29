@@ -75,7 +75,7 @@
 })();
 
 window.require.define({"app": function(exports, require, module) {
-  var App, CatalogueManager, Issuer, Returner, SessionManager, UserManager, fill,
+  var App, BasicCatalogue, CatalogueManager, Issuer, Returner, SessionManager, UserManager, fill,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -84,6 +84,8 @@ window.require.define({"app": function(exports, require, module) {
   SessionManager = require('controllers/session');
 
   CatalogueManager = require('controllers/catalogue');
+
+  BasicCatalogue = require('controllers/basic');
 
   UserManager = require('controllers/users');
 
@@ -107,7 +109,12 @@ window.require.define({"app": function(exports, require, module) {
       });
       this.session.bind("login", function(user) {
         _this.render();
-        _this.catalogue.basic = user.admin === 0 ? true : false;
+        if (!user.admin) {
+          _this.catalogue = new BasicCatalogue({
+            stack: _this
+          });
+          _this.manager.add(_this.catalogue);
+        }
         if (!user.reauth) {
           return _this.navigate("/catalogue");
         }
@@ -119,10 +126,10 @@ window.require.define({"app": function(exports, require, module) {
     }
 
     App.prototype.render = function() {
-      var items, that,
+      var that,
         _this = this;
       that = this;
-      items = this.menu.html(require("views/header")(this.session.user));
+      this.menu.html(require("views/header")(this.session.user));
       $("#menu-issue", this.menu).click(function() {
         return _this.navigate("/issue");
       });
@@ -173,6 +180,51 @@ window.require.define({"app": function(exports, require, module) {
     $(".list").height(inner - 30);
     return $(".panel").height(inner - 40);
   };
+  
+}});
+
+window.require.define({"controllers/basic": function(exports, require, module) {
+  var BasicBookView, BasicCatalogue, Book, BookView, Catalogue,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Book = require("models/book");
+
+  BookView = require("controllers/book");
+
+  Catalogue = require("controllers/catalogue");
+
+  BasicCatalogue = (function(_super) {
+
+    __extends(BasicCatalogue, _super);
+
+    function BasicCatalogue() {
+      BasicCatalogue.__super__.constructor.apply(this, arguments);
+      this.render();
+    }
+
+    BasicCatalogue.prototype.render = function() {
+      this.html(require("views/basic")());
+      return console.log("basic render");
+    };
+
+    return BasicCatalogue;
+
+  })(Catalogue);
+
+  BasicBookView = (function(_super) {
+
+    __extends(BasicBookView, _super);
+
+    function BasicBookView() {
+      return BasicBookView.__super__.constructor.apply(this, arguments);
+    }
+
+    return BasicBookView;
+
+  })(BookView);
+
+  module.exports = BasicCatalogue;
   
 }});
 
@@ -450,9 +502,6 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     CatalogueManager.prototype.render = function() {
       var book, books, _i, _len;
       Book.unbind("refresh", this.render);
-      if (this.basic) {
-        this.html(require("views/basic")());
-      }
       if (this.list) {
         books = this.filter();
         this.list.empty();
@@ -1178,10 +1227,10 @@ window.require.define({"util": function(exports, require, module) {
 window.require.define({"views/basic": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var buffer = "", foundHelper, self=this;
+    var foundHelper, self=this;
 
 
-    return buffer;});
+    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>";});
 }});
 
 window.require.define({"views/book/list": function(exports, require, module) {
