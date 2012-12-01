@@ -23,6 +23,7 @@ class App extends Spine.Stack
       unless user.admin
         @catalogue = new BasicCatalogue(stack: @)
         @manager.add @catalogue
+        @catalogue.active()
       unless user.reauth then @navigate "/catalogue"
     @session.bind "failure", => @navigate "/login"
     @session.login()
@@ -39,7 +40,6 @@ class App extends Spine.Stack
   routes:
     "/login": 'session'
     "/catalogue": 'catalogue'
-#    "/browse": 'basic'
     "/users": "user"
     "/issue": "issue"
     "/return": "return"
@@ -47,7 +47,6 @@ class App extends Spine.Stack
   controllers:
     session: SessionManager
     catalogue: CatalogueManager
-#    basic: BasicCatalogue
     user: UserManager
     issue: Issuer
     return: Returner

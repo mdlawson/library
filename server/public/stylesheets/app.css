@@ -5687,14 +5687,18 @@ body {
 }
 #catalogue .list,
 #users .list {
-  margin: 0;
   list-style-type: none;
+  height: 100%;
+  overflow: auto;
+}
+#catalogue.advanced .list,
+#users .list {
+  margin: 0;
   background: #f2f2f2;
   height: 100%;
   position: relative;
-  overflow: auto;
 }
-#catalogue .list li,
+#catalogue.advanced .list li,
 #users .list li {
   cursor: pointer;
   width: 85%;
@@ -5711,7 +5715,7 @@ body {
   text-overflow: ellipsis;
   overflow: hidden;
 }
-#catalogue .list li .id,
+#catalogue.advanced .list li .id,
 #users .list li .id {
   color: rgba(0,0,0,0.2);
   font-size: 3em;
@@ -5721,7 +5725,7 @@ body {
   text-align: right;
   width: 1.5em;
 }
-#catalogue .list li.active,
+#catalogue.advanced .list li.active,
 #users .list li.active {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #5a8ea8), color-stop(1, #345363));
   background: -webkit-linear-gradient(top, #5a8ea8 0%, #345363 100%);
@@ -5730,7 +5734,7 @@ body {
   background: -ms-linear-gradient(top, #5a8ea8 0%, #345363 100%);
   background: linear-gradient(top, #5a8ea8 0%, #345363 100%);
 }
-#catalogue .new,
+#catalogue.advanced .new,
 #users .new {
   position: absolute;
   height: 20px;
@@ -5746,47 +5750,56 @@ body {
   background: -ms-linear-gradient(top, #5c5c5c 0%, #373737 100%);
   background: linear-gradient(top, #5c5c5c 0%, #373737 100%);
 }
-#catalogue .panel,
+#catalogue.advanced .panel,
 #users .panel {
   margin: 20px 10px 20px;
   height: 100%;
   overflow: auto;
 }
-#catalogue .panel img,
+#catalogue.advanced .panel img,
 #users .panel img {
   float: left;
   width: 200px;
   height: 300px;
 }
-#catalogue .panel form,
+#catalogue.advanced .panel form,
 #users .panel form {
   float: left;
   margin-bottom: 5px;
 }
-#catalogue .panel form div,
+#catalogue.advanced .panel form div,
 #users .panel form div {
   margin-left: 20px;
   float: left;
 }
-#catalogue .panel form textarea,
+#catalogue.advanced .panel form textarea,
 #users .panel form textarea,
-#catalogue .panel form .desc,
+#catalogue.advanced .panel form .desc,
 #users .panel form .desc {
   margin-left: 20px;
 }
-#catalogue .panel form textarea,
+#catalogue.advanced .panel form textarea,
 #users .panel form textarea {
   width: 445px;
   height: 150px;
 }
-#catalogue .panel .buttons,
+#catalogue.advanced .panel .buttons,
 #users .panel .buttons {
   position: relative;
   clear: both;
 }
-#catalogue .panel .buttons button,
+#catalogue.advanced .panel .buttons button,
 #users .panel .buttons button {
   width: 100px;
+}
+#catalogue.basic .list {
+  background: none;
+}
+#catalogue.basic .list li {
+  width: 140px;
+  height: 180px;
+  float: left;
+  text-align: center;
 }
 #issue .column,
 #return .column {

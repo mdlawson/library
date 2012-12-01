@@ -29,12 +29,12 @@ class CatalogueManager extends Spine.Controller
     Book.bind 'refresh change', @render
 
   activate: ->
-    @el.addClass("visible")
+    @el.addClass("visible advanced")
     Book.fetch()
     #@render()
 
   deactivate: ->
-    @el.removeClass("visible")
+    @el.removeClass("visible advanced")
 
   addBook: (book) =>
     view = new BookView book: book, panel: @panel

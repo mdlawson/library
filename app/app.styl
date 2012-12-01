@@ -36,12 +36,16 @@ html, body
     padding: 20px 0 20px
     background: rgba(0,0,0,0.1)
   .list
-    margin: 0
     list-style-type: none;
+    height: 100%
+    overflow: auto
+
+#catalogue.advanced, #users
+  .list
+    margin: 0
     background: #F2F2F2
     height: 100%
     position: relative
-    overflow: auto
     li
       cursor: pointer
       width: 85%
@@ -98,6 +102,16 @@ html, body
       clear: both
       button
         width: 100px
+// BASIC CATALOGUE
+
+#catalogue.basic
+  .list
+    background: none
+    li
+      width: 140px
+      height: 180px
+      float: left
+      text-align: center
 
 // ISSUE/RETURN
 

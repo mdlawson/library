@@ -114,6 +114,7 @@ window.require.define({"app": function(exports, require, module) {
             stack: _this
           });
           _this.manager.add(_this.catalogue);
+          _this.catalogue.active();
         }
         if (!user.reauth) {
           return _this.navigate("/catalogue");
@@ -185,6 +186,7 @@ window.require.define({"app": function(exports, require, module) {
 
 window.require.define({"controllers/basic": function(exports, require, module) {
   var BasicBookView, BasicCatalogue, Book, BookView, Catalogue,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -198,14 +200,49 @@ window.require.define({"controllers/basic": function(exports, require, module) {
 
     __extends(BasicCatalogue, _super);
 
+    BasicCatalogue.prototype.activate = function() {
+      this.el.addClass("visible basic");
+      Book.fetch();
+      return this.render();
+    };
+
+    BasicCatalogue.prototype.deactivate = function() {
+      return this.el.removeClass("visible basic");
+    };
+
     function BasicCatalogue() {
+      this.addBook = __bind(this.addBook, this);
       BasicCatalogue.__super__.constructor.apply(this, arguments);
       this.render();
     }
 
     BasicCatalogue.prototype.render = function() {
+      var book, books, _i, _len, _results;
       this.html(require("views/basic")());
-      return console.log("basic render");
+      if (this.list) {
+        books = this.filter();
+        this.list.empty();
+        _results = [];
+        for (_i = 0, _len = books.length; _i < _len; _i++) {
+          book = books[_i];
+          _results.push(this.addBook(book));
+        }
+        return _results;
+      }
+    };
+
+    BasicCatalogue.prototype.addBook = function(book) {
+      var el, view,
+        _this = this;
+      view = new BasicBookView({
+        book: book
+      });
+      el = view.render().el;
+      el.click(function() {
+        return alert(book.title);
+      });
+      this.list.append(el);
+      return el;
     };
 
     return BasicCatalogue;
@@ -217,8 +254,14 @@ window.require.define({"controllers/basic": function(exports, require, module) {
     __extends(BasicBookView, _super);
 
     function BasicBookView() {
+      this.render = __bind(this.render, this);
       return BasicBookView.__super__.constructor.apply(this, arguments);
     }
+
+    BasicBookView.prototype.render = function() {
+      this.html(require("views/book/basicList")(this.book));
+      return this;
+    };
 
     return BasicBookView;
 
@@ -376,12 +419,12 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
     }
 
     CatalogueManager.prototype.activate = function() {
-      this.el.addClass("visible");
+      this.el.addClass("visible advanced");
       return Book.fetch();
     };
 
     CatalogueManager.prototype.deactivate = function() {
-      return this.el.removeClass("visible");
+      return this.el.removeClass("visible advanced");
     };
 
     CatalogueManager.prototype.addBook = function(book) {
@@ -656,12 +699,6 @@ window.require.define({"controllers/issue": function(exports, require, module) {
 }});
 
 window.require.define({"controllers/manager": function(exports, require, module) {
-  
-
-  
-}});
-
-window.require.define({"controllers/model": function(exports, require, module) {
   
 
   
@@ -1230,7 +1267,36 @@ window.require.define({"views/basic": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>";});
+    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>\n<ul class=\"offset1 span10 list\"></ul>";});
+}});
+
+window.require.define({"views/book/basicList": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+
+
+    buffer += "<img></img> ";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + " <small>";
+    foundHelper = helpers.author;
+    stack1 = foundHelper || depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</small>";
+    return buffer;});
+}});
+
+window.require.define({"views/book/basicPanel": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", foundHelper, self=this;
+
+
+    return buffer;});
 }});
 
 window.require.define({"views/book/list": function(exports, require, module) {
