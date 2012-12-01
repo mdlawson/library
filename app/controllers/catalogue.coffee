@@ -20,8 +20,6 @@ class CatalogueManager extends Spine.Controller
     'click .new': 'new'
 
   constructor: ->
-    # @input = @render.throttle 2000
-    # @input = @render.lazy 2000, 3
     super
 
     @html require("views/panelView")()
