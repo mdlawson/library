@@ -115,6 +115,7 @@ window.require.define({"app": function(exports, require, module) {
           });
           _this.manager.add(_this.catalogue);
           _this.catalogue.active();
+          fill();
         }
         if (!user.reauth) {
           return _this.navigate("/catalogue");
@@ -1281,7 +1282,7 @@ window.require.define({"views/book/basicList": function(exports, require, module
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
-    buffer += escapeExpression(stack1) + " <small>";
+    buffer += escapeExpression(stack1) + "  </br> <small>";
     foundHelper = helpers.author;
     stack1 = foundHelper || depth0.author;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }

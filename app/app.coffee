@@ -24,6 +24,7 @@ class App extends Spine.Stack
         @catalogue = new BasicCatalogue(stack: @)
         @manager.add @catalogue
         @catalogue.active()
+        fill()
       unless user.reauth then @navigate "/catalogue"
     @session.bind "failure", => @navigate "/login"
     @session.login()
