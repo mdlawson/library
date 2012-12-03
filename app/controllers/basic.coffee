@@ -6,6 +6,7 @@ class BasicCatalogue extends Catalogue
   activate: ->
     @el.addClass("visible basic")
     Book.fetch()
+    @html require("views/basic")()
     @render()
   deactivate: ->
     @el.removeClass("visible basic")
@@ -13,7 +14,6 @@ class BasicCatalogue extends Catalogue
     super
     @render()
   render: ->
-    @html require("views/basic")()
     if @list
       books = @filter()
       @list.empty()

@@ -204,6 +204,7 @@ window.require.define({"controllers/basic": function(exports, require, module) {
     BasicCatalogue.prototype.activate = function() {
       this.el.addClass("visible basic");
       Book.fetch();
+      this.html(require("views/basic")());
       return this.render();
     };
 
@@ -219,7 +220,6 @@ window.require.define({"controllers/basic": function(exports, require, module) {
 
     BasicCatalogue.prototype.render = function() {
       var book, books, _i, _len, _results;
-      this.html(require("views/basic")());
       if (this.list) {
         books = this.filter();
         this.list.empty();
@@ -1277,7 +1277,12 @@ window.require.define({"views/book/basicList": function(exports, require, module
     var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
 
-    buffer += "<img></img> ";
+    buffer += "<img src=\"http://covers.openlibrary.org/b/isbn/";
+    foundHelper = helpers.ISBN;
+    stack1 = foundHelper || depth0.ISBN;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "-L.jpg\" class=\"img-polaroid\"> ";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1392,7 +1397,12 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     buffer += escapeExpression(stack1) + "</td></tr>\n    ";
     return buffer;}
 
-    buffer += "<img class=\"img-polaroid\">\n\n<form>\n  <div>\n    <label>Title:</label>\n    <input type=\"text\" class=\"title\" value=\"";
+    buffer += "<img src=\"http://covers.openlibrary.org/b/isbn/";
+    foundHelper = helpers.ISBN;
+    stack1 = foundHelper || depth0.ISBN;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "-L.jpg\" class=\"img-polaroid\">\n\n<form>\n  <div>\n    <label>Title:</label>\n    <input type=\"text\" class=\"title\" value=\"";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }

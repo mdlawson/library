@@ -27,16 +27,16 @@ module.exports.startServer = (port, path) ->
 
   # Database
 
-  # mysql.con =
-  #   host: '172.16.4.200'
-  #   password: 'cat'
-  #   user: '06lawsonm'
-  #   database: '06lawsonm'
+  mysql.con =
+    host: '172.16.4.200'
+    password: 'cat'
+    user: '06lawsonm'
+    database: '06lawsonm'
 
-  mysql.con = 
-    host: 'localhost'
-    user: 'root'
-    database: 'library'
+  # mysql.con = 
+  #   host: 'localhost'
+  #   user: 'root'
+  #   database: 'library'
 
   # Resource mapping
 
