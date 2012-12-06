@@ -111,7 +111,8 @@ window.require.define({"app": function(exports, require, module) {
         _this.render();
         if (!user.admin) {
           _this.catalogue = new BasicCatalogue({
-            stack: _this
+            stack: _this,
+            user: user
           });
           _this.manager.add(_this.catalogue);
           _this.catalogue.active();
@@ -186,7 +187,7 @@ window.require.define({"app": function(exports, require, module) {
 }});
 
 window.require.define({"controllers/basic": function(exports, require, module) {
-  var BasicBookView, BasicCatalogue, Book, BookView, Catalogue,
+  var BasicBookView, BasicCatalogue, Book, BookView, Catalogue, panel,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -196,6 +197,8 @@ window.require.define({"controllers/basic": function(exports, require, module) {
   BookView = require("controllers/book");
 
   Catalogue = require("controllers/catalogue");
+
+  panel = require("views/book/basicPanel");
 
   BasicCatalogue = (function(_super) {
 
@@ -212,9 +215,10 @@ window.require.define({"controllers/basic": function(exports, require, module) {
       return this.el.removeClass("visible basic");
     };
 
-    function BasicCatalogue() {
+    function BasicCatalogue(options) {
       this.addBook = __bind(this.addBook, this);
       BasicCatalogue.__super__.constructor.apply(this, arguments);
+      this.user = options.user;
       this.render();
     }
 
@@ -240,7 +244,15 @@ window.require.define({"controllers/basic": function(exports, require, module) {
       });
       el = view.render().el;
       el.click(function() {
-        return $('#bookModal').modal();
+        var reserve;
+        $('#bookModal').html(panel(book)).modal();
+        reserve = $('.reserve', '#bookModal');
+        return reserve.click(function() {
+          reserve.button("loading");
+          return book.makeReservation(_this.user.id, function() {
+            return reserve.button("complete");
+          });
+        });
       });
       this.list.append(el);
       return el;
@@ -1087,9 +1099,9 @@ window.require.define({"models/book": function(exports, require, module) {
       return $.get("" + (this.url()) + "/reservations", cb);
     };
 
-    Book.prototype.makeReservation = function(book, cb) {
+    Book.prototype.makeReservation = function(user, cb) {
       return $.post("" + (this.url()) + "/reservations", {
-        bookId: book
+        userId: user
       }, cb);
     };
 
@@ -1099,7 +1111,7 @@ window.require.define({"models/book": function(exports, require, module) {
 
     Book.prototype.makeLoan = function(book, cb) {
       return $.post("" + (this.url()) + "/loans", {
-        bookId: book
+        userId: user
       }, cb);
     };
 
@@ -1268,7 +1280,7 @@ window.require.define({"views/basic": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>\n<ul class=\"offset1 span10 list\"></ul>\n\n<div id=\"bookModal\" class=\"modal hide fade\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">\n	<div class=\"modal-header\">\n		<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n		<h3 id=\"myModalLabel\">Modal header</h3>\n	</div>\n	<div class=\"modal-body\">\n		<p>One fine body…</p>\n	</div>\n	<div class=\"modal-footer\">\n		<button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n		<button class=\"btn btn-primary\">Save changes</button>\n</div>\n</div>";});
+    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>\n<ul class=\"offset1 span10 list\"></ul>\n\n<div id=\"bookModal\" class=\"modal hide fade\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\"></div>";});
 }});
 
 window.require.define({"views/book/basicList": function(exports, require, module) {
@@ -1299,9 +1311,43 @@ window.require.define({"views/book/basicList": function(exports, require, module
 window.require.define({"views/book/basicPanel": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var buffer = "", foundHelper, self=this;
+    var buffer = "", stack1, stack2, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
 
+    buffer += "<div class=\"modal-header\">\n	<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n	<h3 id=\"modalTitle\">";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</h3>\n</div>\n<div id=\"modalBody\" class=\"modal-body\">\n	<img src=\"http://covers.openlibrary.org/b/isbn/";
+    foundHelper = helpers.ISBN;
+    stack1 = foundHelper || depth0.ISBN;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "-L.jpg\" class=\"img-polaroid\"> \n	<dl class=\"dl-horizontal\">\n		<dt>Title</dt>\n		<dd>";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</dd>\n		<dt>Author</dt>\n		<dd>";
+    foundHelper = helpers.author;
+    stack1 = foundHelper || depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</dd>\n		<dt>Date</dt>\n		<dd>";
+    foundHelper = helpers.date;
+    stack1 = foundHelper || depth0.date;
+    foundHelper = helpers.Date;
+    stack2 = foundHelper || depth0.Date;
+    if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
+    else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
+    else { stack1 = stack2; }
+    buffer += escapeExpression(stack1) + "</dd>\n		<dt>Description</dt>\n		<dd>";
+    foundHelper = helpers.description;
+    stack1 = foundHelper || depth0.description;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "description", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</dd>\n	</dl>\n</div>\n<div id=\"modalFooter\" class=\"modal-footer\">\n	<button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n	<button class=\"btn btn-primary reserve\" data-loading-text=\"Reserving...\" data-complete-text=\"Reserved!\">Reserve</button>\n</div>";
     return buffer;});
 }});
 
