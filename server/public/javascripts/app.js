@@ -332,7 +332,8 @@ window.require.define({"controllers/book": function(exports, require, module) {
       });
       return $(".destroy", this.panel).click(function() {
         $(".popover .really-destroy").click(function() {
-          return _this.book.destroy();
+          _this.book.destroy();
+          return $(".destroy", _this.panel).popover("hide");
         });
         return $(".popover .cancel").click(function() {
           return $(".destroy", _this.panel).popover("hide");

@@ -3,6 +3,7 @@ con = mysql.createConnection mysql.con
 model = ["id","title","author","description","date","ISBN"]
 modelStr = model.join(',')
 
+
 auth = (req, res, next) ->
   console.log req.session
   if req.session.user and req.session.user.admin is 1 then next() else res.send(401)
@@ -23,6 +24,13 @@ module.exports =
     con.query "SELECT #{modelStr} FROM books WHERE id = ?", Number(req.params.book), (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
+    if req.body.title is "" and req.body.isbn isnt ""
+      amazon.call "ItemLookup", 
+        SearchIndex: "Books", 
+        IdType: "ISBN",
+        ItemId: req.body.isbn
+      , (err, data) ->
+        console.log data
     req.body.date = new Date req.body.date
     delete req.body.id
     con.query "INSERT INTO books SET ?", req.body, (err, results) ->

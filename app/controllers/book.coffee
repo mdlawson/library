@@ -37,7 +37,9 @@ class BookView extends Spine.Controller
       content: require("views/book/tooltip")
 
     $(".destroy",@panel).click => 
-      $(".popover .really-destroy").click => @book.destroy()
+      $(".popover .really-destroy").click => 
+        @book.destroy()
+        $(".destroy",@panel).popover("hide")
       $(".popover .cancel").click => $(".destroy",@panel).popover("hide")
 
   save: =>
