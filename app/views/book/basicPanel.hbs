@@ -1,0 +1,21 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="modalTitle">{{ title }}</h3>
+</div>
+<div id="modalBody" class="modal-body">
+	<img src="http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg" class="img-polaroid"> 
+	<dl class="dl-horizontal">
+		<dt>Title</dt>
+		<dd>{{ title }}</dd>
+		<dt>Author</dt>
+		<dd>{{ author }}</dd>
+		<dt>Date</dt>
+		<dd>{{Date date }}</dd>
+		<dt>Description</dt>
+		<dd>{{ description }}</dd>
+	</dl>
+</div>
+<div id="modalFooter" class="modal-footer">
+	<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+	<button class="btn btn-primary reserve" data-loading-text="Reserving..." data-complete-text="Reserved!">Reserve</button>
+</div>

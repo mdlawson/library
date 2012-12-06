@@ -19,10 +19,10 @@ class BookView extends Spine.Controller
 
       for book in @book.copies
         book.getReservations (data) =>
-          @book.reservations.concat data 
+          @book.reservations = @book.reservations.concat data 
           @renderPanel()
-        book.getLoans (data) => 
-          @book.loans.concat data
+        book.getLoans (data) =>
+          @book.loans = @book.loans.concat data
           @renderPanel()
 
     @

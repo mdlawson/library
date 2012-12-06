@@ -1,5 +1,5 @@
 class Book extends Spine.Model
-  @configure "Book","title","description","author","date","ISBN"
+  @configure "Book","title","description","author","date","ISBN","dewey"
 
   @extend Spine.Model.Ajax
 
@@ -7,12 +7,12 @@ class Book extends Spine.Model
 
   getReservations: (cb) ->
     $.get "#{@url()}/reservations", cb
-  makeReservation: (book,cb) ->
-    $.post "#{@url()}/reservations", {bookId: book}, cb
+  makeReservation: (user,cb) ->
+    $.post "#{@url()}/reservations", {userId: user}, cb
   getLoans: (cb) ->
     $.get "#{@url()}/loans", cb
   makeLoan: (book,cb) ->
-    $.post "#{@url()}/loans", {bookId: book}, cb
+    $.post "#{@url()}/loans", {userId: user}, cb
   return: (cb) ->
     $.post "#{@url()}/return", cb
 

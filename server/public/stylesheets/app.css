@@ -5796,10 +5796,24 @@ body {
   background: none;
 }
 #catalogue.basic .list li {
+  padding: 20px;
   width: 140px;
-  height: 180px;
+  height: 260px;
   float: left;
   text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+#catalogue.basic .list li img {
+  height: 200px;
+}
+#catalogue.basic #bookModal img {
+  height: 200px;
+  float: left;
+}
+#catalogue.basic #bookModal dl {
+  float: left;
 }
 #issue .column,
 #return .column {

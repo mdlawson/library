@@ -21,7 +21,7 @@ class App extends Spine.Stack
     @session.bind "login", (user) =>
       @render()
       unless user.admin
-        @catalogue = new BasicCatalogue(stack: @)
+        @catalogue = new BasicCatalogue(stack: @, user: user)
         @manager.add @catalogue
         @catalogue.active()
         fill()

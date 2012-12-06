@@ -108,28 +108,28 @@ html, body
   .list
     background: none
     li
+      padding: 20px
       width: 140px
-      height: 180px
+      height: 260px
       float: left
       text-align: center
+      white-space: nowrap
+      text-overflow: ellipsis
+      overflow: hidden
+      img
+        height: 200px
+  #bookModal
+    img
+      height: 200px
+      float: left
+    dl
+      float: left
 
 // ISSUE/RETURN
 
 #issue,#return
   .column
     padding-top: 20px
-    .result
-      // background: linear-gradient(top, #F2F2F2, #D2D2D2)
-      // border-radius: 0px 0px 10px 10px
-      // width: 90%
-      // padding: 0 10%
-      // &:before
-      //   content: "Selected User:"
-      //   display: block
-      //   width: 97%
-      //   padding: 2px 0 2px 3%
-      //   background: linear-gradient(top, #5C5C5C, #373737)
-      //   color: white
     .books
       margin: 0
       list-style-type: none;

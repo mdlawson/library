@@ -1,6 +1,7 @@
 Book = require "models/book"
 BookView = require "controllers/book"
 Catalogue = require "controllers/catalogue"
+panel = require "views/book/basicPanel"
 
 class BasicCatalogue extends Catalogue
   activate: ->
@@ -10,8 +11,9 @@ class BasicCatalogue extends Catalogue
     @render()
   deactivate: ->
     @el.removeClass("visible basic")
-  constructor: ->
+  constructor: (options) ->
     super
+    @user = options.user
     @render()
   render: ->
     if @list
@@ -21,8 +23,13 @@ class BasicCatalogue extends Catalogue
   addBook: (book) =>
     view = new BasicBookView book: book
     el = view.render().el
-    el.click => alert(book.title)
-
+    el.click =>
+      $('#bookModal').html(panel book).modal()
+      reserve = $('.reserve','#bookModal')
+      reserve.click =>
+        reserve.button "loading"
+        book.makeReservation @user.id, ->
+          reserve.button "complete"
     @list.append el
     el
 
