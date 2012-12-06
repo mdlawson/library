@@ -38,8 +38,8 @@ class BookView extends Spine.Controller
 
     $(".destroy",@panel).click => 
       $(".popover .really-destroy").click => 
-        @book.destroy()
         $(".destroy",@panel).popover("hide")
+        @book.destroy()
       $(".popover .cancel").click => $(".destroy",@panel).popover("hide")
 
   save: =>

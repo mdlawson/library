@@ -222,10 +222,36 @@ window.require.define({"controllers/basic": function(exports, require, module) {
       this.render();
     }
 
+    BasicCatalogue.prototype.refresh = function() {
+      var _this = this;
+      this.user.getLoans(function(data) {
+        var loan, _i, _len, _results;
+        _this.user.loans = data;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          loan = data[_i];
+          _results.push(Book.find(loan.bookId).loaned = true);
+        }
+        return _results;
+      });
+      return this.user.getReservations(function(data) {
+        var reservation, _i, _len, _results;
+        _this.user.reservations = data;
+        console.log(data);
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          reservation = data[_i];
+          _results.push(Book.find(reservation.bookId).reserved = true);
+        }
+        return _results;
+      });
+    };
+
     BasicCatalogue.prototype.render = function() {
       var book, books, _i, _len, _results;
       if (this.list) {
         books = this.filter();
+        this.refresh();
         this.list.empty();
         _results = [];
         for (_i = 0, _len = books.length; _i < _len; _i++) {
@@ -237,23 +263,26 @@ window.require.define({"controllers/basic": function(exports, require, module) {
     };
 
     BasicCatalogue.prototype.addBook = function(book) {
-      var el, view,
+      var booker, el, view,
         _this = this;
       view = new BasicBookView({
         book: book
       });
       el = view.render().el;
-      el.click(function() {
-        var reserve;
+      booker = function() {
+        var button;
         $('#bookModal').html(panel(book)).modal();
-        reserve = $('.reserve', '#bookModal');
-        return reserve.click(function() {
-          reserve.button("loading");
-          return book.makeReservation(_this.user.id, function() {
-            return reserve.button("complete");
+        button = $('.reserve', '#bookModal');
+        return button.click(function() {
+          button.button("loading");
+          return book[book.loaned ? "renew" : book.reserved ? "cancelReservation" : "makeReservation"](_this.user.id, function() {
+            button.button("complete");
+            _this.refresh();
+            return setTimeout(booker, 2000);
           });
         });
-      });
+      };
+      el.click(booker);
       this.list.append(el);
       return el;
     };
@@ -344,8 +373,8 @@ window.require.define({"controllers/book": function(exports, require, module) {
       });
       return $(".destroy", this.panel).click(function() {
         $(".popover .really-destroy").click(function() {
-          _this.book.destroy();
-          return $(".destroy", _this.panel).popover("hide");
+          $(".destroy", _this.panel).popover("hide");
+          return _this.book.destroy();
         });
         return $(".popover .cancel").click(function() {
           return $(".destroy", _this.panel).popover("hide");
@@ -785,9 +814,11 @@ window.require.define({"controllers/return": function(exports, require, module) 
 }});
 
 window.require.define({"controllers/session": function(exports, require, module) {
-  var SessionManager,
+  var SessionManager, User,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  User = require("models/user");
 
   SessionManager = (function(_super) {
 
@@ -820,8 +851,8 @@ window.require.define({"controllers/session": function(exports, require, module)
         data = {};
       }
       return $.post("/login", data, function(user) {
-        _this.user = user;
-        return _this.trigger("login", user);
+        _this.user = new User(user);
+        return _this.trigger("login", _this.user);
       }).error(function() {
         return _this.trigger("failure");
       });
@@ -1106,6 +1137,10 @@ window.require.define({"models/book": function(exports, require, module) {
       }, cb);
     };
 
+    Book.prototype.cancelReservation = function(id, cb) {
+      return $["delete"]("" + (this.url()) + "/reservations/" + id, cb);
+    };
+
     Book.prototype.getLoans = function(cb) {
       return $.get("" + (this.url()) + "/loans", cb);
     };
@@ -1312,8 +1347,37 @@ window.require.define({"views/book/basicList": function(exports, require, module
 window.require.define({"views/book/basicPanel": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var buffer = "", stack1, stack2, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+    var buffer = "", stack1, stack2, foundHelper, tmp1, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
+  function program1(depth0,data) {
+    
+    
+    return "\n	<button class=\"btn btn-primary reserve\" data-loading-text=\"Renewing...\" data-complete-text=\"Renewed!\">Renew</button>\n	";}
+
+  function program3(depth0,data) {
+    
+    var buffer = "", stack1, stack2;
+    buffer += "\n	";
+    foundHelper = helpers.reserved;
+    stack1 = foundHelper || depth0.reserved;
+    stack2 = helpers['if'];
+    tmp1 = self.program(4, program4, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.program(6, program6, data);
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\n	";
+    return buffer;}
+  function program4(depth0,data) {
+    
+    
+    return "\n	<button class=\"btn btn-primary reserve\" data-loading-text=\"Canceling...\" data-complete-text=\"Canceled!\">Unreserve</button>\n	";}
+
+  function program6(depth0,data) {
+    
+    
+    return "\n	<button class=\"btn btn-primary reserve\" data-loading-text=\"Reserving...\" data-complete-text=\"Reserved!\">Reserve</button>\n	";}
 
     buffer += "<div class=\"modal-header\">\n	<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n	<h3 id=\"modalTitle\">";
     foundHelper = helpers.title;
@@ -1348,7 +1412,17 @@ window.require.define({"views/book/basicPanel": function(exports, require, modul
     stack1 = foundHelper || depth0.description;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "description", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</dd>\n	</dl>\n</div>\n<div id=\"modalFooter\" class=\"modal-footer\">\n	<button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n	<button class=\"btn btn-primary reserve\" data-loading-text=\"Reserving...\" data-complete-text=\"Reserved!\">Reserve</button>\n</div>";
+    buffer += escapeExpression(stack1) + "</dd>\n	</dl>\n</div>\n<div id=\"modalFooter\" class=\"modal-footer\">\n	<button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n	";
+    foundHelper = helpers.loaned;
+    stack1 = foundHelper || depth0.loaned;
+    stack2 = helpers['if'];
+    tmp1 = self.program(1, program1, data);
+    tmp1.hash = {};
+    tmp1.fn = tmp1;
+    tmp1.inverse = self.program(3, program3, data);
+    stack1 = stack2.call(depth0, stack1, tmp1);
+    if(stack1 || stack1 === 0) { buffer += stack1; }
+    buffer += "\n</div>";
     return buffer;});
 }});
 

@@ -17,5 +17,13 @@
 </div>
 <div id="modalFooter" class="modal-footer">
 	<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+	{{#if loaned}}
+	<button class="btn btn-primary reserve" data-loading-text="Renewing..." data-complete-text="Renewed!">Renew</button>
+	{{else}}
+	{{#if reserved}}
+	<button class="btn btn-primary reserve" data-loading-text="Canceling..." data-complete-text="Canceled!">Unreserve</button>
+	{{else}}
 	<button class="btn btn-primary reserve" data-loading-text="Reserving..." data-complete-text="Reserved!">Reserve</button>
+	{{/if}}
+	{{/if}}
 </div>

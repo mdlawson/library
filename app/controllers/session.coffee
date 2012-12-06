@@ -1,3 +1,5 @@
+User = require "models/user"
+
 class SessionManager extends Spine.Controller
   el: "#login"
   #className: "row-fluid"
@@ -15,8 +17,8 @@ class SessionManager extends Spine.Controller
 
   login: (data={}) ->
     $.post("/login",data,(user) =>
-      @user = user
-      @trigger "login", user
+      @user = new User user
+      @trigger "login", @user
     ).error =>
       @trigger "failure"
   logout: ->

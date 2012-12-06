@@ -15,21 +15,36 @@ class BasicCatalogue extends Catalogue
     super
     @user = options.user
     @render()
+  refresh: ->
+    @user.getLoans (data) => 
+      @user.loans = data
+      for loan in data
+        Book.find(loan.bookId).loaned = true
+    @user.getReservations (data) => 
+      @user.reservations = data
+      console.log data
+      for reservation in data
+        Book.find(reservation.bookId).reserved = true
   render: ->
     if @list
       books = @filter()
+      @refresh()
       @list.empty()
       @addBook book for book in books
   addBook: (book) =>
     view = new BasicBookView book: book
     el = view.render().el
-    el.click =>
+    booker = =>       
       $('#bookModal').html(panel book).modal()
-      reserve = $('.reserve','#bookModal')
-      reserve.click =>
-        reserve.button "loading"
-        book.makeReservation @user.id, ->
-          reserve.button "complete"
+      button = $('.reserve','#bookModal')
+      button.click => 
+        button.button "loading"
+        book[if book.loaned then "renew" else if book.reserved then "cancelReservation" else "makeReservation"] @user.id, =>
+          button.button "complete"
+          @refresh()
+          setTimeout booker, 2000
+    el.click booker
+
     @list.append el
     el
 

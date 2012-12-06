@@ -9,7 +9,9 @@ module.exports =
     name: 'resources/users'
     id: 'user'
   all: (req, res, next) ->
-    if req.session.user and (req.session.user.admin is 1 or req.session.user.id is req.params.user) then next() else res.send(401)
+    console.log "session:", req.session
+    console.log "params:", req.params
+    if req.session.user and (req.session.user.admin is 1 or req.session.user.id is Number req.params.user) then next() else res.send(401)
   index: (req, res) ->
     con.query "SELECT #{modelStr} FROM users", (err, results) ->
       res.send err or results
