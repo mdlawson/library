@@ -1,5 +1,5 @@
 class Book extends Spine.Model
-  @configure "Book","title","description","author","date","ISBN"
+  @configure "Book","title","description","author","date","ISBN","dewey"
 
   @extend Spine.Model.Ajax
 

@@ -240,7 +240,7 @@ window.require.define({"controllers/basic": function(exports, require, module) {
       });
       el = view.render().el;
       el.click(function() {
-        return alert(book.title);
+        return $('#bookModal').modal();
       });
       this.list.append(el);
       return el;
@@ -310,11 +310,11 @@ window.require.define({"controllers/book": function(exports, require, module) {
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           book = _ref[_i];
           book.getReservations(function(data) {
-            _this.book.reservations.concat(data);
+            _this.book.reservations = _this.book.reservations.concat(data);
             return _this.renderPanel();
           });
           book.getLoans(function(data) {
-            _this.book.loans.concat(data);
+            _this.book.loans = _this.book.loans.concat(data);
             return _this.renderPanel();
           });
         }
@@ -1077,7 +1077,7 @@ window.require.define({"models/book": function(exports, require, module) {
       return Book.__super__.constructor.apply(this, arguments);
     }
 
-    Book.configure("Book", "title", "description", "author", "date", "ISBN");
+    Book.configure("Book", "title", "description", "author", "date", "ISBN", "dewey");
 
     Book.extend(Spine.Model.Ajax);
 
@@ -1268,7 +1268,7 @@ window.require.define({"views/basic": function(exports, require, module) {
     var foundHelper, self=this;
 
 
-    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>\n<ul class=\"offset1 span10 list\"></ul>";});
+    return "<div class=\"row-fluid search\">\n  <input type=\"text\" class=\"search-query span10 offset1\" placeholder=\"Search\">\n</div>\n<ul class=\"offset1 span10 list\"></ul>\n\n<div id=\"bookModal\" class=\"modal hide fade\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\">\n	<div class=\"modal-header\">\n		<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n		<h3 id=\"myModalLabel\">Modal header</h3>\n	</div>\n	<div class=\"modal-body\">\n		<p>One fine body…</p>\n	</div>\n	<div class=\"modal-footer\">\n		<button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n		<button class=\"btn btn-primary\">Save changes</button>\n</div>\n</div>";});
 }});
 
 window.require.define({"views/book/basicList": function(exports, require, module) {
@@ -1282,7 +1282,7 @@ window.require.define({"views/book/basicList": function(exports, require, module
     stack1 = foundHelper || depth0.ISBN;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "-L.jpg\" class=\"img-polaroid\"> ";
+    buffer += escapeExpression(stack1) + "-L.jpg\" class=\"img-polaroid\"> </br>";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
@@ -1425,6 +1425,11 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     stack1 = foundHelper || depth0.ISBN;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\n    <label>Dewey Decimal:</label>\n    <input type=\"text\" class=\"dewey\" value=\"";
+    foundHelper = helpers.dewey;
+    stack1 = foundHelper || depth0.dewey;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "dewey", { hash: {} }); }
     buffer += escapeExpression(stack1) + "\">\n  </div>\n  <label class=\"desc\">Description:</label>\n  <textarea class=\"description\">";
     foundHelper = helpers.description;
     stack1 = foundHelper || depth0.description;

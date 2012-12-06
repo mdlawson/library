@@ -1,6 +1,6 @@
 mysql = require 'mysql'
 con = mysql.createConnection mysql.con
-model = ["id","title","author","description","date","ISBN"]
+model = ["id","title","author","description","date","ISBN","dewey"]
 modelStr = model.join(',')
 
 auth = (req, res, next) ->

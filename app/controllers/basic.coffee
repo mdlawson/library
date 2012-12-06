@@ -21,8 +21,8 @@ class BasicCatalogue extends Catalogue
   addBook: (book) =>
     view = new BasicBookView book: book
     el = view.render().el
-    el.click => alert(book.title)
-
+    el.click =>
+      $('#bookModal').modal()
     @list.append el
     el
 
