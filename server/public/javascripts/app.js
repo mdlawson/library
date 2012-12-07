@@ -507,7 +507,7 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
       }
     };
 
-    CatalogueManager.prototype.filter = function(done) {
+    CatalogueManager.prototype.filter = function() {
       var author, data, item, matcher, rankings, results, score, string, val, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
       val = this.search.val();
       data = Book.all();
@@ -1056,34 +1056,72 @@ window.require.define({"controllers/users": function(exports, require, module) {
     };
 
     UserManager.prototype.filter = function() {
-      var data, item, rankings, results, score, score2, threshold, val, _i, _j, _len, _len1;
+      var data, item, matcher, rankings, results, score, string, val, _i, _j, _k, _len, _len1, _len2, _ref;
       val = this.search.val();
       data = User.all();
       rankings = [];
       results = [];
-      threshold = 0.5;
       if (!val) {
         return data;
+      } else if (val.length > 10) {
+        matcher = this.matchers.levenshtein;
+      } else {
+        matcher = this.matchers.strScore;
       }
       for (_i = 0, _len = data.length; _i < _len; _i++) {
         item = data[_i];
-        score = item.title.score(val);
-        score2 = item.author.score(val);
-        if (score2 > score) {
-          score = score2;
+        score = [];
+        _ref = [item.firstName, item.lastName, item.email];
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          string = _ref[_j];
+          score.push(matcher.score(string, val));
         }
-        if (score > threshold) {
-          rankings.push([score, item]);
+        score.sort(matcher.sort);
+        if (matcher.valid(score[0])) {
+          rankings.push([score[0], item]);
         }
       }
       rankings.sort(function(a, b) {
-        return b[0] - a[0];
+        return matcher.sort(a[0], b[0]);
       });
-      for (_j = 0, _len1 = rankings.length; _j < _len1; _j++) {
-        item = rankings[_j];
+      for (_k = 0, _len2 = rankings.length; _k < _len2; _k++) {
+        item = rankings[_k];
         results.push(item[1]);
       }
       return results;
+    };
+
+    UserManager.prototype.matchers = {
+      levenshtein: {
+        score: function(a, b) {
+          return levenshtein(a, b);
+        },
+        sort: function(a, b) {
+          return a - b;
+        },
+        valid: function(a) {
+          if (a < 6) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      },
+      strScore: {
+        score: function(a, b) {
+          return a.score(b, 0.5);
+        },
+        sort: function(a, b) {
+          return b - a;
+        },
+        valid: function(a) {
+          if (a > 0.2) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
     };
 
     UserManager.prototype.render = function() {

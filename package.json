@@ -31,8 +31,7 @@
     "express-resource-new": "git://github.com/mdlawson/express-resource-new.git",
     "mysql": "2.x",
     "bcrypt": "*",
-    "jade": "*",
-    "aws-lib": "0.1.x"
+    "jade": "*"
   },
   "devDependencies": {
     "chai": "1.2.0",

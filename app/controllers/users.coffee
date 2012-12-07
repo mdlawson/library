@@ -51,20 +51,28 @@ class UserManager extends Spine.Controller
     data = User.all()
     rankings = []
     results = []
-    threshold = 0.5
     unless val then return data
-
+    else if val.length > 10 then matcher = @matchers.levenshtein else matcher = @matchers.strScore
     for item in data
-      score = item.title.score(val)
-      score2 = item.author.score(val)
-      if score2 > score then score = score2
-      if score > threshold
-        rankings.push [score,item]
-    rankings.sort (a,b) ->  b[0] - a[0]
+      score = []
+      for string in [item.firstName, item.lastName, item.email]
+        score.push matcher.score string, val
+      score.sort matcher.sort
+      if matcher.valid score[0] then rankings.push [score[0],item]
+    rankings.sort (a,b) -> matcher.sort a[0],b[0]
     for item in rankings
       results.push item[1]
     return results
 
+  matchers:
+    levenshtein:
+      score: (a,b) -> levenshtein a,b
+      sort: (a,b) ->  a - b
+      valid: (a) -> if a < 6 then return true else return false
+    strScore:
+      score: (a,b) -> a.score b,0.5
+      sort: (a,b) -> b - a
+      valid: (a) -> if a > 0.2 then return true else return false
 
   render: =>
     User.unbind "refresh", @render

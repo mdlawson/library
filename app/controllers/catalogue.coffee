@@ -54,7 +54,7 @@ class CatalogueManager extends Spine.Controller
     if e.which is 13 then @render()
 
 
-  filter: (done) ->
+  filter: ->
     val = @search.val()
     data = Book.all()
     rankings = []
