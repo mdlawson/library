@@ -237,7 +237,6 @@ window.require.define({"controllers/basic": function(exports, require, module) {
       return this.user.getReservations(function(data) {
         var reservation, _i, _len, _results;
         _this.user.reservations = data;
-        console.log(data);
         _results = [];
         for (_i = 0, _len = data.length; _i < _len; _i++) {
           reservation = data[_i];
@@ -949,7 +948,6 @@ window.require.define({"controllers/user": function(exports, require, module) {
         }
       }
       this.user.admin = $('form button[name="type"].active', this.panel).val();
-      console.log(this.user);
       saved = function() {
         return setTimeout(function() {
           _this.user.unbind("create update", saved);

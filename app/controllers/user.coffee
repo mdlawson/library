@@ -37,7 +37,6 @@ class UserView extends Spine.Controller
     for prop,i of @user.attributes() when prop isnt "id"
       @user[prop] = $("form input.#{prop}",@panel).val() or i
     @user.admin = $('form button[name="type"].active',@panel).val()
-    console.log @user
     saved = =>
       setTimeout =>
         @user.unbind "create update", saved

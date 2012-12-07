@@ -5,7 +5,6 @@ modelStr = model.join(',')
 
 
 auth = (req, res, next) ->
-  console.log req.session
   if req.session.user and req.session.user.admin is 1 then next() else res.send(401)
 
 module.exports =
@@ -25,12 +24,7 @@ module.exports =
       res.send err or results[0]
   create: (req, res) ->
     if req.body.title is "" and req.body.isbn isnt ""
-      amazon.call "ItemLookup", 
-        SearchIndex: "Books", 
-        IdType: "ISBN",
-        ItemId: req.body.isbn
-      , (err, data) ->
-        console.log data
+      console.log "not implemented"
     req.body.date = new Date req.body.date
     delete req.body.id
     con.query "INSERT INTO books SET ?", req.body, (err, results) ->

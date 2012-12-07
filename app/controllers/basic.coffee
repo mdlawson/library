@@ -22,7 +22,6 @@ class BasicCatalogue extends Catalogue
         Book.find(loan.bookId).loaned = true
     @user.getReservations (data) => 
       @user.reservations = data
-      console.log data
       for reservation in data
         Book.find(reservation.bookId).reserved = true
   render: ->
