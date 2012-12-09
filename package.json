@@ -34,8 +34,12 @@
     "jade": "*"
   },
   "devDependencies": {
+    "superagent": "0.10.x",
     "chai": "1.2.0",
     "sinon": "1.4.2",
     "sinon-chai": "2.1.2"
+  },
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script --recursive"
   }
 }

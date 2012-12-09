@@ -9,4 +9,5 @@ build.xml
 
 _public
 node_modules/*
+server/db.coffee
 npm-debug.log
