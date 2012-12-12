@@ -330,9 +330,26 @@ window.require.define({"controllers/book": function(exports, require, module) {
       this.save = __bind(this.save, this);
 
       this.render = __bind(this.render, this);
+
+      var saved,
+        _this = this;
       BookView.__super__.constructor.apply(this, arguments);
       this.book.bind('update', this.render);
       this.book.bind('destroy', this.release);
+      saved = function() {
+        return setTimeout(function() {
+          $(".notifications").notify({
+            message: {
+              text: "" + _this.book.title + ": Saved!"
+            }
+          }).show();
+          $(".save", _this.panel).button("complete");
+          return setTimeout(function() {
+            return $(".save", this.panel).button("reset");
+          }, 2000);
+        }, 100);
+      };
+      this.book.bind("save", saved.throttle(2000));
     }
 
     BookView.prototype.render = function() {
@@ -373,6 +390,11 @@ window.require.define({"controllers/book": function(exports, require, module) {
       return $(".destroy", this.panel).click(function() {
         $(".popover .really-destroy").click(function() {
           $(".destroy", _this.panel).popover("hide");
+          $(".notifications").notify({
+            message: {
+              text: "" + _this.book.title + ": Deleted!"
+            }
+          }).show();
           return _this.book.destroy();
         });
         return $(".popover .cancel").click(function() {
@@ -382,8 +404,7 @@ window.require.define({"controllers/book": function(exports, require, module) {
     };
 
     BookView.prototype.save = function() {
-      var i, prop, saved, _ref,
-        _this = this;
+      var i, prop, _ref;
       $(".save", this.panel).button("loading");
       _ref = this.book.attributes();
       for (prop in _ref) {
@@ -392,16 +413,6 @@ window.require.define({"controllers/book": function(exports, require, module) {
           this.book[prop] = $("form ." + prop, this.panel).val();
         }
       }
-      saved = function() {
-        return setTimeout(function() {
-          _this.book.unbind("create update", saved);
-          $(".save", _this.panel).button("complete");
-          return setTimeout(function() {
-            return $(".save", this.panel).button("reset");
-          }, 2000);
-        }, 100);
-      };
-      this.book.bind("create update", saved);
       return this.book.save();
     };
 
@@ -457,7 +468,7 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
       CatalogueManager.__super__.constructor.apply(this, arguments);
       this.html(require("views/panelView")());
       Book.bind('create', this.addBook);
-      Book.bind('refresh change', this.render);
+      Book.bind('refresh', this.render);
     }
 
     CatalogueManager.prototype.activate = function() {
@@ -898,9 +909,26 @@ window.require.define({"controllers/user": function(exports, require, module) {
       this.save = __bind(this.save, this);
 
       this.render = __bind(this.render, this);
+
+      var saved,
+        _this = this;
       UserView.__super__.constructor.apply(this, arguments);
       this.user.bind('update', this.render);
       this.user.bind('destroy', this.release);
+      saved = function() {
+        return setTimeout(function() {
+          $(".notifications").notify({
+            message: {
+              text: "" + _this.user.username + ": Saved!"
+            }
+          }).show();
+          $(".save", _this.panel).button("complete");
+          return setTimeout(function() {
+            return $(".save", this.panel).button("reset");
+          }, 2000);
+        }, 100);
+      };
+      this.user.bind("save", saved);
     }
 
     UserView.prototype.render = function() {
@@ -937,8 +965,7 @@ window.require.define({"controllers/user": function(exports, require, module) {
     };
 
     UserView.prototype.save = function() {
-      var i, prop, saved, _ref,
-        _this = this;
+      var i, prop, _ref;
       $(".save", this.panel).button("loading");
       _ref = this.user.attributes();
       for (prop in _ref) {
@@ -948,16 +975,6 @@ window.require.define({"controllers/user": function(exports, require, module) {
         }
       }
       this.user.admin = $('form button[name="type"].active', this.panel).val();
-      saved = function() {
-        return setTimeout(function() {
-          _this.user.unbind("create update", saved);
-          $(".save", _this.panel).button("complete");
-          return setTimeout(function() {
-            return $(".save", this.panel).button("reset");
-          }, 2000);
-        }, 100);
-      };
-      this.user.bind("create update", saved);
       return this.user.save();
     };
 
@@ -1003,7 +1020,7 @@ window.require.define({"controllers/users": function(exports, require, module) {
       UserManager.__super__.constructor.apply(this, arguments);
       this.html(require("views/panelView")());
       User.bind('create', this.addUser);
-      User.bind('refresh change', this.render);
+      User.bind('refresh', this.render);
     }
 
     UserManager.prototype.activate = function() {

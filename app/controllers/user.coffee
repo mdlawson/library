@@ -7,6 +7,16 @@ class UserView extends Spine.Controller
     @user.bind 'update', @render
     @user.bind 'destroy', @release
 
+    saved = =>
+      setTimeout =>
+        $(".notifications").notify(message: {text: "#{@user.username}: Saved!"}).show()
+        $(".save",@panel).button "complete"
+        setTimeout -> 
+          $(".save",@panel).button "reset"
+        ,2000
+      ,100 # FUGLY FUCKED UP SHIT
+    @user.bind "save", saved
+
   render: =>
     @html require("views/user/list")(@user)
     if @el.hasClass("active")
@@ -37,15 +47,6 @@ class UserView extends Spine.Controller
     for prop,i of @user.attributes() when prop isnt "id"
       @user[prop] = $("form input.#{prop}",@panel).val() or i
     @user.admin = $('form button[name="type"].active',@panel).val()
-    saved = =>
-      setTimeout =>
-        @user.unbind "create update", saved
-        $(".save",@panel).button "complete"
-        setTimeout -> 
-          $(".save",@panel).button "reset"
-        ,2000
-      ,100 # FUGLY FUCKED UP SHIT
-    @user.bind "create update", saved
     @user.save()
 
 module.exports = UserView

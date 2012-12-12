@@ -17,7 +17,7 @@ class UserManager extends Spine.Controller
     super
     @html require("views/panelView")()
     User.bind 'create', @addUser
-    User.bind 'refresh change', @render
+    User.bind 'refresh', @render
 
   activate: ->
     @el.addClass("visible")

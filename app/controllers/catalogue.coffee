@@ -24,7 +24,7 @@ class CatalogueManager extends Spine.Controller
 
     @html require("views/panelView")()
     Book.bind 'create', @addBook
-    Book.bind 'refresh change', @render
+    Book.bind 'refresh', @render
 
   activate: ->
     @el.addClass("visible advanced")

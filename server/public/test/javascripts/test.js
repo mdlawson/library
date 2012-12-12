@@ -74,113 +74,178 @@
   globals.require.brunch = true;
 })();
 
-window.require.define({"test/models/header_test": function(exports, require, module) {
-  var Header;
+window.require.define({"test/server/api": function(exports, require, module) {
+  var HOST, PORT, app, bcrypt, expect, request;
 
-  Header = require('models/header');
+  expect = require('chai').expect;
 
-  describe('Header', function() {
-    beforeEach(function() {
-      return this.model = new Header();
+  request = require('superagent');
+
+  bcrypt = require('bcrypt');
+
+  app = require('../../server/app.coffee');
+
+  PORT = 3333;
+
+  HOST = "localhost:" + PORT;
+
+  describe("API Server", function() {
+    var server;
+    server = null;
+    it("can be started", function() {
+      server = app.startServer(PORT, '../../server/public');
+      return expect(server).to.be.a('function');
     });
-    afterEach(function() {
-      return this.model.dispose();
-    });
-    return it('should contain 4 items', function() {
-      return expect(this.model.get('items')).to.have.length(4);
-    });
-  });
-  
-}});
-
-window.require.define({"test/test-helpers": function(exports, require, module) {
-  var chai, sinonChai;
-
-  chai = require('chai');
-
-  sinonChai = require('sinon-chai');
-
-  chai.use(sinonChai);
-
-  module.exports = {
-    expect: chai.expect,
-    sinon: require('sinon')
-  };
-  
-}});
-
-window.require.define({"test/views/header_view_test": function(exports, require, module) {
-  var Header, HeaderView, HeaderViewTest, mediator,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  mediator = require('mediator');
-
-  Header = require('models/header');
-
-  HeaderView = require('views/header_view');
-
-  HeaderViewTest = (function(_super) {
-
-    __extends(HeaderViewTest, _super);
-
-    function HeaderViewTest() {
-      return HeaderViewTest.__super__.constructor.apply(this, arguments);
-    }
-
-    HeaderViewTest.prototype.renderTimes = 0;
-
-    HeaderViewTest.prototype.render = function() {
-      HeaderViewTest.__super__.render.apply(this, arguments);
-      return this.renderTimes += 1;
-    };
-
-    return HeaderViewTest;
-
-  })(HeaderView);
-
-  describe('HeaderView', function() {
-    beforeEach(function() {
-      this.model = new Header();
-      return this.view = new HeaderViewTest({
-        model: this.model
+    return describe("User API", function() {
+      var admin, backdoor, data, user;
+      backdoor = request.agent();
+      it("should let us log in with test backdoor", function(done) {
+        return backdoor.post("" + HOST + "/login").send({
+          username: "backdoor",
+          password: ""
+        }).end(function(res) {
+          expect(res.status).to.equal(200);
+          return done();
+        });
+      });
+      it("should let us make a new (admin) user", function(done) {
+        return backdoor.post("" + HOST + "/resources/users").send({
+          username: "admintest",
+          password: "admintest",
+          firstName: "admin",
+          lastName: "test",
+          email: "admin@test.com",
+          admin: 1
+        }).end(function(res) {
+          expect(res.status).to.equal(200);
+          return done();
+        });
+      });
+      data = null;
+      it("should allow users to be listed", function(done) {
+        return backdoor.get("" + HOST + "/resources/users", function(res) {
+          data = res.body;
+          return done();
+        });
+      });
+      it("should list our new user", function() {
+        return expect(data[data.length - 1].username).to.equal("admintest");
+      });
+      it("should have encrypted our users password", function() {
+        return expect(bcrypt.compareSync("admintest", data[data.length - 1].password)).to.be["true"];
+      });
+      admin = request.agent();
+      it("should allow our new admin to log on", function(done) {
+        return admin.post("" + HOST + "/login").send({
+          username: "admintest",
+          password: "admintest"
+        }).end(function(res) {
+          expect(res.status).to.equal(200);
+          expect(res.body.admin).to.equal(1);
+          expect(res.body.id).to.be.a("number");
+          admin.id = res.body.id;
+          return done();
+        });
+      });
+      it("should allow the admin to make a new (normal) user", function(done) {
+        return admin.post("" + HOST + "/resources/users").send({
+          username: "usertest",
+          password: "nottherightpassword",
+          firstName: "user",
+          lastName: "test",
+          email: "user@test.com",
+          admin: 0
+        }).end(function(res) {
+          expect(res.status).to.equal(200);
+          return done();
+        });
+      });
+      user = request.agent();
+      it("should allow our new user to log on", function(done) {
+        return user.post("" + HOST + "/login").send({
+          username: "usertest",
+          password: "nottherightpassword"
+        }).end(function(res) {
+          expect(res.status).to.equal(200);
+          expect(res.body.admin).to.equal(0);
+          expect(res.body.id).to.be.a("number");
+          user.id = res.body.id;
+          return done();
+        });
+      });
+      it("should let users access their own data", function(done) {
+        return user.get("" + HOST + "/resources/users/" + user.id, function(res) {
+          expect(res.status).to.equal(200);
+          return done();
+        });
+      });
+      it("shouldnt let users access other user's data", function(done) {
+        return user.get("" + HOST + "/resources/users", function(res) {
+          expect(res.status).to.equal(401);
+          return done();
+        });
+      });
+      it("should let users log out", function(done) {
+        return user.get("" + HOST + "/logout", function(res) {
+          expect(res.status).to.equal(200);
+          return done();
+        });
+      });
+      it("should not allow logged out users to access data", function(done) {
+        return user.get("" + HOST + "/resources/users", function(res) {
+          expect(res.status).to.equal(401);
+          return done();
+        });
+      });
+      it("should allow admins to edit users", function(done) {
+        return admin.put("" + HOST + "/resources/users/" + user.id).send({
+          password: "usertest"
+        }).end(function(res) {
+          expect(res.status).to.equal(200);
+          expect(bcrypt.compareSync("usertest", res.body.password)).to.be["true"];
+          return done();
+        });
+      });
+      return it("should allow admins to delete users", function(done) {
+        return admin.del("" + HOST + "/resources/users/" + admin.id).end(function(res) {
+          expect(res.status).to.equal(200);
+          return admin.del("" + HOST + "/resources/users/" + user.id).end(function(res) {
+            expect(res.status).to.equal(200);
+            return done();
+          });
+        });
       });
     });
-    afterEach(function() {
-      this.view.dispose();
-      return this.model.dispose();
+  });
+  
+}});
+
+window.require.define({"test/server/database": function(exports, require, module) {
+  var expect, mysql;
+
+  expect = require('chai').expect;
+
+  mysql = require('mysql');
+
+  describe("MySQL Database", function() {
+    var con;
+    con = null;
+    it("can be logged in", function(done) {
+      con = mysql.createConnection(require('../../server/db'));
+      return con.connect(function(err) {
+        expect(err).to.not.exist;
+        return done();
+      });
     });
-    it('should display 4 links', function() {
-      return expect(this.view.$el.find('a')).to.have.length(4);
-    });
-    return it('should re-render on login event', function() {
-      expect(this.view.renderTimes).to.equal(1);
-      mediator.publish('loginStatus');
-      return expect(this.view.renderTimes).to.equal(2);
+    return it("can be queried", function(done) {
+      return con.query("show tables", function(err, results) {
+        expect(err).to.not.exist;
+        expect(results).to.exist;
+        return done();
+      });
     });
   });
   
 }});
 
-window.require.define({"test/views/home_page_view_test": function(exports, require, module) {
-  var HomePageView;
 
-  HomePageView = require('views/home_page_view');
-
-  describe('HomePageView', function() {
-    beforeEach(function() {
-      return this.view = new HomePageView();
-    });
-    afterEach(function() {
-      return this.view.dispose();
-    });
-    return it('should auto-render', function() {
-      return expect(this.view.$el.find('img')).to.have.length(1);
-    });
-  });
-  
-}});
-
-window.require('test/models/header_test');
-window.require('test/views/header_view_test');
-window.require('test/views/home_page_view_test');

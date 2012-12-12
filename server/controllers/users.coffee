@@ -17,7 +17,6 @@ module.exports =
     con.query "SELECT #{modelStr} FROM users WHERE id = ?", [Number req.params.user], (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
-    console.log req.body
     req.body.admin = Number req.body.admin
     req.body.password = bcrypt.hashSync req.body.password, 10
     con.query "INSERT INTO users SET ?", req.body, (err, results) ->
@@ -27,14 +26,13 @@ module.exports =
   update: (req, res) ->
     if req.body.admin then req.body.admin = Number req.body.admin
     if req.body.password then req.body.password = bcrypt.hashSync req.body.password, 10
-    console.log req.body
     con.query "UPDATE users SET ? WHERE id = ? ", [req.body, Number req.params.user], (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", Number(req.params.user), (err, results) ->
         res.send err or results[0]
       else res.send err
   destroy: (req, res) ->
     con.query "DELETE FROM users WHERE id = ?", [Number req.params.user], (err, results) ->
-      res.send err or res.send(200)
+      res.send err or 200
   login: (req, res) ->
     if req.session.user
       req.session.user.reauth = true
