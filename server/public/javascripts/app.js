@@ -382,6 +382,9 @@ window.require.define({"controllers/book": function(exports, require, module) {
     BookView.prototype.renderPanel = function() {
       var _this = this;
       this.panel.html(this.panelTmpl(this.book));
+      $("#panel-datepicker", this.panel).datepicker({
+        format: "dd-mm-yyyy"
+      });
       $(".save", this.panel).click(this.save);
       $(".destroy", this.panel).popover({
         title: "Really?",
@@ -1586,7 +1589,7 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     stack1 = foundHelper || depth0.author;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">\n  </div>\n  <div>\n    <label>Date:</label>\n    <input type=\"text\" class=\"date datepicker\" value=\"";
+    buffer += escapeExpression(stack1) + "\">\n  </div>\n  <div>\n    <label>Date:</label>\n    <input type=\"text\" class=\"date\" id=\"panel-datepicker\" value=\"";
     foundHelper = helpers.date;
     stack1 = foundHelper || depth0.date;
     foundHelper = helpers.Date;

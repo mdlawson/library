@@ -40,7 +40,7 @@ class BookView extends Spine.Controller
   renderPanel: -> 
     @panel.html @panelTmpl @book
 
-    #$(".datepicker",@panel).datepicker format: "dd-mm-yyyy"
+    $("#panel-datepicker",@panel).datepicker format: "dd-mm-yyyy"
     $(".save",@panel).click @save
     $(".destroy",@panel).popover
       title: "Really?"

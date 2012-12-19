@@ -13,7 +13,8 @@ exports.config =
         # Files in `vendor` directories are compiled before other files
         # even if they aren't specified in order.before.
         before: [
-          'vendor/scripts/jquery-1.8.2.js',
+          'vendor/scripts/jquery-1.8.3.js',
+          'vendor/scripts/bootstrap/bootstrap.js',
           'vendor/scripts/sugar.js'
           'vendor/scripts/spine/spine.coffee',
         ]
