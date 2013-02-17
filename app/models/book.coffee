@@ -6,11 +6,11 @@ class Book extends Spine.Model
   @url: "/resources/books"
 
   getReservations: (cb) ->
-    $.get "#{@url()}/reservations", cb
+    $.get "/resources/reservations", cb
   makeReservation: (user,cb) ->
-    $.post "#{@url()}/reservations", {userId: user}, cb
+    $.post "/resources/reservations", {userId: user, ISBN: @ISBN}, cb
   cancelReservation: (id, cb) ->
-    $.delete "#{@url()}/reservations/#{id}", cb
+    $.delete "/resources/reservations/#{id}", cb
   getLoans: (cb) ->
     $.get "#{@url()}/loans", cb
   makeLoan: (book,cb) ->

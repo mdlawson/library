@@ -8,7 +8,7 @@ class User extends Spine.Model
   getReservations: (cb) ->
     $.get "#{@url()}/reservations", cb
   makeReservation: (book,cb) ->
-    $.post "#{@url()}/reservations", {bookId: book}, cb
+    $.post "#{@url()}/reservations", {ISBN: book}, cb
   getLoans: (cb) ->
     $.get "#{@url()}/loans", cb
   makeLoan: (book,cb) ->
