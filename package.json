@@ -30,7 +30,6 @@
     "express": "3.x",
     "express-resource-new": "git://github.com/mdlawson/express-resource-new.git",
     "mysql": "2.x",
-    "bcrypt": "*",
     "jade": "*"
   },
   "devDependencies": {

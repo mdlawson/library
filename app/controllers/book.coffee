@@ -21,19 +21,19 @@ class BookView extends Spine.Controller
     @html require("views/book/list")(@book)
     if @el.hasClass("active")
 
-      @book.copies = @book.constructor.all().findAll (i) => i.ISBN is @book.ISBN 
+      #@book.copies = @book.constructor.all().findAll (i) => i.ISBN is @book.ISBN 
       @book.reservations = []
       @book.loans = []
 
       @renderPanel()
 
-      for book in @book.copies
-        book.getReservations (data) =>
-          @book.reservations = @book.reservations.concat data 
-          @renderPanel()
-        book.getLoans (data) =>
-          @book.loans = @book.loans.concat data
-          @renderPanel()
+      # for book in @book.copies
+      #   book.getReservations (data) =>
+      #     @book.reservations = @book.reservations.concat data 
+      #     @renderPanel()
+      #   book.getLoans (data) =>
+      #     @book.loans = @book.loans.concat data
+      #     @renderPanel()
 
     @
 
@@ -55,7 +55,7 @@ class BookView extends Spine.Controller
 
   save: =>
     $(".save",@panel).button "loading"
-    for prop,i of @book.attributes() when prop isnt "id"
+    for prop,i of @book.attributes()
       @book[prop] = $("form .#{prop}",@panel).val()
     @book.save()
 

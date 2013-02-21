@@ -353,28 +353,11 @@ window.require.define({"controllers/book": function(exports, require, module) {
     }
 
     BookView.prototype.render = function() {
-      var book, _i, _len, _ref,
-        _this = this;
       this.html(require("views/book/list")(this.book));
       if (this.el.hasClass("active")) {
-        this.book.copies = this.book.constructor.all().findAll(function(i) {
-          return i.ISBN === _this.book.ISBN;
-        });
         this.book.reservations = [];
         this.book.loans = [];
         this.renderPanel();
-        _ref = this.book.copies;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          book = _ref[_i];
-          book.getReservations(function(data) {
-            _this.book.reservations = _this.book.reservations.concat(data);
-            return _this.renderPanel();
-          });
-          book.getLoans(function(data) {
-            _this.book.loans = _this.book.loans.concat(data);
-            return _this.renderPanel();
-          });
-        }
       }
       return this;
     };
@@ -412,9 +395,7 @@ window.require.define({"controllers/book": function(exports, require, module) {
       _ref = this.book.attributes();
       for (prop in _ref) {
         i = _ref[prop];
-        if (prop !== "id") {
-          this.book[prop] = $("form ." + prop, this.panel).val();
-        }
+        this.book[prop] = $("form ." + prop, this.panel).val();
       }
       return this.book.save();
     };
@@ -508,8 +489,8 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
         title: "[Untitled]",
         author: "",
         date: "",
-        ISBN: "",
-        description: ""
+        description: "",
+        id: ""
       });
       return this.addBook(book).click();
     };
@@ -527,7 +508,7 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
       rankings = [];
       results = [];
       if (!val) {
-        return data.unique("ISBN");
+        return data;
       }
       if (val.length === 13 && !isNaN(parseInt(val)) && isFinite(val)) {
         for (_i = 0, _len = data.length; _i < _len; _i++) {
@@ -562,7 +543,7 @@ window.require.define({"controllers/catalogue": function(exports, require, modul
         item = rankings[_l];
         results.push(item[1]);
       }
-      return results.unique("ISBN");
+      return results;
     };
 
     CatalogueManager.prototype.matchers = {
@@ -1177,24 +1158,25 @@ window.require.define({"models/book": function(exports, require, module) {
       return Book.__super__.constructor.apply(this, arguments);
     }
 
-    Book.configure("Book", "title", "description", "author", "date", "ISBN", "dewey");
+    Book.configure("Book", "title", "description", "author", "date", "dewey");
 
     Book.extend(Spine.Model.Ajax);
 
     Book.url = "/resources/books";
 
     Book.prototype.getReservations = function(cb) {
-      return $.get("" + (this.url()) + "/reservations", cb);
+      return $.get("/resources/reservations", cb);
     };
 
     Book.prototype.makeReservation = function(user, cb) {
-      return $.post("" + (this.url()) + "/reservations", {
-        userId: user
+      return $.post("/resources/reservations", {
+        userId: user,
+        ISBN: this.ISBN
       }, cb);
     };
 
     Book.prototype.cancelReservation = function(id, cb) {
-      return $["delete"]("" + (this.url()) + "/reservations/" + id, cb);
+      return $["delete"]("/resources/reservations/" + id, cb);
     };
 
     Book.prototype.getLoans = function(cb) {
@@ -1244,7 +1226,7 @@ window.require.define({"models/user": function(exports, require, module) {
 
     User.prototype.makeReservation = function(book, cb) {
       return $.post("" + (this.url()) + "/reservations", {
-        bookId: book
+        ISBN: book
       }, cb);
     };
 
@@ -1575,10 +1557,10 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     return buffer;}
 
     buffer += "<img src=\"http://covers.openlibrary.org/b/isbn/";
-    foundHelper = helpers.ISBN;
-    stack1 = foundHelper || depth0.ISBN;
+    foundHelper = helpers.id;
+    stack1 = foundHelper || depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "id", { hash: {} }); }
     buffer += escapeExpression(stack1) + "-L.jpg\" class=\"img-polaroid\">\n\n<form>\n  <div>\n    <label>Title:</label>\n    <input type=\"text\" class=\"title\" value=\"";
     foundHelper = helpers.title;
     stack1 = foundHelper || depth0.title;
@@ -1597,11 +1579,11 @@ window.require.define({"views/book/panel": function(exports, require, module) {
     if(typeof stack2 === functionType) { stack1 = stack2.call(depth0, stack1, { hash: {} }); }
     else if(stack2=== undef) { stack1 = helperMissing.call(depth0, "Date", stack1, { hash: {} }); }
     else { stack1 = stack2; }
-    buffer += escapeExpression(stack1) + "\">\n    <label>ISBN:</label>\n    <input type=\"text\" class=\"ISBN\" value=\"";
-    foundHelper = helpers.ISBN;
-    stack1 = foundHelper || depth0.ISBN;
+    buffer += escapeExpression(stack1) + "\">\n    <label>ISBN:</label>\n    <input type=\"text\" class=\"id\" value=\"";
+    foundHelper = helpers.id;
+    stack1 = foundHelper || depth0.id;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "ISBN", { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "id", { hash: {} }); }
     buffer += escapeExpression(stack1) + "\">\n    <label>Dewey Decimal:</label>\n    <input type=\"text\" class=\"dewey\" value=\"";
     foundHelper = helpers.dewey;
     stack1 = foundHelper || depth0.dewey;

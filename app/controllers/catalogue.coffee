@@ -46,7 +46,7 @@ class CatalogueManager extends Spine.Controller
     el
 
   new: ->
-    book = new Book({title: "[Untitled]",author:"",date:"",ISBN:"",description:""})
+    book = new Book({title: "[Untitled]",author:"",date:"",description:"",id:""})
     @addBook(book).click()
 
 
@@ -59,7 +59,7 @@ class CatalogueManager extends Spine.Controller
     data = Book.all()
     rankings = []
     results = []
-    unless val then return data.unique("ISBN")
+    unless val then return data
     if val.length is 13 and not isNaN(parseInt val) and isFinite val
       for item in data when item.ISBN is val
         results.push item
@@ -74,7 +74,7 @@ class CatalogueManager extends Spine.Controller
     rankings.sort (a,b) -> matcher.sort a[0],b[0]
     for item in rankings
       results.push item[1]
-    return results.unique("ISBN")
+    return results
 
   matchers:
     levenshtein:

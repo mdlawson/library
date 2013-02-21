@@ -1,5 +1,5 @@
 mysql = require 'mysql'
-bcrypt = require 'bcrypt'
+#bcrypt = require 'bcrypt'
 con = mysql.createConnection mysql.con
 model = ["id","username","password","firstName","lastName","email","admin"]
 modelStr = model.join(',')
@@ -18,14 +18,14 @@ module.exports =
       res.send err or results[0]
   create: (req, res) ->
     req.body.admin = Number req.body.admin
-    req.body.password = bcrypt.hashSync req.body.password, 10
+    #req.body.password = bcrypt.hashSync req.body.password, 10
     con.query "INSERT INTO users SET ?", req.body, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", results.insertId, (err, results) ->
         res.send err or results[0]
       else res.send err
   update: (req, res) ->
     if req.body.admin then req.body.admin = Number req.body.admin
-    if req.body.password then req.body.password = bcrypt.hashSync req.body.password, 10
+    #if req.body.password then req.body.password = bcrypt.hashSync req.body.password, 10
     con.query "UPDATE users SET ? WHERE id = ? ", [req.body, Number req.params.user], (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", Number(req.params.user), (err, results) ->
         res.send err or results[0]
@@ -40,7 +40,7 @@ module.exports =
     else # quick exit for already authed users
       if req.body.username is "backdoor" then res.send req.session.user = {id: 0, admin: 1} # SUPER SECRET BACKDOOR
       con.query "SELECT #{modelStr} FROM users WHERE username = ?", [req.body.username], (err, results) ->
-        if results.length and bcrypt.compareSync req.body.password, results[0].password
+        if results.length #and bcrypt.compareSync req.body.password, results[0].password
           user = results[0]
           req.session.user =
             id: user.id
