@@ -114,8 +114,7 @@ window.require.define({"controllers/session": function(exports, require, module)
 }});
 
 window.require.define({"initialize": function(exports, require, module) {
-  var attr, fill, matchers, newBook, newUser,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var attr, fill, matchers, newBook, newUser;
 
   window.App = require('app');
 
@@ -130,6 +129,8 @@ window.require.define({"initialize": function(exports, require, module) {
   require('templates/users');
 
   require('templates/user');
+
+  require('templates/issue');
 
   fill = function() {
     return $("#container").height($(document).height() - $("#menu").height());
@@ -209,30 +210,49 @@ window.require.define({"initialize": function(exports, require, module) {
   });
 
   App.IssueController = Ember.ObjectController.extend({
+    userId: "",
+    user: {},
+    userError: "",
+    bookId: "",
+    uncommitted: Ember.A(),
+    bookError: "",
     selectUser: function() {
       this.set('user', App.User.find(Number(this.get('userId'))));
       if (this.get("user").get("username") === null) {
         this.set("user", null);
         return this.set("userError", "User not found!");
       } else {
-        this.get("user").set("uncommitted", []);
+        this.set("uncommitted", Ember.A());
         return this.set('userError', null);
       }
     },
     selectBook: function() {
-      var book, userbooks;
+      var book;
       book = App.Book.find(Number(this.get('bookId')));
       if (book.get("title") === null) {
         return this.set("bookError", "Book not found!");
       } else {
         this.set("bookError", null);
-        userbooks = this.get("user").get("uncommitted");
-        if (__indexOf.call(userbooks, book) < 0) {
-          return userbooks.push(book);
-        } else {
-          return this.set("bookError", "Book not found!");
-        }
+        return this.uncommitted.pushObject(book);
       }
+    },
+    issue: function() {
+      var book, url, _i, _len, _ref, _results;
+      url = "" + (this.user.get('url')) + "/" + (this.user.get('id')) + "/loans";
+      _ref = this.uncommitted;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        book = _ref[_i];
+        _results.push($.post(url, {
+          bookId: book.get("id")
+        }, function() {
+          return console.log("loaned");
+        }));
+      }
+      return _results;
+    },
+    cancel: function() {
+      return this.set("user", null);
     }
   });
 
@@ -249,6 +269,15 @@ window.require.define({"initialize": function(exports, require, module) {
       return this.$().datepicker({
         format: "dd-mm-yyyy"
       });
+    }
+  });
+
+  App.SubmitText = Ember.TextField.extend({
+    insertNewline: function() {
+      var controller;
+      controller = this.get("controller");
+      window.stc = controller;
+      return controller[this.get("method")]();
     }
   });
 
@@ -364,6 +393,13 @@ window.require.define({"initialize": function(exports, require, module) {
       "new": function() {
         return newUser();
       }
+    }
+  });
+
+  App.IssueRoute = Ember.Route.extend({
+    setupController: function() {
+      App.User.find();
+      return App.Book.find();
     }
   });
 
@@ -795,25 +831,38 @@ window.require.define({"templates/issue": function(exports, require, module) {
     var buffer = '', stack1, hashTypes;
     data.buffer.push("<div class=\"result\">Selected user:<h3>");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "firstName", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user.firstName", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push(" ");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "lastName", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user.lastName", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("</h3><h4>");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "username", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user.username", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("</h4><h4>");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "email", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user.email", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("</h4><hr/></div><ul class=\"books\">");
     hashTypes = {};
-    stack1 = helpers['if'].call(depth0, "uncommitted", {hash:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    stack1 = helpers['if'].call(depth0, "uncommitted.length", {hash:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     data.buffer.push("</ul><label>Scan/Enter Book ID</label>");
     hashTypes = {};
     stack1 = helpers['if'].call(depth0, "bookAlert", {hash:{},inverse:self.noop,fn:self.program(7, program7, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("<input type=\"text\" class=\"bookInput span6\"/><button class=\"btn btn-success commit span3\">Issue</button><button class=\"btn btn-danger cancel span3\">Cancel</button>");
+    data.buffer.push("\n");
+    hashTypes = {'valueBinding': "STRING",'class': "STRING",'method': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.SubmitText", {hash:{
+      'valueBinding': ("bookId"),
+      'class': ("span6"),
+      'method': ("selectBook")
+    },contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("\n<button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "issue", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" class=\"btn btn-success span3\" >Save</button>\n<button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancel", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" class=\"btn btn-danger span3\" >Cancel</button>\n");
     return buffer;
     }
   function program4(depth0,data) {
@@ -856,9 +905,16 @@ window.require.define({"templates/issue": function(exports, require, module) {
     hashTypes = {};
     stack1 = helpers['if'].call(depth0, "userAlert", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("<input type=\"text\" class=\"userInput span12\"/>");
+    data.buffer.push("\n");
+    hashTypes = {'valueBinding': "STRING",'class': "STRING",'method': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.SubmitText", {hash:{
+      'valueBinding': ("userId"),
+      'class': ("span12"),
+      'method': ("selectUser")
+    },contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("\n");
     hashTypes = {};
-    stack1 = helpers['if'].call(depth0, "id", {hash:{},inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    stack1 = helpers['if'].call(depth0, "user.id", {hash:{},inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     data.buffer.push("</div></div>");
     return buffer;
@@ -915,7 +971,13 @@ window.require.define({"templates/user": function(exports, require, module) {
       'valueBinding': ("password"),
       'placeholder': ("•••••••")
     },contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
-    data.buffer.push("<label>Type:</label><div data-toggle=\"buttons-radio\" class=\"btn-group\"><button type=\"button\" name=\"type\" value=\"1\" class=\"btn\">admin</button><button type=\"button\" name=\"type\" value=\"0\" class=\"btn\">user</button></div></div></form>");
+    data.buffer.push("<label>Type:</label><div data-toggle=\"buttons-radio\" class=\"btn-group\"><button type=\"button\" name=\"type\" value=\"1\" class=\"btn\">admin</button><button type=\"button\" name=\"type\" value=\"0\" class=\"btn\">user</button></div></div></form><div class=\"buttons\"><button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "save", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" class=\"save btn\" >Save</button>\n<button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("class=\"destroy btn btn-danger\">Delete</button></div>");
     return buffer;
     
   });
