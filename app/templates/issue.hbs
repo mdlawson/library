@@ -1,0 +1,35 @@
+#issue.row-fluid
+  .offset4.span4.column
+    label Scan/Enter User ID
+    {{#if userAlert}}
+    .alert.alert-error
+      button.close(type='button', data-dismiss='alert') ×
+      {{ userAlert }}
+    {{/if}}
+    {{view App.SubmitText valueBinding="userId" class="span12" method="selectUser"}}
+    {{#if user.id}}
+    .result Selected user:
+      h3 {{ user.firstName }} {{ user.lastName }}
+      h4 {{ user.username }}
+      h4 {{ user.email }}
+      hr
+    ul.books
+      {{#if uncommitted.length}}
+      {{#each uncommitted}}
+      li
+        span.id {{ id }}
+        {{ title }}
+        small {{ author }}
+        button.btn.btn-danger.btn-mini.removeBook Remove
+      {{/each}}
+      {{/if}}
+    label Scan/Enter Book ID
+    {{#if bookAlert}}
+    .alert.alert-error
+      button.close(type='button', data-dismiss='alert') ×
+      {{ bookAlert}}
+    {{/if}}
+    {{view App.SubmitText valueBinding="bookId" class="span6" method="selectBook"}}
+    | <button {{action "issue"}} class="btn btn-success span3" >Save</button>
+    | <button {{action "cancel"}} class="btn btn-danger span3" >Cancel</button>
+    {{/if}}

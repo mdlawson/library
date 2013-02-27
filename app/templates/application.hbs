@@ -1,0 +1,26 @@
+#menu.navbar.navbar-static-top.navbar-inverse
+  .navbar-inner
+    {{#unless App.user.admin}}
+    a.brand Library
+    {{/unless}}
+    ul.nav
+      {{#if App.user.admin}}
+      li#menu-issue
+        {{#linkTo "issue"}}Issue{{/linkTo}}
+      li#menu-return
+        {{#linkTo "return"}}Return{{/linkTo}}
+      li#menu-catalogue
+        {{#linkTo "catalogue"}}Catalogue{{/linkTo}}
+      li#menu-users
+        {{#linkTo "users"}}Users{{/linkTo}}
+      {{/if}}
+    ul.nav.pull-right
+      {{#if App.user}}
+      li#logout
+        a(href='/logout') Logout
+      li
+      {{else}}
+      li#login
+        {{#linkTo "login"}}Login{{/linkTo}}
+      {{/if}}  
+#container.container-fluid.fill {{outlet}}

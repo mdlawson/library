@@ -1,0 +1,8 @@
+#login.row-fluid
+  form.span4.offset4.well
+    legend Login
+      label Username
+      input.input-block-level.username(type='text')
+      label Password
+      input.input-block-level.password(type='password')
+      | <button {{action "login"}} class="btn btn-info btn-block submit" type="submit">Login</button>

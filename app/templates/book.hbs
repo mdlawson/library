@@ -1,0 +1,51 @@
+img.img-polaroid(src='http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg')
+form
+  div
+    label Title:
+    {{view Ember.TextField valueBinding="title"}}
+    label Author:
+    {{view Ember.TextField valueBinding="author"}}
+  div
+    label Date:
+    {{view Ember.TextField valueBinding="date" class="date-picker"}}
+    label ISBN:
+    {{view Ember.TextField valueBinding="isbn"}}
+    label Dewey Decimal:
+    {{view Ember.TextField valueBinding="dewey"}}
+  label.desc Description:
+  {{view Ember.TextArea valueBinding="description"}}
+.buttons
+  | <button {{action "save"}} class="save btn" >Save</button>
+  | <button {{action "delete"}}class="destroy btn btn-danger">Delete</button>
+// legend Copies: {{copies.length}}
+// {{#each copies}}{{ this.id }}<br />{{/each}}
+//- legend Loans
+//- table.table.table-bordered.table-striped
+//-   thead
+//-     th ID
+//-     th User
+//-     th Date
+//-     th Due
+//-     th Returned
+//-   tbody
+//-     | {{#each loans}}
+//-     tr
+//-       td {{ this.id }}
+//-       td {{ this.userId }}
+//-       td {{Date this.date }}
+//-       td {{Date this.due }}
+//-       td {{ this.returned }}
+//-     | {{/each}}
+//- legend Reservations
+//- table.table.table-bordered.table-striped
+//-   thead
+//-     th ID
+//-     th User
+//-     th Date
+//-   tbody
+//-     | {{#each reservations}}
+//-     tr
+//-       td {{ this.id }}
+//-       td {{ this.userId }}
+//-       td {{Date this.date }}
+//-     | {{/each}}

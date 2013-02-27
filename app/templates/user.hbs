@@ -1,0 +1,20 @@
+form
+  div
+    label First name:
+    {{view Ember.TextField valueBinding="firstname"}}
+    label Last name:
+    {{view Ember.TextField valueBinding="lastname"}}
+    label Email:
+    {{view Ember.TextField valueBinding="email"}}
+  div
+    label Username:
+    {{view Ember.TextField valueBinding="username"}}
+    label Password:
+    {{view Ember.TextField valueBinding="password" placeholder="•••••••"}}
+    label Type:
+    .btn-group(data-toggle='buttons-radio')
+      button.btn(type='button', name='type', value='1') admin
+      button.btn(type='button', name='type', value='0') user
+.buttons
+  | <button {{action "save"}} class="save btn" >Save</button>
+  | <button {{action "delete"}}class="destroy btn btn-danger">Delete</button>

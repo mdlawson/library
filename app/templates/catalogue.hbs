@@ -1,0 +1,11 @@
+#catalogue.advanced.row-fluid
+  .row-fluid.search
+    {{view Ember.TextField valueBinding="query" placeholder="Search" class="span10 offset1"}}
+  ul.span3.list
+    {{#each m in filtered}}
+    li {{#linkTo book m}}{{m.title}}
+      small {{m.author}}
+    {{/linkTo}}
+    {{/each}}
+  | <button {{action "new"}} class="span3 btn new">Add New</button>
+  .span9.panel {{ outlet }}
