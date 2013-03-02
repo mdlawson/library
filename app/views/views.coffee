@@ -1,7 +1,8 @@
 module.exports =
+  fill:-> $("#container").height($(document).height()-$("#menu").height())
   ApplicationView: Ember.View.extend
     templateName: 'application'
-    didInsertElement: -> fill()
+    didInsertElement: -> App.fill()
 
   DateView: Ember.TextField.extend
     classNames: ['date-picker']
@@ -12,3 +13,5 @@ module.exports =
       controller = @get "controller"
       window.stc = controller
       controller[@get "method"]()
+  BookView: Ember.View.extend
+    didInsertElement: -> $("#bookModal").modal()

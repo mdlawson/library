@@ -14,15 +14,18 @@ module.exports = Ember.ObjectController.extend
       @set("uncommitted",Ember.A())
       @set 'userError',null
   selectBook: ->
-    book = App.Book.find Number @get 'bookId'
-    if book.get("title") is null
-      @set("bookError","Book not found!")
-    else 
-      @set("bookError",null)
-      @uncommitted.pushObject book
+    $.post "resources/books/lookup",{book: @get 'bookId'},(book) =>
+      book.id = @get 'bookId'
+      if not book.title
+        @set("bookError","Book not found!")
+      else 
+        @set("bookError",null)
+        @uncommitted.pushObject book
   issue: ->
     url = "#{@user.get('url')}/#{@user.get('id')}/loans"
     for book in @uncommitted
-      $.post url, {bookId: book.get("id")},-> console.log "loaned"
+      $.post url, {bookId: book.id},=> @set "user", null
   cancel: ->
     @set("user",null)
+  remove: (e) ->
+    @uncommitted.popObject e

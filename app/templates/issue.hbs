@@ -15,12 +15,12 @@
       hr
     ul.books
       {{#if uncommitted.length}}
-      {{#each uncommitted}}
+      {{#each book in uncommitted}}
       li
-        span.id {{ id }}
-        {{ title }}
-        small {{ author }}
-        button.btn.btn-danger.btn-mini.removeBook Remove
+        span.id {{ book.id }}
+        {{ book.title }}
+        small {{ book.author }}
+        | <button {{action "remove" book}} class="btn btn-danger btn-mini">Remove</button>
       {{/each}}
       {{/if}}
     label Scan/Enter Book ID

@@ -13,10 +13,8 @@ require 'templates/users'
 require 'templates/user'
 
 require 'templates/issue'
+require 'templates/return'
 
-fill = -> $("#container").height($(document).height()-$("#menu").height())
-
-$(window).resize -> fill()
 
 # Models
 
@@ -35,13 +33,16 @@ App.SessionManager.send "login"
 matchers = require "matchers"
 
 App.CatalogueController = require "controllers/catalogue"
+App.BookController = require 'controllers/book'
 
 App.IssueController = require "controllers/issue"
-      
+App.ReturnController = require "controllers/return"
 
 # Views
 
 App[key] = value for key,value of require "views/views"
+
+$(window).resize -> App.fill()
 
 # Routes
 
@@ -57,7 +58,6 @@ App.LoginRoute = Ember.Route.extend
 App.IssueRoute = Ember.Route.extend
   setupController: ->
     App.User.find()
-    App.Book.find()
 
 App[key] = value for key,value of require "routes/users"
 App[key] = value for key,value of require "routes/books"

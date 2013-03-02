@@ -1,0 +1,9 @@
+#return.row-fluid 
+  .column.offset4.span4
+    label Scan/Enter Book ID
+    {{view App.SubmitText valueBinding="bookId" class="span12" method="returnBook"}}
+    {{#if book.id}}
+    .result Returned Book :
+      h3 {{ book.title }} {{ book.author }}
+      hr
+    {{/if}}

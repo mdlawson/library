@@ -4,7 +4,7 @@ SessionManager = Em.StateManager.create
     login: (manager, data={}) ->
       $.post "/login",data, (user) ->
         App.set "user",user
-        manager.trigger "login",user.reauth
+        manager.trigger "login",user.reauth,user.admin
         manager.transitionTo(if user.admin then 'admin' else 'user')
       .error ->
         manager.trigger "error"

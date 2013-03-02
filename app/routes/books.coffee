@@ -8,7 +8,6 @@ module.exports =
     renderTemplate: ->
       @render()
       #$("list").children(":first").click()
-
     events:
       new: -> newBook()
 
@@ -18,6 +17,7 @@ module.exports =
         controller: @controllerFor "catalogue"
       @render
        into: 'catalogue'
+      $("#bookModal").modal()
         
     model: (params) -> App.Book.find(params.book_id);
     events:

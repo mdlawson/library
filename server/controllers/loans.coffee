@@ -14,6 +14,7 @@ module.exports =
     con.query "SELECT #{modelStr} FROM loans WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.loan),Number(req.params[req.context])], (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
+    console.log "params:\n",req.params,"\nbody:\n",req.body
     payload = if req.params.user then {userId: Number(req.params.user), bookId: Number(req.body.bookId)} else {userId: Number(req.body.userId), bookId: Number(req.params.book)}
     con.query "INSERT INTO loans SET ?", payload, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM loans WHERE id = ?", results.insertId, (err, results) ->
@@ -27,6 +28,7 @@ module.exports =
   destroy: (req, res) ->
     con.query "DELETE FROM loans WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.loan),Number(req.params[req.context])], (err, results) ->
       res.send err or res.send(200)
+
       
 auth = (req, res, next) ->
   if req.session.user and req.session.user.admin is 1 then next() else res.send(401)

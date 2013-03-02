@@ -85,102 +85,30 @@ window.require.define({"app": function(exports, require, module) {
   
 }});
 
-window.require.define({"controllers/session": function(exports, require, module) {
-  var SessionManager;
-
-  SessionManager = Em.StateManager.create({
-    initialState: 'loggedOut',
-    loggedOut: Em.State.create({
-      login: function(manager, data) {
-        if (data == null) {
-          data = {};
-        }
-        return $.post("/login", data, function(user) {
-          App.set("user", user);
-          manager.trigger("login", user.reauth);
-          return manager.transitionTo(user.admin ? 'admin' : 'user');
-        }).error(function() {
-          manager.trigger("error");
-          return manager.transitionTo('loggedOut');
-        });
+window.require.define({"controllers/book": function(exports, require, module) {
+  
+  module.exports = Ember.ObjectController.extend({
+    admin: (function() {
+      if (App.SessionManager.get('currentState.name') === "admin") {
+        return true;
+      } else {
+        return false;
       }
-    }),
-    admin: Em.State.create(),
-    user: Em.State.create()
+    }).property("App.SessionManager.currentState"),
+    reserve: function() {
+      return $.post("/resources/users/" + (App.get("user.id")) + "/reservations", {
+        ISBN: this.get("isbn")
+      }, function() {
+        return console.log("reserved");
+      });
+    }
   });
-
-  module.exports = SessionManager;
   
 }});
 
-window.require.define({"initialize": function(exports, require, module) {
-  var attr, fill, matchers, newBook, newUser;
-
-  window.App = require('app');
-
-  require('templates/application');
-
-  require('templates/login');
-
-  require('templates/catalogue');
-
-  require('templates/book');
-
-  require('templates/users');
-
-  require('templates/user');
-
-  require('templates/issue');
-
-  fill = function() {
-    return $("#container").height($(document).height() - $("#menu").height());
-  };
-
-  $(window).resize(function() {
-    return fill();
-  });
-
-  attr = DS.attr;
-
-  App.Book = DS.Model.extend({
-    isbn: attr("string"),
-    title: attr("string"),
-    author: attr("string"),
-    description: attr("string"),
-    date: attr("string"),
-    dewey: attr("string")
-  }).reopen({
-    url: "resources/books"
-  });
-
-  App.User = DS.Model.extend({
-    username: attr("string"),
-    password: attr("string"),
-    firstname: attr("string"),
-    lastname: attr("string"),
-    email: attr("string"),
-    admin: attr("boolean")
-  }).reopen({
-    url: "resources/users"
-  });
-
-  App.SessionManager = require('controllers/session');
-
-  App.SessionManager.on("login", function(reauth) {
-    if (!reauth) {
-      return App.Router.router.transitionTo("index");
-    }
-  });
-
-  App.SessionManager.on("error", function() {
-    return App.Router.router.transitionTo("login");
-  });
-
-  App.SessionManager.send("login");
-
-  matchers = require("matchers");
-
-  App.CatalogueController = Ember.ArrayController.extend({
+window.require.define({"controllers/catalogue": function(exports, require, module) {
+  
+  module.exports = Ember.ArrayController.extend({
     query: "",
     filtered: (function() {
       var content, results, val;
@@ -206,10 +134,21 @@ window.require.define({"initialize": function(exports, require, module) {
         });
       }
       return results;
-    }).property('content.isLoaded', 'query')
+    }).property('content.isLoaded', 'query'),
+    admin: (function() {
+      if (App.SessionManager.get('currentState.name') === "admin") {
+        return true;
+      } else {
+        return false;
+      }
+    }).property("App.SessionManager.currentState")
   });
+  
+}});
 
-  App.IssueController = Ember.ObjectController.extend({
+window.require.define({"controllers/issue": function(exports, require, module) {
+  
+  module.exports = Ember.ObjectController.extend({
     userId: "",
     user: {},
     userError: "",
@@ -227,66 +166,149 @@ window.require.define({"initialize": function(exports, require, module) {
       }
     },
     selectBook: function() {
-      var book;
-      book = App.Book.find(Number(this.get('bookId')));
-      if (book.get("title") === null) {
-        return this.set("bookError", "Book not found!");
-      } else {
-        this.set("bookError", null);
-        return this.uncommitted.pushObject(book);
-      }
+      var _this = this;
+      return $.post("resources/books/lookup", {
+        book: this.get('bookId')
+      }, function(book) {
+        book.id = _this.get('bookId');
+        if (!book.title) {
+          return _this.set("bookError", "Book not found!");
+        } else {
+          _this.set("bookError", null);
+          return _this.uncommitted.pushObject(book);
+        }
+      });
     },
     issue: function() {
-      var book, url, _i, _len, _ref, _results;
+      var book, url, _i, _len, _ref, _results,
+        _this = this;
       url = "" + (this.user.get('url')) + "/" + (this.user.get('id')) + "/loans";
       _ref = this.uncommitted;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         book = _ref[_i];
         _results.push($.post(url, {
-          bookId: book.get("id")
+          bookId: book.id
         }, function() {
-          return console.log("loaned");
+          return _this.set("user", null);
         }));
       }
       return _results;
     },
     cancel: function() {
       return this.set("user", null);
+    },
+    remove: function(e) {
+      return this.uncommitted.popObject(e);
     }
   });
+  
+}});
 
-  App.ApplicationView = Ember.View.extend({
-    templateName: 'application',
-    didInsertElement: function() {
-      return fill();
-    }
-  });
-
-  App.DateView = Ember.TextField.extend({
-    classNames: ['date-picker'],
-    didInsertElement: function() {
-      return this.$().datepicker({
-        format: "dd-mm-yyyy"
+window.require.define({"controllers/return": function(exports, require, module) {
+  
+  module.exports = Ember.ObjectController.extend({
+    bookId: "",
+    book: {},
+    returnBook: function() {
+      var _this = this;
+      return $.post("resources/books/return", {
+        book: this.get('bookId')
+      }, function(book) {
+        book.id = _this.get('bookId');
+        return _this.set("book", book);
       });
     }
   });
+  
+}});
 
-  App.SubmitText = Ember.TextField.extend({
-    insertNewline: function() {
-      var controller;
-      controller = this.get("controller");
-      window.stc = controller;
-      return controller[this.get("method")]();
+window.require.define({"controllers/session": function(exports, require, module) {
+  var SessionManager;
+
+  SessionManager = Em.StateManager.create({
+    initialState: 'loggedOut',
+    loggedOut: Em.State.create({
+      login: function(manager, data) {
+        if (data == null) {
+          data = {};
+        }
+        return $.post("/login", data, function(user) {
+          App.set("user", user);
+          manager.trigger("login", user.reauth, user.admin);
+          return manager.transitionTo(user.admin ? 'admin' : 'user');
+        }).error(function() {
+          manager.trigger("error");
+          return manager.transitionTo('loggedOut');
+        });
+      }
+    }),
+    admin: Em.State.create(),
+    user: Em.State.create()
+  });
+
+  module.exports = SessionManager;
+  
+}});
+
+window.require.define({"initialize": function(exports, require, module) {
+  var key, matchers, value, _ref, _ref1, _ref2;
+
+  window.App = require('app');
+
+  require('templates/application');
+
+  require('templates/login');
+
+  require('templates/catalogue');
+
+  require('templates/book');
+
+  require('templates/users');
+
+  require('templates/user');
+
+  require('templates/issue');
+
+  require('templates/return');
+
+  App.Book = require('models/book');
+
+  App.User = require('models/user');
+
+  App.SessionManager = require('controllers/session');
+
+  App.SessionManager.on("login", function(reauth) {
+    if (!reauth) {
+      return App.Router.router.transitionTo("index");
     }
   });
 
-  newBook = function() {
-    return App.Book.createRecord({
-      title: "Untitled",
-      author: "Unauthored"
-    });
-  };
+  App.SessionManager.on("error", function() {
+    return App.Router.router.transitionTo("login");
+  });
+
+  App.SessionManager.send("login");
+
+  matchers = require("matchers");
+
+  App.CatalogueController = require("controllers/catalogue");
+
+  App.BookController = require('controllers/book');
+
+  App.IssueController = require("controllers/issue");
+
+  App.ReturnController = require("controllers/return");
+
+  _ref = require("views/views");
+  for (key in _ref) {
+    value = _ref[key];
+    App[key] = value;
+  }
+
+  $(window).resize(function() {
+    return App.fill();
+  });
 
   App.IndexRoute = Ember.Route.extend({
     redirect: function() {
@@ -305,103 +327,23 @@ window.require.define({"initialize": function(exports, require, module) {
     }
   });
 
-  App.CatalogueRoute = Ember.Route.extend({
-    model: function() {
-      return App.Book.find();
-    },
-    renderTemplate: function() {
-      return this.render();
-    },
-    events: {
-      "new": function() {
-        return newBook();
-      }
-    }
-  });
-
-  App.BookRoute = Ember.Route.extend({
-    renderTemplate: function() {
-      this.render('catalogue', {
-        controller: this.controllerFor("catalogue")
-      });
-      return this.render({
-        into: 'catalogue'
-      });
-    },
-    model: function(params) {
-      return App.Book.find(params.book_id);
-    },
-    events: {
-      save: function() {
-        return this.get("controller.model").transaction.commit();
-      },
-      "delete": function() {
-        var model;
-        model = this.get("controller.model");
-        model.deleteRecord();
-        return model.transaction.commit();
-      },
-      "new": function() {
-        return newBook();
-      }
-    }
-  });
-
-  newUser = function() {
-    return App.User.createRecord({
-      firstname: "Joe",
-      lastname: "Bloggs"
-    });
-  };
-
-  App.UsersRoute = Ember.Route.extend({
-    model: function() {
-      return App.User.find();
-    },
-    renderTemplate: function() {
-      return this.render();
-    },
-    events: {
-      "new": function() {
-        return newUser();
-      }
-    }
-  });
-
-  App.UserRoute = Ember.Route.extend({
-    renderTemplate: function() {
-      this.render('users', {
-        controller: this.controllerFor("users")
-      });
-      return this.render({
-        into: 'users'
-      });
-    },
-    model: function(params) {
-      return App.User.find(params.user_id);
-    },
-    events: {
-      save: function() {
-        return this.get("controller.model").transaction.commit();
-      },
-      "delete": function() {
-        var model;
-        model = this.get("controller.model");
-        model.deleteRecord();
-        return model.transaction.commit();
-      },
-      "new": function() {
-        return newUser();
-      }
-    }
-  });
-
   App.IssueRoute = Ember.Route.extend({
     setupController: function() {
-      App.User.find();
-      return App.Book.find();
+      return App.User.find();
     }
   });
+
+  _ref1 = require("routes/users");
+  for (key in _ref1) {
+    value = _ref1[key];
+    App[key] = value;
+  }
+
+  _ref2 = require("routes/books");
+  for (key in _ref2) {
+    value = _ref2[key];
+    App[key] = value;
+  }
 
   App.Store = DS.Store.extend({
     revision: 11,
@@ -572,6 +514,153 @@ window.require.define({"matchers": function(exports, require, module) {
   
 }});
 
+window.require.define({"models/book": function(exports, require, module) {
+  var attr;
+
+  attr = DS.attr;
+
+  module.exports = DS.Model.extend({
+    isbn: attr("string"),
+    title: attr("string"),
+    author: attr("string"),
+    description: attr("string"),
+    date: attr("string"),
+    dewey: attr("string")
+  }).reopen({
+    url: "resources/books"
+  });
+  
+}});
+
+window.require.define({"models/user": function(exports, require, module) {
+  var attr;
+
+  attr = DS.attr;
+
+  module.exports = DS.Model.extend({
+    username: attr("string"),
+    password: attr("string"),
+    firstname: attr("string"),
+    lastname: attr("string"),
+    email: attr("string"),
+    admin: attr("boolean")
+  }).reopen({
+    url: "resources/users"
+  });
+  
+}});
+
+window.require.define({"routes/books": function(exports, require, module) {
+  var newBook;
+
+  newBook = function() {
+    return App.Book.createRecord({
+      title: "Untitled",
+      author: "Unauthored"
+    });
+  };
+
+  module.exports = {
+    CatalogueRoute: Ember.Route.extend({
+      model: function() {
+        return App.Book.find();
+      },
+      renderTemplate: function() {
+        return this.render();
+      },
+      events: {
+        "new": function() {
+          return newBook();
+        }
+      }
+    }),
+    BookRoute: Ember.Route.extend({
+      renderTemplate: function() {
+        this.render('catalogue', {
+          controller: this.controllerFor("catalogue")
+        });
+        this.render({
+          into: 'catalogue'
+        });
+        return $("#bookModal").modal();
+      },
+      model: function(params) {
+        return App.Book.find(params.book_id);
+      },
+      events: {
+        save: function() {
+          return this.get("controller.model").transaction.commit();
+        },
+        "delete": function() {
+          var model;
+          model = this.get("controller.model");
+          model.deleteRecord();
+          return model.transaction.commit();
+        },
+        "new": function() {
+          return newBook();
+        }
+      }
+    })
+  };
+  
+}});
+
+window.require.define({"routes/users": function(exports, require, module) {
+  var newUser;
+
+  newUser = function() {
+    return App.User.createRecord({
+      firstname: "Joe",
+      lastname: "Bloggs"
+    });
+  };
+
+  module.exports = {
+    UsersRoute: Ember.Route.extend({
+      model: function() {
+        return App.User.find();
+      },
+      renderTemplate: function() {
+        return this.render();
+      },
+      events: {
+        "new": function() {
+          return newUser();
+        }
+      }
+    }),
+    UserRoute: Ember.Route.extend({
+      renderTemplate: function() {
+        this.render('users', {
+          controller: this.controllerFor("users")
+        });
+        return this.render({
+          into: 'users'
+        });
+      },
+      model: function(params) {
+        return App.User.find(params.user_id);
+      },
+      events: {
+        save: function() {
+          return this.get("controller.model").transaction.commit();
+        },
+        "delete": function() {
+          var model;
+          model = this.get("controller.model");
+          model.deleteRecord();
+          return model.transaction.commit();
+        },
+        "new": function() {
+          return newUser();
+        }
+      }
+    })
+  };
+  
+}});
+
 window.require.define({"templates/application": function(exports, require, module) {
   Ember.TEMPLATES['application'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
@@ -682,17 +771,11 @@ window.require.define({"templates/book": function(exports, require, module) {
   Ember.TEMPLATES['book'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', stack1, hashTypes, escapeExpression=this.escapeExpression, self=this;
+    var stack1, hashTypes, escapeExpression=this.escapeExpression, self=this;
 
   function program1(depth0,data) {
     
-    var buffer = '', hashTypes;
-    hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
-    data.buffer.push("<br />");
-    return buffer;
-    }
-
+    var buffer = '', stack1, hashTypes;
     data.buffer.push("<img src=\"http://covers.openlibrary.org/b/isbn/");
     hashTypes = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "ISBN", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
@@ -738,10 +821,52 @@ window.require.define({"templates/book": function(exports, require, module) {
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "copies.length", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("--><!-- ");
     hashTypes = {};
-    stack1 = helpers.each.call(depth0, "copies", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    stack1 = helpers.each.call(depth0, "copies", {hash:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     data.buffer.push("-->");
     return buffer;
+    }
+  function program2(depth0,data) {
+    
+    var buffer = '', hashTypes;
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("<br />");
+    return buffer;
+    }
+
+  function program4(depth0,data) {
+    
+    var buffer = '', hashTypes;
+    data.buffer.push("<div class=\"modal-header\"><button type=\"button\" data-dismiss=\"modal\" aria-hidden=\"true\" class=\"close\">×</button><h3 id=\"modalTitle\">");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h3></div><div id=\"modalBody\" class=\"modal-body\"><img src=\"http://covers.openlibrary.org/b/isbn/");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "ISBN", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("-L.jpg\" class=\"img-polaroid\"/><dl class=\"dl-horizontal\"><dt>Title</dt><dd>");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</dd><dt>Author</dt><dd>");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "author", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</dd><dt>Date</dt><dd>");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "date", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</dd><dt>Description</dt><dd>");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "description", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</dd></dl></div><div id=\"modalFooter\" class=\"modal-footer\"><button data-dismiss=\"modal\" aria-hidden=\"true\" class=\"btn\">Close</button><button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "reserve", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" class=\"btn btn-success span3\" >Reserve</button></div>");
+    return buffer;
+    }
+
+    hashTypes = {};
+    stack1 = helpers['if'].call(depth0, "admin", {hash:{},inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    else { data.buffer.push(''); }
     
   });
 }});
@@ -750,20 +875,43 @@ window.require.define({"templates/catalogue": function(exports, require, module)
   Ember.TEMPLATES['catalogue'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
   helpers = helpers || Ember.Handlebars.helpers; data = data || {};
-    var buffer = '', stack1, hashTypes, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+    var stack1, hashTypes, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
 
   function program1(depth0,data) {
+    
+    var buffer = '', stack1, hashTypes;
+    data.buffer.push("<div id=\"catalogue\" class=\"advanced row-fluid\"><div class=\"row-fluid search\">");
+    hashTypes = {'valueBinding': "STRING",'placeholder': "STRING",'class': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.TextField", {hash:{
+      'valueBinding': ("query"),
+      'placeholder': ("Search"),
+      'class': ("span10 offset1")
+    },contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div><ul class=\"span3 list\">");
+    hashTypes = {};
+    stack1 = helpers.each.call(depth0, "m", "in", "filtered", {hash:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0,depth0,depth0],types:["ID","ID","ID"],hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</ul><button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "new", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" class=\"span3 btn new\">Add New</button><div class=\"span9 panel\">");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</div></div>");
+    return buffer;
+    }
+  function program2(depth0,data) {
     
     var buffer = '', stack1, stack2, hashTypes, options;
     data.buffer.push("<li>");
     hashTypes = {};
-    options = {hash:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0,depth0],types:["ID","ID"],hashTypes:hashTypes,data:data};
+    options = {hash:{},inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0,depth0],types:["ID","ID"],hashTypes:hashTypes,data:data};
     stack2 = ((stack1 = helpers.linkTo),stack1 ? stack1.call(depth0, "book", "m", options) : helperMissing.call(depth0, "linkTo", "book", "m", options));
     if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
     data.buffer.push("\n");
     return buffer;
     }
-  function program2(depth0,data) {
+  function program3(depth0,data) {
     
     var buffer = '', hashTypes;
     hashTypes = {};
@@ -775,25 +923,31 @@ window.require.define({"templates/catalogue": function(exports, require, module)
     return buffer;
     }
 
-    data.buffer.push("<div id=\"catalogue\" class=\"advanced row-fluid\"><div class=\"row-fluid search\">");
+  function program5(depth0,data) {
+    
+    var buffer = '', stack1, hashTypes;
+    data.buffer.push("<div id=\"catalogue\" class=\"basic row-fluid\"><div class=\"row-fluid search\">");
     hashTypes = {'valueBinding': "STRING",'placeholder': "STRING",'class': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.TextField", {hash:{
       'valueBinding': ("query"),
       'placeholder': ("Search"),
       'class': ("span10 offset1")
     },contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
-    data.buffer.push("</div><ul class=\"span3 list\">");
+    data.buffer.push("</div><ul class=\"offset1 span10 list\">");
     hashTypes = {};
-    stack1 = helpers.each.call(depth0, "m", "in", "filtered", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0,depth0,depth0],types:["ID","ID","ID"],hashTypes:hashTypes,data:data});
+    stack1 = helpers.each.call(depth0, "m", "in", "filtered", {hash:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0,depth0,depth0],types:["ID","ID","ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("</ul><button ");
-    hashTypes = {};
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "new", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
-    data.buffer.push(" class=\"span3 btn new\">Add New</button><div class=\"span9 panel\">");
+    data.buffer.push("</ul><div id=\"bookModal\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\" class=\"modal hide fade\">");
     hashTypes = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("</div></div>");
     return buffer;
+    }
+
+    hashTypes = {};
+    stack1 = helpers['if'].call(depth0, "admin", {hash:{},inverse:self.program(5, program5, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    else { data.buffer.push(''); }
     
   });
 }});
@@ -870,7 +1024,7 @@ window.require.define({"templates/issue": function(exports, require, module) {
     var buffer = '', stack1, hashTypes;
     data.buffer.push("\n");
     hashTypes = {};
-    stack1 = helpers.each.call(depth0, "uncommitted", {hash:{},inverse:self.noop,fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    stack1 = helpers.each.call(depth0, "book", "in", "uncommitted", {hash:{},inverse:self.noop,fn:self.program(5, program5, data),contexts:[depth0,depth0,depth0],types:["ID","ID","ID"],hashTypes:hashTypes,data:data});
     if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
     data.buffer.push("\n");
     return buffer;
@@ -880,14 +1034,17 @@ window.require.define({"templates/issue": function(exports, require, module) {
     var buffer = '', hashTypes;
     data.buffer.push("<li><span class=\"id\">");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "id", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "book.id", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("</span>");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "title", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "book.title", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
     data.buffer.push("<small>");
     hashTypes = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "author", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
-    data.buffer.push("</small><button class=\"btn btn-danger btn-mini removeBook\">Remove</button></li>");
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "book.author", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</small><button ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "remove", "book", {hash:{},contexts:[depth0,depth0],types:["STRING","ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" class=\"btn btn-danger btn-mini\">Remove</button></li>");
     return buffer;
     }
 
@@ -933,6 +1090,42 @@ window.require.define({"templates/login": function(exports, require, module) {
     hashTypes = {};
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "login", {hash:{},contexts:[depth0],types:["STRING"],hashTypes:hashTypes,data:data})));
     data.buffer.push(" class=\"btn btn-info btn-block submit\" type=\"submit\">Login</button></legend></form></div>");
+    return buffer;
+    
+  });
+}});
+
+window.require.define({"templates/return": function(exports, require, module) {
+  Ember.TEMPLATES['return'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+  helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+    var buffer = '', stack1, hashTypes, escapeExpression=this.escapeExpression, self=this;
+
+  function program1(depth0,data) {
+    
+    var buffer = '', hashTypes;
+    data.buffer.push("<div class=\"result\">Returned Book :<h3>");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "book.title", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push(" ");
+    hashTypes = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "book.author", {hash:{},contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("</h3><hr/></div>");
+    return buffer;
+    }
+
+    data.buffer.push("<div id=\"return\" class=\"row-fluid\"> <div class=\"column offset4 span4\"><label>Scan/Enter Book ID</label>");
+    hashTypes = {'valueBinding': "STRING",'class': "STRING",'method': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.SubmitText", {hash:{
+      'valueBinding': ("bookId"),
+      'class': ("span12"),
+      'method': ("returnBook")
+    },contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data})));
+    data.buffer.push("\n");
+    hashTypes = {};
+    stack1 = helpers['if'].call(depth0, "book.id", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashTypes:hashTypes,data:data});
+    if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+    data.buffer.push("</div></div>");
     return buffer;
     
   });
@@ -1031,5 +1224,42 @@ window.require.define({"templates/users": function(exports, require, module) {
     return buffer;
     
   });
+}});
+
+window.require.define({"views/views": function(exports, require, module) {
+  
+  module.exports = {
+    fill: function() {
+      return $("#container").height($(document).height() - $("#menu").height());
+    },
+    ApplicationView: Ember.View.extend({
+      templateName: 'application',
+      didInsertElement: function() {
+        return App.fill();
+      }
+    }),
+    DateView: Ember.TextField.extend({
+      classNames: ['date-picker'],
+      didInsertElement: function() {
+        return this.$().datepicker({
+          format: "dd-mm-yyyy"
+        });
+      }
+    }),
+    SubmitText: Ember.TextField.extend({
+      insertNewline: function() {
+        var controller;
+        controller = this.get("controller");
+        window.stc = controller;
+        return controller[this.get("method")]();
+      }
+    }),
+    BookView: Ember.View.extend({
+      didInsertElement: function() {
+        return $("#bookModal").modal();
+      }
+    })
+  };
+  
 }});
 

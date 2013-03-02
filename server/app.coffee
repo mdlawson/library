@@ -37,7 +37,8 @@ module.exports.startServer = (port, path) ->
   app.resource 'books', ->
     @resource 'loans'
   #  @resource 'reservations'
-    @member.post 'return'
+    @collection.post 'return'
+    @collection.post 'lookup'
   app.resource 'reservations'
 
   # Login routing

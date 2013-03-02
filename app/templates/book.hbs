@@ -1,3 +1,4 @@
+{{#if admin}}
 img.img-polaroid(src='http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg')
 form
   div
@@ -49,3 +50,31 @@ form
 //-       td {{ this.userId }}
 //-       td {{Date this.date }}
 //-     | {{/each}}
+{{else}}
+.modal-header
+  button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+  h3#modalTitle {{ title }}
+#modalBody.modal-body
+  img.img-polaroid(src='http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg')
+  dl.dl-horizontal
+    dt Title
+    dd {{ title }}
+    dt Author
+    dd {{ author }}
+    dt Date
+    dd {{ date }}
+    dt Description
+    dd {{ description }}
+#modalFooter.modal-footer
+  button.btn(data-dismiss='modal', aria-hidden='true') Close
+  | <button {{action "reserve"}} class="btn btn-success span3" >Reserve</button>
+  //- | {{#if loaned}}
+  //- button.btn.btn-primary.reserve(data-loading-text='Renewing...', data-complete-text='Renewed!') Renew
+  //- | {{else}}
+  //- | {{#if reserved}}
+  //- button.btn.btn-primary.reserve(data-loading-text='Canceling...', data-complete-text='Canceled!') Unreserve
+  //- | {{else}}
+  //- button.btn.btn-primary.reserve(data-loading-text='Reserving...', data-complete-text='Reserved!') Reserve
+  //- | {{/if}}
+  //- | {{/if}}
+{{/if}}

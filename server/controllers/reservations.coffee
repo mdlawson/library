@@ -14,7 +14,7 @@ module.exports =
     con.query "SELECT #{modelStr} FROM reservations WHERE id = ? AND #{req.context} = ?", [Number(req.params.reservation),Number(req.params[req.context])], (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
-    payload = if req.params.user then {userId: Number(req.params.user), ISBN: req.body.ISBN} else {userId: Number(req.body.userId), ISBN: req.body.ISBN}
+    payload = if req.params.user then {userId: Number(req.params.user), ISBN: req.body.ISBN} else {userId: Number(req.body.userId), ISBN: req.params.ISBN}
     con.query "INSERT INTO reservations SET ?", payload, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM reservations WHERE id = ?", results.insertId, (err, results) ->
         res.send err or results[0]

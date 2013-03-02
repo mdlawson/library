@@ -1,3 +1,4 @@
+{{#if admin}}
 #catalogue.advanced.row-fluid
   .row-fluid.search
     {{view Ember.TextField valueBinding="query" placeholder="Search" class="span10 offset1"}}
@@ -9,3 +10,18 @@
     {{/each}}
   | <button {{action "new"}} class="span3 btn new">Add New</button>
   .span9.panel {{ outlet }}
+{{else}}
+#catalogue.basic.row-fluid
+  .row-fluid.search
+    {{view Ember.TextField valueBinding="query" placeholder="Search" class="span10 offset1"}}
+  ul.offset1.span10.list
+    {{#each m in filtered}}
+    li {{#linkTo book m}}
+      img.img-polaroid(src='http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg')
+      br {{m.title}}
+      br 
+      small {{m.author}}
+    {{/linkTo}}
+    {{/each}}
+  #bookModal.modal.hide.fade(role='dialog', aria-labelledby='myModalLabel', aria-hidden='true') {{ outlet }}
+{{/if}}

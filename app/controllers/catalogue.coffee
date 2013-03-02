@@ -27,3 +27,6 @@ module.exports = Ember.ArrayController.extend
     return results
     #@get("content")
   ).property 'content.isLoaded','query'
+  admin: (->
+      return if App.SessionManager.get('currentState.name') is "admin" then true else false
+    ).property("App.SessionManager.currentState")
