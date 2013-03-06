@@ -9,7 +9,7 @@ auth = (req, res, next) ->
 
 lookup = (req,res) ->
   con.query "SELECT ISBN FROM libraryBooks WHERE id = ?",Number(req.body.book),(err,results) ->
-    unless err then con.query "SELECT #{modelStr} FROM books WHERE isbn = ?",results[0].ISBN,(err,results) ->
+    unless err or not results.length then con.query "SELECT #{modelStr} FROM books WHERE isbn = ?",results[0].ISBN,(err,results) ->
       unless err then res.send results[0]
       else res.send err
     else 
@@ -37,10 +37,10 @@ module.exports =
     req.body.book.date = new Date req.body.book.date
     con.query "INSERT INTO books SET ?", req.body.book, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM books WHERE isbn = ?", req.body.book.isbn, (err, results) ->
-        unless err then con.query "INSERT INTO libraryBooks SET ?",{ISBN:req.body.book.isbn},(err,results) ->
+        unless err then con.query "INSERT INTO libraryBooks SET ?",{ISBN:req.body.book.isbn},(err,results2) ->
+          res.send err or {book: results[0]}
         else
-          console.log err
-          res.send err or 200#results[0]
+          res.send err
       else 
         console.log err
         res.send err

@@ -1,10 +1,10 @@
 #issue.row-fluid
   .offset4.span4.column
     label Scan/Enter User ID
-    {{#if userAlert}}
+    {{#if userError}}
     .alert.alert-error
       button.close(type='button', data-dismiss='alert') ×
-      {{ userAlert }}
+      {{ userError }}
     {{/if}}
     {{view App.SubmitText valueBinding="userId" class="span12" method="selectUser"}}
     {{#if user.id}}
@@ -24,10 +24,10 @@
       {{/each}}
       {{/if}}
     label Scan/Enter Book ID
-    {{#if bookAlert}}
+    {{#if bookError}}
     .alert.alert-error
       button.close(type='button', data-dismiss='alert') ×
-      {{ bookAlert}}
+      {{ bookError}}
     {{/if}}
     {{view App.SubmitText valueBinding="bookId" class="span6" method="selectBook"}}
     | <button {{action "issue"}} class="btn btn-success span3" >Save</button>

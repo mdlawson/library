@@ -1,6 +1,11 @@
 #return.row-fluid 
   .column.offset4.span4
     label Scan/Enter Book ID
+    {{#if bookError}}
+    .alert.alert-error
+      button.close(type='button', data-dismiss='alert') ×
+      {{ bookError }}
+    {{/if}}
     {{view App.SubmitText valueBinding="bookId" class="span12" method="returnBook"}}
     {{#if book.id}}
     .result Returned Book :

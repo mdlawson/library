@@ -86,6 +86,12 @@ App.Router.map ->
     @route 'new'
   @resource 'user', { path: '/users/:user_id' }
 
+key = window.key
+key "1", -> App.Router.router.transitionTo "issue"
+key "2", -> App.Router.router.transitionTo "return"
+key "3", -> App.Router.router.transitionTo "catalogue.index"
+key "4", -> App.Router.router.transitionTo "users.index"
+
 App.initialize()
 
 

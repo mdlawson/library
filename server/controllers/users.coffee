@@ -28,7 +28,7 @@ module.exports =
     #if req.body.password then req.body.password = bcrypt.hashSync req.body.password, 10
     con.query "UPDATE users SET ? WHERE id = ? ", [req.body.user, Number req.params.user], (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM users WHERE id = ?", Number(req.params.user), (err, results) ->
-        res.send err or 200#results[0]
+        res.send err or {user: results[0]}
       else res.send err
   destroy: (req, res) ->
     con.query "DELETE FROM users WHERE id = ?", [Number req.params.user], (err, results) ->

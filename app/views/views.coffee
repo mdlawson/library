@@ -5,8 +5,7 @@ module.exports =
     didInsertElement: -> App.fill()
 
   DateView: Ember.TextField.extend
-    classNames: ['date-picker']
-    didInsertElement: -> @$().datepicker format: "dd-mm-yyyy"
+    didInsertElement: -> $(@$()).datepicker format: "dd-mm-yyyy"
 
   SubmitText: Ember.TextField.extend
     insertNewline: ->

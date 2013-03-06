@@ -1,6 +1,6 @@
 {{#if admin}}
-img.img-polaroid(src='http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg')
 form
+  | <img class="img-polaroid" {{bindAttr src="cover"}}>
   div
     label Title:
     {{view Ember.TextField valueBinding="title"}}
@@ -8,16 +8,16 @@ form
     {{view Ember.TextField valueBinding="author"}}
   div
     label Date:
-    {{view Ember.TextField valueBinding="date" class="date-picker"}}
+    {{view App.DateView valueBinding="date" class="date-picker"}}
     label ISBN:
     {{view Ember.TextField valueBinding="isbn"}}
     label Dewey Decimal:
     {{view Ember.TextField valueBinding="dewey"}}
   label.desc Description:
   {{view Ember.TextArea valueBinding="description"}}
-.buttons
-  | <button {{action "save"}} class="save btn" >Save</button>
-  | <button {{action "delete"}}class="destroy btn btn-danger">Delete</button>
+  .buttons
+    | <button {{action "save"}} class="save btn" >Save</button>
+    | <button {{action "delete"}}class="destroy btn btn-danger">Delete</button>
 // legend Copies: {{copies.length}}
 // {{#each copies}}{{ this.id }}<br />{{/each}}
 //- legend Loans
@@ -55,7 +55,7 @@ form
   button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
   h3#modalTitle {{ title }}
 #modalBody.modal-body
-  img.img-polaroid(src='http://covers.openlibrary.org/b/isbn/{{ ISBN }}-L.jpg')
+  | <img class="img-polaroid" {{bindAttr src="cover"}}>
   dl.dl-horizontal
     dt Title
     dd {{ title }}

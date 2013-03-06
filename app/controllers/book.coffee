@@ -4,3 +4,6 @@ module.exports = Ember.ObjectController.extend
     ).property("App.SessionManager.currentState")
   reserve: ->
     $.post "/resources/users/#{App.get("user.id")}/reservations",{ISBN: @get "isbn"},() -> console.log "reserved" 
+  cover: (->
+    return "http://covers.openlibrary.org/b/isbn/#{@get 'isbn'}-L.jpg"
+    ).property("isbn")
