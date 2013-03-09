@@ -37,7 +37,7 @@ module.exports =
     req.body.book.date = new Date req.body.book.date
     con.query "INSERT INTO books SET ?", req.body.book, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM books WHERE isbn = ?", req.body.book.isbn, (err, results) ->
-        unless err then con.query "INSERT INTO libraryBooks SET ?",{ISBN:req.body.book.isbn},(err,results2) ->
+        unless err then con.query "INSERT INTO librarybooks SET ?",{ISBN:req.body.book.isbn},(err,results2) ->
           res.send err or {book: results[0]}
         else
           res.send err
@@ -61,4 +61,14 @@ module.exports =
     con.query "UPDATE loans SET returned = 1 WHERE bookId = ? AND returned = 0", [Number req.body.book], (err, results) ->
       unless err then lookup req,res
       else res.send err
+  copies: (req,res) ->
+    con.query "SELECT id FROM librarybooks WHERE ISBN = ?", req.body.ISBN, (err,results) ->
+      unless err
+        ids = []
+        ids.push r.id for r in results
+        res.send ids
+      else res.send err
+  add: (req,res) ->
+    con.query "INSERT INTO librarybooks SET ?",{ISBN:req.body.ISBN},(err,results) ->
+      res.send err or 200
   lookup: lookup

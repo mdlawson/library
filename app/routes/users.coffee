@@ -15,6 +15,8 @@ module.exports =
 
   UserRoute: Ember.Route.extend
     renderTemplate: ->
+      @get("controller").getReservations()
+      @get("controller").getLoans()
       @render 'users'
         controller: @controllerFor "users"
       @render
@@ -23,7 +25,10 @@ module.exports =
     model: (params) -> App.User.find(params.user_id);
     events:
       save: ->
-        @get("controller.model").transaction.commit()
+        model = @get("controller.model")
+        #model.validate()
+        #if model.get("isValid") then 
+        model.transaction.commit()
       delete: ->
         model = @get("controller.model")
         model.deleteRecord()

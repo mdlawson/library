@@ -31,16 +31,16 @@ module.exports.startServer = (port, path) ->
 
   # Resource mapping
 
-  app.resource 'users', ->
-    @resource 'loans'
-    @resource 'reservations'
+  app.resource 'users'
   app.resource 'books', ->
-    @resource 'loans'
-  #  @resource 'reservations'
     @collection.post 'return'
     @collection.post 'lookup'
-  app.resource 'reservations'
-
+    @collection.post 'copies'
+    @collection.post 'add'
+  app.resource 'reservations', ->
+    @collection.post "query"
+  app.resource 'loans', ->
+    @collection.post "query"
   # Login routing
 
   app.post "/login", require("./controllers/users").login

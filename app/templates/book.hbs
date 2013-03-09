@@ -18,38 +18,45 @@ form
   .buttons
     | <button {{action "save"}} class="save btn" >Save</button>
     | <button {{action "delete"}}class="destroy btn btn-danger">Delete</button>
-// legend Copies: {{copies.length}}
-// {{#each copies}}{{ this.id }}<br />{{/each}}
-//- legend Loans
-//- table.table.table-bordered.table-striped
-//-   thead
-//-     th ID
-//-     th User
-//-     th Date
-//-     th Due
-//-     th Returned
-//-   tbody
-//-     | {{#each loans}}
-//-     tr
-//-       td {{ this.id }}
-//-       td {{ this.userId }}
-//-       td {{Date this.date }}
-//-       td {{Date this.due }}
-//-       td {{ this.returned }}
-//-     | {{/each}}
-//- legend Reservations
-//- table.table.table-bordered.table-striped
-//-   thead
-//-     th ID
-//-     th User
-//-     th Date
-//-   tbody
-//-     | {{#each reservations}}
-//-     tr
-//-       td {{ this.id }}
-//-       td {{ this.userId }}
-//-       td {{Date this.date }}
-//-     | {{/each}}
+    | <button {{action "add"}} class="add btn" >Add</button>
+  {{#unless isValid}}
+  .alert.alert-error
+    button.close(type='button', data-dismiss='alert') ×
+    {{#each error in validationErrors.FullMessages }}
+    {{ error }}
+    {{/each}}
+  {{/unless}}
+legend Copies: {{#each id in copies}}{{ id }},{{/each}}
+legend Loans
+table.table.table-bordered.table-striped
+  thead
+    th ID
+    th User
+    th Date
+    th Due
+    th Returned
+  tbody
+    {{#each loans}}
+    tr
+      td {{ id }}
+      td {{ userId }}
+      td {{ date }}
+      td {{ due }}
+      td {{ returned }}
+    {{/each}}
+legend Reservations
+table.table.table-bordered.table-striped
+  thead
+    th ID
+    th User
+    th Date
+  tbody
+    {{#each reservations}}
+    tr
+      td {{ id }}
+      td {{ userId }}
+      td {{ date }}
+    {{/each}}
 {{else}}
 .modal-header
   button.close(type='button', data-dismiss='modal', aria-hidden='true') ×

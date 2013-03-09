@@ -3,20 +3,26 @@ con = mysql.createConnection mysql.con
 model = ["userId","bookId","id","date","due","returned"]
 modelStr = model.join(',')
 
+
+auth = (req, res, next) ->
+  if req.session.user and req.session.user.admin is 1 then next() else res.send(401)
+
 module.exports =
-  all: (req, res, next) ->
-    req.context = if req.params.user then "user" else "book"
-    next()
+  options:
+    name: 'resources/loans'
+    id: 'loan'
+    # before:
+    #   create: auth
+    #   update: auth
+    #   destroy: auth
   index: (req, res) ->
-    con.query "SELECT #{modelStr} FROM loans WHERE #{req.context}Id = ? AND returned = 0", [Number req.params[req.context]], (err, results) ->
+    con.query "SELECT #{modelStr} FROM loans", (err, results) ->
       res.send err or results
   show: (req, res) ->
-    con.query "SELECT #{modelStr} FROM loans WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.loan),Number(req.params[req.context])], (err, results) ->
+    con.query "SELECT #{modelStr} FROM loans WHERE id = ?", Number(req.params.loan), (err, results) ->
       res.send err or results[0]
   create: (req, res) ->
-    console.log "params:\n",req.params,"\nbody:\n",req.body
-    payload = if req.params.user then {userId: Number(req.params.user), bookId: Number(req.body.bookId)} else {userId: Number(req.body.userId), bookId: Number(req.params.book)}
-    con.query "INSERT INTO loans SET ?", payload, (err, results) ->
+    con.query "INSERT INTO loans SET ?", {userId: Number(req.body.userId), bookId: Number(req.body.bookId)}, (err, results) ->
       unless err then con.query "SELECT #{modelStr} FROM loans WHERE id = ?", results.insertId, (err, results) ->
         res.send err or results[0]
       else res.send err
@@ -26,9 +32,18 @@ module.exports =
         res.send err or results[0]
       else res.send err
   destroy: (req, res) ->
-    con.query "DELETE FROM loans WHERE id = ? AND #{req.context}Id = ?", [Number(req.params.loan),Number(req.params[req.context])], (err, results) ->
+    con.query "DELETE FROM loans WHERE id = ?", Number(req.params.loan), (err, results) ->
       res.send err or res.send(200)
+  query: (req,res) ->
+    if req.body.ISBN 
+      con.query "SELECT id FROM librarybooks WHERE ISBN = ?", req.body.ISBN, (err,results) ->
+        unless err
+          ids = []
+          ids.push r.id for r in results
+          con.query "SELECT #{modelStr} FROM loans WHERE bookId IN (?)",ids,(err,results) ->
+            res.send err or results 
+        else res.send err
+    else
+      con.query "SELECT #{modelStr} FROM loans WHERE userId = ?", Number(req.body.userId), (err, results) ->
+        res.send err or results  
 
-      
-auth = (req, res, next) ->
-  if req.session.user and req.session.user.admin is 1 then next() else res.send(401)

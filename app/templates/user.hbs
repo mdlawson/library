@@ -18,3 +18,40 @@ form
 .buttons
   | <button {{action "save"}} class="save btn" >Save</button>
   | <button {{action "delete"}}class="destroy btn btn-danger">Delete</button>
+  {{#unless isValid}}
+  .alert.alert-error
+    button.close(type='button', data-dismiss='alert') ×
+    {{#each error in validationErrors.FullMessages }}
+    {{ error }}
+    {{/each}}
+  {{/unless}}
+legend Loans
+table.table.table-bordered.table-striped
+  thead
+    th ID
+    th Book
+    th Date
+    th Due
+    th Returned
+  tbody
+    {{#each loans}}
+    tr
+      td {{ id }}
+      td {{ bookId }}
+      td {{ date }}
+      td {{ due }}
+      td {{ returned }}
+    {{/each}}
+legend Reservations
+table.table.table-bordered.table-striped
+  thead
+    th ID
+    th Book
+    th Date
+  tbody
+    {{#each reservations}}
+    tr
+      td {{ id }}
+      td {{ bookId }}
+      td {{ date }}
+    {{/each}}

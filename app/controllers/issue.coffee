@@ -22,9 +22,9 @@ module.exports = Ember.ObjectController.extend
         @set("bookError",null)
         @uncommitted.pushObject book
   issue: ->
-    url = "#{@user.get('url')}/#{@user.get('id')}/loans"
+    url = 
     for book in @uncommitted
-      $.post url, {bookId: book.id},=> @set "user", null
+      $.post "/resources/loans", {bookId: book.id, userId: @user.get('id')},=> @set "user", null
   cancel: ->
     @set("user",null)
   remove: (e) ->

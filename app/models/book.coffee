@@ -1,5 +1,6 @@
 attr = DS.attr
-module.exports = DS.Model.extend
+
+Book = DS.Model.extend
   isbn: attr "string"
   title: attr "string"
   author: attr "string"
@@ -8,3 +9,15 @@ module.exports = DS.Model.extend
   dewey: attr "string"
 .reopen
   url: "resources/books"
+
+Book.extend Ember.Validations,
+  validations:
+    title:
+      presence: true
+    author:
+      presence: true
+    isbn:
+      isISBN: (obj,attr,val) -> true
+    
+
+module.exports = Book
