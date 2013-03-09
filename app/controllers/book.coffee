@@ -7,12 +7,15 @@ module.exports = Ember.ObjectController.extend
   cover: (->
     return "http://covers.openlibrary.org/b/isbn/#{@get 'isbn'}-L.jpg"
     ).property("isbn")
-  getReservations: ->
+  getReservations: (cb) ->
     $.post "/resources/reservations/query",{ISBN: @get "isbn"},(data) => 
       @set("reservations",data)
-  getLoans: ->
+      if cb then cb(data)
+  getLoans: (cb) ->
     $.post "/resources/loans/query",{ISBN: @get "isbn"},(data) =>
       @set("loans",data)
-  getCopies: ->
+      if cb then cb(data)
+  getCopies: (cb) ->
     $.post "/resources/books/copies",{ISBN: @get "isbn"},(data) =>
       @set("copies",data)
+      if cb then cb(data)

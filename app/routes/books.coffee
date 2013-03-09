@@ -13,9 +13,15 @@ module.exports =
 
   BookRoute: Ember.Route.extend
     renderTemplate: ->
-      @get("controller").getReservations()
-      @get("controller").getLoans()
-      @get("controller").getCopies()
+      controller = @get("controller")
+      controller.getReservations ->
+        if controller.get("admin") is false
+          controller.set("reserved",false)
+          for reservation in controller.get("reservations")
+            if reservation.userId is App.get("user.id") then controller.set("reserved",true)
+      controller.getLoans()
+      controller.getCopies()
+      
       @render 'catalogue'
         controller: @controllerFor "catalogue"
       @render

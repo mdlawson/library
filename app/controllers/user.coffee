@@ -1,7 +1,9 @@
 module.exports = Ember.ObjectController.extend
-  getReservations: ->
+  getReservations: (cb) ->
     $.post "/resources/reservations/query",{userId: @get "id"},(data) => 
       @set("reservations",data)
-  getLoans: ->
+      if cb then cb(data)
+  getLoans: (cb) ->
     $.post "/resources/loans/query",{userId: @get "id"},(data) =>
       @set("loans",data)
+      if cb then cb(data)

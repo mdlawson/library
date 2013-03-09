@@ -95,6 +95,8 @@ key "2", -> App.Router.router.transitionTo "return"
 key "3", -> App.Router.router.transitionTo "catalogue.index"
 key "4", -> App.Router.router.transitionTo "users.index"
 
+App.notify = (options) -> $(".notifications").notify(options).show() 
+
 App.initialize()
 
 
