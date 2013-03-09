@@ -2,15 +2,15 @@ module.exports = Ember.ArrayController.extend
   query: ""
   filtered: (->
     val = @get("query")
-    content = @get("content")
+    content = @get("content").toArray()
     #rankings = []
     results = []
     unless val then return content
     if val.length is 13 and not isNaN(parseInt val) and isFinite val
-      content.forEach (item) ->
+      for item in content
         if item.get("isbn") is val then results.push item
     else
-      content.forEach (item) ->
+      for item in content
         author = item.get("author").split(" ")
         if item.get("title") is val or author[0] is val or author[1] is val then results.push item
     # else if val.length > 10 then matcher = matchers.levenshtein else matcher = matchers.strScore
