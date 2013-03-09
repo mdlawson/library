@@ -8,20 +8,16 @@ module.exports = Ember.ArrayController.extend
     rankings = []
     results = []
     unless val.length then return content
-    if val.length is 13 and not isNaN(parseInt val) and isFinite val
+    if not isNaN(parseInt val) and isFinite val
+      val = Number val
       for item in content
-        if item.get("isbn") is val then return [item]
+        if item.get("id") is val then return [item]
       return []
     else
-    # else
-    #   for item in content
-    #     author = item.get("author").split(" ")
-    #     if item.get("title") is val or author[0] is val or author[1] is val then results.push item
       if val.length > 10 then matcher = matchers.levenshtein else matcher = matchers.strScore
       for item in content
         score = []
-        author = item.get("author").split " "
-        for string in author.concat item.get("title")
+        for string in [item.get("username"),item.get("email") or "",item.get("firstname"),item.get("lastname")]
           score.push matcher.score string, val
         score.sort matcher.sort
         if matcher.valid score[0] then rankings.push [score[0],item]
@@ -29,8 +25,4 @@ module.exports = Ember.ArrayController.extend
       for item in rankings
         results.push item[1]
       return results
-    #@get("content")
   ).property 'content.isLoaded','query'
-  admin: (->
-      return if App.SessionManager.get('currentState.name') is "admin" then true else false
-    ).property("App.SessionManager.currentState")

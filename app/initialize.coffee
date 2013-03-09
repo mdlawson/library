@@ -35,6 +35,7 @@ matchers = require "matchers"
 App.CatalogueController = require "controllers/catalogue"
 App.BookController = require 'controllers/book'
 
+App.UsersController = require 'controllers/users'
 App.UserController = require 'controllers/user'
 
 App.IssueController = require "controllers/issue"
