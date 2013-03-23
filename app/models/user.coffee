@@ -1,5 +1,6 @@
 attr = DS.attr
-User = DS.Model.extend
+
+User = DS.Model.extend # set up the user properties in out data store
   username: attr "string"
   password: attr "string"
   firstname: attr "string"
@@ -7,9 +8,9 @@ User = DS.Model.extend
   email: attr "string"
   admin: attr "boolean"
 .reopen
-  url: "resources/users"
+  url: "resources/users"  # set the users url
 
-User.extend Ember.Validations,
+User.extend Ember.Validations, # add on validations
   validations:
     username:
       presence: true

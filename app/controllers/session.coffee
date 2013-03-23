@@ -1,11 +1,11 @@
 SessionManager = Em.StateManager.create
-  initialState: 'loggedOut'
+  initialState: 'loggedOut' # start in logged out state
   loggedOut: Em.State.create
-    login: (manager, data={}) ->
-      $.post "/login",data, (user) ->
-        App.set "user",user
-        manager.trigger "login",user.reauth,user.admin
-        manager.transitionTo(if user.admin then 'admin' else 'user')
+    login: (manager, data={}) -> # when in logged out state, we can log in with data
+      $.post "/login",data, (user) -> # post data to server
+        App.set "user",user # if server responds with user, set that as current user
+        manager.trigger "login",user.reauth,user.admin # trigger login even with new info
+        manager.transitionTo(if user.admin then 'admin' else 'user') # transition to right state for what we logged in as
       .error ->
         manager.trigger "error"
         manager.transitionTo 'loggedOut'
